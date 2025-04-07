@@ -29,7 +29,7 @@
         </li>
         <br>
 
-        <x-adminlte-callout title="INFORMATION DEL CENTRO DE TRABAJO"
+        <x-adminlte-callout title="INFORMACIÓN DEL CENTRO DE TRABAJO"
                             icon="fa fa-home"
                             class="text-info">
             <table class="table table-hover table-sm" 
@@ -95,7 +95,7 @@
                 <tfoot>
                     <tr>
                         <td colspan="2" align="right">
-                            <a  href="{{ route('centro-trabajo.edit', $datas_ct->id) }}"
+                            <a  href="{{ route('centro-trabajo.edit', $datas_ct->kcvect) }}"
                                 class="btn btn-success btn-sm"
                                 style="text-decoration: none; color:white;">
                                 ACTUALIZAR INFORMACIÓN DEL CENTRO DE TRABAJO&nbsp;

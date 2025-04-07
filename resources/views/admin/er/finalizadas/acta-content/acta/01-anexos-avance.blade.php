@@ -57,7 +57,7 @@
 
     <tr class="shadow-sm">
         <td class="bg-light">
-            <a  href="../../storage/{{ $datosacta->ourl_acta }}"
+            <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $datosacta->ourl_acta }}"
                 target="_blank" 
                 class="btn btn-outline-success btn-sm btn-block"
                 title="{{ $datosacta->tipoacta->otipoacta }} FIRMADA Y ESCANEADA" 
@@ -68,7 +68,7 @@
         </td>
         <td class="bg-light">
             @if($datosacta->id_tipoacta==1)
-                    <a  href="../../reportes/print-acta.php?i1d3={{$datosacta->id}}"
+                    <a  href="https://entregasrecepcion.seiem.gob.mx/reportes/print-acta.php?i1d3={{$datosacta->id}}"
                         target="_blank" 
                         class="btn btn-outline-success btn-sm btn-block"
                         style="text-decoration: none; font-size:12px;">
@@ -76,7 +76,7 @@
                         <i class="fa fa-file" style="font-size:16px;"></i>
                     </a>
             @elseif($datosacta->id_tipoacta==2)
-                    <a  href="../../reportes/print-actac.php?i1d3={{$datosacta->id}}"
+                    <a  href="https://entregasrecepcion.seiem.gob.mx/reportes/print-actac.php?i1d3={{$datosacta->id}}"
                         target="_blank" 
                         class="btn btn-outline-success btn-sm "
                         style="text-decoration: none; font-size:12px;">
@@ -97,7 +97,7 @@
                    CARPETA DE ENTREGA-RECEPCIÓN
                 </b>
                 &nbsp;&nbsp;&nbsp;
-                <a  href="../../storage/{{ $datosacta->ourlcarpeta.'/'.$datosacta->onombrecarpeta }}"
+                <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $datosacta->ourlcarpeta.'/'.$datosacta->onombrecarpeta }}"
                     target="_blank"
                     download 
                     style="text-decoration:none; font-size: 12px;" 

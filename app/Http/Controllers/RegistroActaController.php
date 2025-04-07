@@ -172,6 +172,9 @@ class RegistroActaController extends Controller
                         $update_acta->olugar_a       = strtoupper($request->olugar_a);
                         $update_acta->ohora_inicio_a = $request->ohora_inicio_a;
                         $update_acta->ofecha_inicio_a= $request->ofecha_inicio_a;
+                        $update_acta->onombre_entrega_a = $request->onombre_entrega_a;
+                        $update_acta->orfc_entrega_a = $request->orfc_entrega_a;
+                        $update_acta->ocargo_entrega_a = $request->ocargo_entrega_a;
 
                         $update_acta->orfc_recibe_a= $request->orfc_recibe_a;
                         $update_acta->onombre_recibe_a= $request->onombre_recibe_a;

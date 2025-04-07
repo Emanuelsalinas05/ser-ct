@@ -1,5 +1,5 @@
 <li @isset($item['id']) id="{{ $item['id'] }}" @endisset class="nav-item has-treeview {{ $item['submenu_class'] }}"
-style="font-size: 14px;">
+style="font-size: 12px;">
 
     {{-- Menu toggler --}}
     <a class="shadow nav-link {{ $item['class'] }} @isset($item['shift']) {{ $item['shift'] }} @endisset"

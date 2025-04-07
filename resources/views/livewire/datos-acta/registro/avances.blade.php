@@ -63,7 +63,7 @@
                     @else
                     <span  class="text-info" >
                         <i class="fa fa-edit" style="font-size:18px;"></i>
-                        <b> DATOS DEL ACTA REGISTRADOS</b>
+                        <b> DATOS PARA EL ACTA REGISTRADOS</b>
                     </span>
                     @endif
                 </td>

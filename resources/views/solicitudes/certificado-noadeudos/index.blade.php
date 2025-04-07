@@ -23,6 +23,7 @@
         @if($check==0)
 
             @include('solicitudes.certificado-noadeudos.select-type')
+            
 
         @elseif($check==1)
 

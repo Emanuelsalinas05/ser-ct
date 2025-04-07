@@ -36,7 +36,7 @@ class EntregasRecepcionController extends Controller
             }else if(Auth::user()->onivel=='SECUNDARIA'){
                 $us=89;
             }
-//            (Auth::user()->onivel=='ELEMENTAL') ? $us=76 : $us=89;
+           (Auth::user()->onivel=='ELEMENTAL') ? $us=76 : $us=89;
 
             switch (Auth::user()->ocargo) 
             {
@@ -251,7 +251,7 @@ class EntregasRecepcionController extends Controller
                                                             g1acta.ocargaacta=1    AND
                                                             g1acta.oconcluida=0    AND
                                                             g1acta.ocargacomprimido=1
-                                                        THEN "SE SUBÍO LA CARPETA DE ARCHIVOS. (¡¡SE ESPERA SU APROBACIÓN FINAL!!)" 
+                                                        THEN "SE SUBÝO LA CARPETA DE ARCHIVOS. (¡¡SE ESPERA SU APROBACIÓN FINAL!!)" 
 
                                                         WHEN 
                                                             g1acta.oactual=1       AND

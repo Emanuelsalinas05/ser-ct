@@ -39,8 +39,9 @@
                 SI NO HAY DOCUMENTO POR ADJUNTAR, FAVOR DE DAR CLIC EN <b><i>
                 "NO APLICA"</i></b> &nbsp;(DESPUÉS DE ESTÁ ACCIÓN NO PODRÁS REGISTRAR NINGÚN ARCHIVO)
             </p>
-            
+                @if($icomputoc==0)
                 @include('documentos.situacion-tics.9-1.form')
+                @endif
         </x-adminlte-callout>    
         @endif
 

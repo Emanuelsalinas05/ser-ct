@@ -1,105 +1,84 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL & ~E_DEPRECATED);
 
-$iduser   = $_GET['i1d3'];
-$idreport = $_GET['idr3p0rt'];
-$us       = $_GET['us'];
-$unidadx   = $_GET['un1d'];
+// Parámetros desde GET
+$iduser   = $_GET['i1d3'] ?? 0;
+$idreport = $_GET['idr3p0rt'] ?? 0;
+$us       = $_GET['us'] ?? 0;
+$unidadx  = $_GET['un1d'] ?? 0;
 
+// Conexión a MySQL para obtener unidad (si aplica)
+$unidad = '';
+$mysqli = new mysqli("db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com", "usug1", "u55gG7y3", "g1sereeb");
 
-    $username = "usug1";
-    $password = "u55UG$1n";
-    $database = "g1sereeb";
-    $mysqli = new mysqli("db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com", $username, $password, $database);
+if (!$mysqli->connect_error && $unidadx) {
+    $query = "SELECT ct.onombre_ct 
+              FROM g1organigrama o 
+              LEFT JOIN g1centros_trabajo ct
+              ON ct.kcvect = o.idct_departamento OR ct.kcvect = o.idct_subdireccion
+              WHERE idct_escuela=$unidadx OR idct_supervicion=$unidadx OR idct_sector=$unidadx
+              LIMIT 1";
 
-/*
-
-$quer_usr ="SELECT o.idct_departamento, o.cct_departamento , ct.onombre_ct,
-            o.idct_subdireccion,o.cct_subdireccion, ct.onombre_ct
-            FROM g1organigrama o 
-            LEFT JOIN g1centros_trabajo ct
-            ON ct.kcvect = o.idct_departamento 
-            or ct.kcvect = o.idct_subdireccion
-            WHERE idct_escuela=$unidadx 
-            OR idct_supervicion=$unidadx  
-            OR idct_sector=$unidadx ";
-$rs_usr = $mysqli->query($quer_usr);
-
-
-$row_usr = $rs_usr->fetch_assoc();
-$cct_departamento = $row_usr["cct_departamento"];
-$cct_subdireccion = $row_usr["cct_subdireccion"];
-$onombre_ct = $row_usr["onombre_ct"];
-
-
-if($cct_departamento==1){
-    $unidad = $onombre_ct;
-}else if($cct_departamento>1){
-    $unidad = $onombre_ct;
+    if ($result = $mysqli->query($query)) {
+        if ($row = $result->fetch_assoc()) {
+            $unidad = $row['onombre_ct'];
+        }
+    }
 }
 
-*/
+// Incluir selección del nombre del reporte
+include 'selection-report.php'; // define $namereport y $anexoname
 
-include 'selection-report.php';
-/*
-echo $anexoname.'<br>'.$namereport;
-*/
 try {
-
+    
     include('http://10.15.10.41:8080/JavaBridgeTemplate721/java/Java.inc');
-    $cad = "jdbc:mysql://db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com:3306/g1sereeb";    
+    $cad = "jdbc:mysql://db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com:3306/g1sereeb";  
 
-    $dir = "/var/lib/tomcat9/webapps/g1rsereeb/";
-    $rep = $namereport;
-
+    // Configuración de conexión JDBC
+    $cad = "jdbc:mysql://db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com:3306/g1sereeb";
     $Conn = new Java("JdbcConnection");
     $Conn->setDriver("com.mysql.jdbc.Driver");
     $Conn->setConnectString($cad);
-    $Conn->setUser('usug1');
-    $Conn->setPassword('u55UG$1n');
+    $Conn->setUser("usug1");
+    $Conn->setPassword("u55gG7y3");
     $conexion = $Conn->getConnection();
-    
-    $stmnt = new Java("java.sql.Statement");
-    $stmnt = $conexion->createStatement();
 
-    $resultSet = new Java("java.sql.ResultSet");
-
+    // Parámetros para Jasper
     $param = new Java("java.util.HashMap");
-    
-    
-    
-        if ($idreport==4||$idreport==5||$idreport==6||$idreport==7||$idreport==10||$idreport==11||$idreport==14) 
-        {   
-    $param->put("iduser",  $iduser ); 
-    $param->put("title",  strtoupper($anexoname) );
 
-        }else if($idreport==99){
+    if (in_array($idreport, [4,5,6,7,10,11,14])) {
+        $param->put("iduser", $iduser);
+        $param->put("title", strtoupper($anexoname));
+    } elseif ($idreport == 99) {
+        $param->put("iduser", $iduser);
+        $param->put("unit", $unidad);
+    } else {
+        $param->put("iduser", $iduser);
+    }
 
-    $param->put("iduser",  $iduser );
-    $param->put("unit",  $unidad );
-
-        }else{
-
-    $param->put("iduser",  $iduser );
-        
-        }
-
+    // Ejecutar reporte Jasper
     $runmanager = new JavaClass("net.sf.jasperreports.engine.JasperRunManager");
-    $reporte = $runmanager->runReportToPdf($dir.$rep, $param, $conexion);
+    $reporte = $runmanager->runReportToPdf("/var/lib/tomcat9/webapps/g1rsereeb/" . $namereport, $param, $conexion);
     $pdf = java_cast($reporte, "string");
- 
-    header("Content-disposition:  filename=$anexoname.pdf");
+
+    // Enviar PDF al navegador
+    $filename = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $anexoname) . ".pdf";
+    header("Content-Disposition: attachment; filename=$filename");
     header("Content-Length: " . strlen($pdf));
-    header("Content-type: application/pdf");
-    header('Pragma: no-cache');
-    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-    header('Expires: 0');
-    set_time_limit(0);
+    header("Content-Type: application/pdf");
+    header("Pragma: no-cache");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Expires: 0");
 
     echo $pdf;
 
+} catch (JavaException $ex) {
+    echo "? JavaException: " . $ex->getMessage();
+    file_put_contents("error_jasper.txt", $ex);
 } catch (Exception $ex) {
-    echo $ex;
+    echo "? PHP Exception: " . $ex->getMessage();
+    file_put_contents("error_php.txt", $ex);
 }
-
 ?>
-

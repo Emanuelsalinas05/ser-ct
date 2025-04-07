@@ -69,6 +69,7 @@ class PlantillaPersonalController extends Controller
             ]);
 
             $selectplantilla    = Plantilla::whereId($request->ocategoria)->whereOcm(0)->first();
+            
             $validatorplantilla = Plantillapersonal::whereIdActa($request->idacta)
                                     ->whereOclavePuesto($selectplantilla->oclave)
                                     ->whereNotIn('status', ['B'])->first();

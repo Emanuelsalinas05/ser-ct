@@ -74,7 +74,7 @@
 	<tr>
 		<td colspan="2" class="text-secondary">
 			A CONTINUACÍON SE ENVÍARÁ CORREO AL ÓRGANO INTERNO DE CONTROL QUIEN RECIBIRÁ EL CONTENIDO DE 
-			LA <b> {{ $datosacta->tipoacta->otipoacta }}</b> REALIZADÁ. <br>
+			LA <b> {{ $datosacta->tipoacta->otipoacta }}</b> REALIZADA	. <br>
 			POR LO QUE DEBERÁS ESCRIBIR TÚ CORREO AL CUAL SE TE MARCARÁ COPIA. 
 		</td>
 	</tr>
@@ -119,6 +119,15 @@
 	
 	<tr>
 		<td colspan="2"
+			align="right"
+			style="font-size:16px;">
+			<b class="text-danger">
+				DA CLIC UNA SOLA VEZ EN EL BOTÓN "ENVIAR CORREO", ES NORMAL QUE TARDE UNOS SEGUNDOS.
+			</b>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2"
 			align="right">
 			<button class="btn btn-success btn-sm">
 				ENVIAR CORREO AL ÓRGANO INTERNO DE CONTROL
@@ -127,6 +136,7 @@
 			</button>
 		</td>
 	</tr>
+
 </form>
 
 

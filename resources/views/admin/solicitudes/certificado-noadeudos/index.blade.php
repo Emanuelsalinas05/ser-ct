@@ -21,7 +21,9 @@
 
         <ul>
             <li>
-               Las siguientes solicitudes se han generado, para aprobar la gestión del Certificado de No Adeudo, deberán ser aprobadas vía estructura par
+               Las siguientes solicitudes se han generado, para aprobar la gestión del Certificado de No Adeudo, vía estructura, ante la Coordinación Académica y de Operación Educativa.
+               <br>
+               {{ Auth::user()->orol==1 ? 'Las solicitudes serán aprobadas por la estructura correspondiente.' : '' }}
                 </li>
         </ul>
 

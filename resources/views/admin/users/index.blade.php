@@ -28,8 +28,8 @@
 
                     <table class="table-sm " style="font-size:14px;">
                         <tr>
-                            <td align="right" width="25%">
-                                <b class="text-info">INGRESA EL CENTRO DE TRABAJO</b>
+                            <td align="right" width="35%">
+                                <b class="text-info">INGRESA EL CENTRO DE TRABAJO COMPLETO</b>
                             </td>
                             <td width="20%">
                                 <input  type="text" 
@@ -41,11 +41,11 @@
                             <td width="25%">
                                 <button type="submit" 
                                         class="btn btn-outline-success btn-sm">
-                                    BUSCAR USUARIO &nbsp;&nbsp;
+                                    BUSCAR C.T. &nbsp;&nbsp;
                                     <i class="fa fa-search"></i>
                                 </button>
                             </td>
-                            <td width="35%" align="right">
+                            <td width="25%" align="right">
                                 <a href="{{ url('/usuarios') }}"
                                     class="btn btn-outline-info" 
                                     style="font-size:14px; text-decoration: none;">

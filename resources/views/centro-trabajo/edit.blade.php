@@ -19,7 +19,7 @@
     </div>
     <div class="card-body table-responsive" style="font-size:14px;">
 
-        <x-adminlte-callout title="INFORMATION DEL CENTRO DE TRABAJO"
+        <x-adminlte-callout title="INFORMACIÓN DEL CENTRO DE TRABAJO"
                             icon="fa fa-home"
                             class="text-info">
 

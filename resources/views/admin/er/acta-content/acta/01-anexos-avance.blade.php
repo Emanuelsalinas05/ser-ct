@@ -65,7 +65,7 @@
         </td>
         <td >
             @if($datosacta->id_tipoacta==1)
-                    <a  href="../../reportes/print-acta.php?i1d3={{$datosacta->id}}"
+                    <a  href="https://entregasrecepcion.seiem.gob.mx/reportes/print-acta.php?i1d3={{$datosacta->id}}"
                         target="_blank" 
                         class="btn btn-outline-info btn-sm btn-block"
                         style="text-decoration: none; font-size:14px;">
@@ -73,7 +73,7 @@
                         <i class="fa fa-file" style="font-size:16px;"></i>
                     </a>
             @elseif($datosacta->id_tipoacta==2)
-                    <a  href="../../reportes/print-actac.php?i1d3={{$datosacta->id}}"
+                    <a  href="https://entregasrecepcion.seiem.gob.mx/reportes/print-actac.php?i1d3={{$datosacta->id}}"
                         target="_blank" 
                         class="btn btn-outline-info btn-sm btn-block"
                         style="text-decoration: none; font-size:14px;">
@@ -119,7 +119,7 @@
         </td>
         <td align="center">
             @if($datosacta->id_tipoacta==1)
-                    <a  href="../../reportes/print-acta.php?i1d3={{$datosacta->id}}"
+                    <a  href="https://entregasrecepcion.seiem.gob.mx/reportes/print-acta.php?i1d3={{$datosacta->id}}"
                         target="_blank" 
                         class="btn btn-outline-success btn-sm "
                         style="text-decoration: none; font-size:14px;">
@@ -127,7 +127,7 @@
                         <i class="fa fa-file" style="font-size:16px;"></i>
                     </a>
             @elseif($datosacta->id_tipoacta==2)
-                    <a  href="../../reportes/print-actac.php?i1d3={{$datosacta->id}}"
+                    <a  href="https://entregasrecepcion.seiem.gob.mx/reportes/print-actac.php?i1d3={{$datosacta->id}}"
                         target="_blank" 
                         class="btn btn-outline-success btn-sm "
                         style="text-decoration: none; font-size:14px;">
@@ -143,7 +143,7 @@
         <td class="bg-light" colspan="2">
 
             @if($datosacta->id_tipoacta==1)
-                <a  href="../../reportes/print-acta.php?i1d3={{$datosacta->id}}"
+                <a  href="https://entregasrecepcion.seiem.gob.mx/reportes/print-acta.php?i1d3={{$datosacta->id}}"
                     target="_blank" 
                     class="btn btn-outline-info btn-sm "
                     style="text-decoration: none; font-size:14px;">
@@ -151,7 +151,7 @@
                     <i class="fa fa-file" style="font-size:16px;"></i>
                 </a>
             @elseif($datosacta->id_tipoacta==2)
-                <a  href="../../reportes/print-actac.php?i1d3={{$datosacta->id}}"
+                <a  href="https://entregasrecepcion.seiem.gob.mx/reportes/print-actac.php?i1d3={{$datosacta->id}}"
                     target="_blank" 
                     class="btn btn-outline-info btn-sm "
                     style="text-decoration: none; font-size:14px;">
@@ -162,7 +162,7 @@
 
             @if($datosacta->ocargaacta=1)
             &nbsp;&nbsp;&nbsp;
-            <a  href="../../storage/{{ $datosacta->ourl_acta }}"
+            <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $datosacta->ourl_acta }}"
                 target="_blank" 
                 class="btn btn-outline-info btn-sm "
                 title="{{ $datosacta->tipoacta->otipoacta }} FIRMADA Y ESCANEADA" 
@@ -196,7 +196,7 @@
                     SE CARGO Y SE ENVÍO LA CARPETA FINAL
                 </b>
                 &nbsp;&nbsp;&nbsp;
-                <a  href="../../storage/{{ $datosacta->ourlcarpeta.'/'.$datosacta->onombrecarpeta }}"
+                <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $datosacta->ourlcarpeta.'/'.$datosacta->onombrecarpeta }}"
                     target="_blank"
                     download 
                     style="text-decoration:none;" 
@@ -233,7 +233,7 @@
         </td>
         <td align="center">
             @if($datosacta->id_tipoacta==1)
-                    <a  href="../../reportes/print-acta.php?i1d3={{$datosacta->id}}"
+                    <a  href="https://entregasrecepcion.seiem.gob.mx/reportes/print-acta.php?i1d3={{$datosacta->id}}"
                         target="_blank" 
                         class="btn btn-outline-success btn-sm "
                         style="text-decoration: none; font-size:12px;">
@@ -241,7 +241,7 @@
                         <i class="fa fa-file" style="font-size:16px;"></i>
                     </a>
             @elseif($datosacta->id_tipoacta==2)
-                    <a  href="../../reportes/print-actac.php?i1d3={{$datosacta->id}}"
+                    <a  href="https://entregasrecepcion.seiem.gob.mx/reportes/print-actac.php?i1d3={{$datosacta->id}}"
                         target="_blank" 
                         class="btn btn-outline-success btn-sm "
                         style="text-decoration: none; font-size:12px;">

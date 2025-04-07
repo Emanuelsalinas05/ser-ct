@@ -8,8 +8,7 @@
 
     <div class="card-body">
             <form method="POST" action="{{ route('login') }}">
-                <!-- csrf -->
-                {{ csrf_field() }}
+                @csrf
                 <div class="input-group mb-3">
                     <input  type="text" name="email"
                             style="color:#802434;"

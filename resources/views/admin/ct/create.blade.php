@@ -33,8 +33,8 @@
         <form   name="FrmCartel" id="FrmCartel" method="post" 
                 action="{{ route('centros-de-trabajo.store') }}"  
                 style="font-size:12px;">
-            @method('POST')
-            @csrf
+        @method('POST')
+        @csrf
 
             <legend style="font-size:14px;" class="text-info">
                 <b>REGISTRAR CENTRO DE TRABAJO</b>

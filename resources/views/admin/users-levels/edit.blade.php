@@ -12,118 +12,67 @@
     <div class="card-header bg-light shadow-sm d-flex mb-2">
         <div class="d-flex justify-content-between">
             <b><i class="nav-icon fa fa-users"></i>&nbsp;
-                MODIFICAR USUARIO DE NIVEL - {{ $user->ocargo }}
+                MODIFICAR USUARIO DE NIVEL 
             </b> 
         </div>
     </div>
     <div class="card-body table-responsive" >
 
-
-        <table  class="table table-hover table-bordered table-sm"
+        <form   name="FrmCartel" id="FrmCartel" method="post" 
+                action="{{ route('usuarios.update', $user->id  ) }}" >
+        @method('PATCH')
+        @csrf
+        <table  class="table table-sm" width="100%" 
                 style="font-size:14px;"
-                id="example130">
-            <tbody >
+                id="example13">
+            <tbody>
+                <thead>
+                    <tr>
+                        <th colspan="2" class="text-info">
+                            AQUÍ PODRÁS REESTABLECER LA COTRASEÑA DEL USUARIO, 
+                            LA CUAL SE GENERA DE MANERA ALEATORIA Y AUTOMÁTICA
+                        </th>
+                    </tr>
+                </thead>
                 <tr>
-                    <td colspan="2">
-                        <a  href="{{ url($ruta) }}" 
-                            class="btn btn-outline-secondary tn-sm" style="font-size: 12px;">
-                            <i class="fas fa-backward"></i>&nbsp;
-                            VOLVER A &nbsp; <b>USUARIOS {{ $user->ocargo }}</b>
-                        </a>
-                    </td>
-                </tr>
-                <tr class="bg-lightblue disabled">
-                    <td align="center" colspan="2">
-                        <b>NIVEL: &nbsp;{{ $user->ocargo }}</b> 
-                    </td>
-                </tr>
-                <tr class="bg-lightblue disabled">
-                    <td align="center" colspan="2">
-                        <b>CENTRO DE TRABAJO</b>
+                    <td align="right" width="20%"><b>CLAVE CT</b></td>
+                    <td width="70%" >
+                        {{ $user->email }}
                     </td>
                 </tr>
                 <tr>
-                    <td align="right" class="text-info">
-                        <b>CENTRO DE TRABAJO</b>
-                    </td>
-                    <td width="60%">{{ $user->email.' - '.$user->name }}</td>
-                </tr>
-                <tr class="bg-lightblue disabled">
-                    <td align="center" colspan="2">
-                        <b>DATOS DEL USUARIO</b>
+                    <td align="right" width="20%"><b>NOMBRE DEL CT</b></td>
+                    <td width="70%" >
+                        {{ $user->name }}
                     </td>
                 </tr>
                 <tr>
-                    <td align="right" class="text-info">
-                        <b>USUARIO</b>
-                    </td>
-                    <td>{{$user->email}}</td>
-                </tr>
-                <tr>
-                    <td align="right" class="text-info">
-                        <b>CONTRASEÑA</b> s
-                    </td>
-                    <td>
-                        {{$user->opwd}}&nbsp;&nbsp;
-                        <x-adminlte-button  label="CAMBIAR CONTRASEÑA" 
-                                            data-toggle="modal" 
-                                            icon="fa fa-edit"
-                                            data-target="#modalCustomHist" 
-                                            class="btn bg-success btn-xs"/>
-
-
-                        <x-adminlte-modal   id="modalCustomHist" 
-                                            title="CAMBIO DE CONTRASEÑA" 
-                                            size="lg" 
-                                            theme="teal"
-                                            icon="fa fa-copy" 
-                                            v-centered static-backdrop >
-
-                            <form   name="FrmCartel" id="FrmCartel" method="post" 
-                                    action="{{ route('usuarios.update', $user->id ) }}" >
-                                    @method('PATCH')
-                                    @csrf
-
-                                <input  type="hidden" 
-                                        name="action" 
-                                        id="action" 
-                                        value="99">
-                            
-                                <div>
-                                    <center>
-                                        <b class="text-warning">
-                                            <h3>ESTA ACCIÓN CAMBIARA LA CONTRASEÑA, POR LO QUE CON LA ANTERIOR YA NO PODRÁ ACCEDER EL C.T. 
-                                            {{ $user->email.' - '.$user->name }}</h3>
-                                        </b>
-                                        <br>
-                                        <button class="btn btn-success btn-sm">
-                                            CAMBIAR CONTRASEÑA
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </center>
-                                </div>
-
-                            </form>
-
-                            <x-slot name="footerSlot">
-                                <x-adminlte-button  theme="secondary" 
-                                                    label=" CANCELAR ACCIÓN " 
-                                                    data-dismiss="modal" 
-                                                    icon="fa fa-times"
-                                                    class="btn-sm"/>
-                            </x-slot>
-                        </x-adminlte-modal>
-
-
-
-
+                    <td align="right" width="20%"><b>CONTRASEÑA</b></td>
+                    <td width="30%">
+                        {{ $user->opwd }}
                     </td>
                 </tr>
             </tbody>
+            <tfoot>
+                <tr>
+                    <td>
+                        <a  href="/usuarios"
+                            class="btn btn-secondary btn-sm ">
+                            <i class="fas fa-reply-all"></i>
+                            Regresar
+                        </a>
+                    <td>
+                        <button type="submit"
+                                class="btn btn-outline-dark bg-teal btn-sm">
+                            REESTABLECER CONTRASEÑA&nbsp;
+                            <i class="fa fa-save"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tfoot>
         </table>
-
-
-
+        </form>
+        
     </div>
 </div>
 @stop

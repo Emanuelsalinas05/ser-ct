@@ -41,25 +41,25 @@
 @media (min-width: 576px) {
     .tx { font-size: 8px; }
     .tx2 { font-size: 8px; }
-    .anch {width:75% }
+    .anch {width:65% }
     .anchlog { width:30px; }
 }
 @media (min-width: 768px) {
     .tx { font-size: 10px; }
     .tx2 { font-size: 8px; }
-    .anch { width:45% }
+    .anch { width:35% }
     .anchlog { width:30px; }
 }
 @media (min-width: 992px) {
     .tx { font-size: 10px; }
     .tx2 { font-size: 10px; }
-    .anch { width:45% }
+    .anch { width:35% }
     .anchlog { width:30px; }
 }
 @media (min-width: 1200px) {
     .tx { font-size: 18px; }
     .tx2 { font-size: 14px; }
-    .anch { width:45% }
+    .anch { width:35% }
     .anchlog { width:50px; }
 }
 </style>

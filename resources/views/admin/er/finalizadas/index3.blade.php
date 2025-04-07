@@ -22,7 +22,7 @@
         <x-adminlte-callout theme="light">
 
             <table  class="table table-bordered table-striped table-sm"
-                    id="example130"
+                    id="example13"
                     style="font-size:12px;">
             <thead class="bg-lightblue" align="center">
                 <tr> 

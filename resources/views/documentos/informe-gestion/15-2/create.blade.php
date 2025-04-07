@@ -28,7 +28,7 @@
                     id="acta"
                     value="{{ $datosacta->id }}">
 
-        <table  class="table  table-sm"
+        <table  class="table  table-sm table-striped"
                 style="font-size: 13px;">
         <tbody>
             <tr>
@@ -58,8 +58,7 @@
                     @error('odescripcion_asunto') <span style="color:red;">{{ $message }}</span> @enderror
                 </td>
             </tr>
-            <tr>
-            </tr>
+
             <tr>
                 <td align="right">
                     <b>ACCIONES A REALIZAR:</b>
@@ -74,9 +73,7 @@
                     @error('oacciones_realizar') <span style="color:red;">{{ $message }}</span> @enderror
                 </td>
             </tr>
-            <tr>
-                
-            </tr>
+
             <tr>
                 <td align="right">
                     <b>LUGAR:</b>

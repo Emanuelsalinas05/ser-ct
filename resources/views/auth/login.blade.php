@@ -10,12 +10,13 @@
         <img src="img/log_edomex_inicio_.png" class="anch img-fluid" >
     </div>
     <div class="col-5" style="text-align: left;" >
-        <ul style="color:#802434; font-family: Italic;">  
-            <b><i style=" font-size:40px;">SEIEM</i> 
-            <p>
-            <i style="font-size: 16px;">Sistema de Entrega y Recepción para Centros de Trabajo</i></p>
-            </b>
-        </ul>
+        <p style="color:#802434; font-family: Italic;">  
+            <b><i style=" font-size:40px;">SEIEM</i> </b>
+            <!--
+            <p> <i style="font-size: 16px;">Sistema de Entrega y Recepción para Centros de Trabajo</i></p>
+            -->
+            
+        </p>
     </div>
 </div>
 @endsection

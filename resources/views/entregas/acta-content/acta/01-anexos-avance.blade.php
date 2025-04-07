@@ -57,7 +57,7 @@
 
     <tr class="shadow-sm">
         <td class="bg-light" colspan="2">
-            <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $datosacta->ourl_acta }}"
+            <a  href="../../storage/{{ $datosacta->ourl_acta }}"
                 target="_blank" 
                 class="btn btn-outline-success btn-sm btn-block"
                 title="{{ $datosacta->tipoacta->otipoacta }} FIRMADA Y ESCANEADA" 
@@ -70,7 +70,7 @@
 
     <tr class="shadow-sm">
         <td class="bg-light" colspan="2">
-            <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $datosacta->ourlcarpeta.'/'.$datosacta->onombrecarpeta }}"
+            <a  href="../../storage/{{ $datosacta->ourlcarpeta.'/'.$datosacta->onombrecarpeta }}"
                 target="_blank" 
                 class="btn btn-outline-success btn-sm btn-block"
                 title="DESCARGA DE CARPETA FINAL" 

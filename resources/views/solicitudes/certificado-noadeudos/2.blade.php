@@ -83,7 +83,7 @@
 <tr>
 	<td align="right"
 		class="text-info">
-		NOMBRE COMPLETO DE LA AUTORIDAD INMEDIATA SUPERIOR 
+		NOMBRE COMPLETO DE TU AUTORIDAD INMEDIATA SUPERIOR 
 	</td>
 	<td colspan="3">
 		<input 	type="text" 
@@ -96,7 +96,7 @@
 <tr>
 	<td align="right"
 		class="text-info">
-		CARGO DE LA AUTORIDAD INMEDIATA SUPERIOR DEL SOLICITANTE
+		ESCRIBE EL <b>CARGO</b> DE TU AUTORIDAD INMEDIATA SUPERIOR
 	</td>
 	<td colspan="3">
 		<input 	type="text" 

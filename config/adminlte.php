@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'Cursos y Carrera Admnistrativa',
+    'title' => 'Sistema de Entrega y Recepción para Escuelas de Educación Básica',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -128,7 +128,7 @@ return [
     |
     */
 
-    'usermenu_enabled' => false,
+    'usermenu_enabled' => true,
     'usermenu_header' => true,
     'usermenu_header_class' => 'bg-light',
     'usermenu_image' => false,
@@ -290,54 +290,6 @@ return [
 
 
     'menu' => [
-        // Navbar items:
-        [
-            'type'         => 'navbar-search',
-            'text'         => 'Buscar',
-            'topnav_right' => true,
-        ],
-        [
-            'type'         => 'fullscreen-widget',
-            'topnav_right' => true,
-        ],
-
-        // Sidebar items:
-        [
-            'type' => 'sidebar-menu-search',
-            'text' => 'Buscar',
-        ],
-        [
-            'text' => 'blog',
-            'url'  => 'admin/blog',
-            'can'  => 'manage-blog',
-        ],
-
-
-        ['header' => ' '],
-       
-
-        [
-            'type' => 'navbar-notification',
-            'id' => 'my-notification',                // An ID attribute (required).
-            'icon' => 'fas fa-bell',                  // A font awesome icon (required).
-            'icon_color' => 'warning',                // The initial icon color (optional).
-            'label' => 0,                             // The initial label for the badge (optional).
-            'label_color' => 'danger',                // The initial badge color (optional).
-            'url' => 'notifications/show',            // The url to access all notifications/elements (required).
-            'topnav_right' => false,                   // Or "topnav => true" to place on the left (required).
-            'dropdown_mode' => false,                  // Enables the dropdown mode (optional).
-            'dropdown_flabel' => 'Todas las notifications', // The label for the dropdown footer link (optional).
-            'update_cfg' => [
-                'url' => 'notifications/get',         // The url to periodically fetch new data (optional).
-                'route' => ['notifications.get', ['param' => 'val']],
-                'period' => 30,                       // The update period for get new data (in seconds, optional).
-            ],
-        ],
-
-        [
-            'type' => 'darkmode-widget',
-            'topnav_right' => true,     // Or "topnav => true" to place on the left.
-        ]
 
     ],
 
