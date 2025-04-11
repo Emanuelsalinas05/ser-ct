@@ -32,12 +32,11 @@ if (!$mysqli->connect_error && $unidadx) {
 include 'selection-report.php'; // define $namereport y $anexoname
 
 try {
-    
     include('http://10.15.10.41:8080/JavaBridgeTemplate721/java/Java.inc');
-    $cad = "jdbc:mysql://db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com:3306/g1sereeb";  
+    $cad = "jdbc:mysql://db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com:3306/g1sereeb";    
 
-    // Configuración de conexión JDBC
-    $cad = "jdbc:mysql://db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com:3306/g1sereeb";
+    $dir = "/var/lib/tomcat9/webapps/g1rsereeb/";
+    $rep = 'documento-actac.jasper';
     $Conn = new Java("JdbcConnection");
     $Conn->setDriver("com.mysql.jdbc.Driver");
     $Conn->setConnectString($cad);

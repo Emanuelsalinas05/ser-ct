@@ -68,7 +68,7 @@ class FinalizadasController extends Controller
                 break;
 
                 case 'SUPERVISIÓN':
-                    require_once 'controllers/entregas/finalizadas/05supervision.php';
+                    require_once 'public/controllers/entregas/finalizadas/05supervision.php';
                     return view('admin.er.finalizadas.index3',
                                 compact('datosacta3','us')
                                 );

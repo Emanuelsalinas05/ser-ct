@@ -1,82 +1,72 @@
-<?php 
+<?php
 
+require_once 'PHPMailer/PHPMailerAutoload.php';
+require_once 'PHPMailer/class.smtp.php';
 
-/*
-    $username = "usug1";
-    $password = "u55UG$1n";
-    $database = "g1sereeb";
-    $mysqli = new mysqli("db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com", $username, $password, $database);
-*/
-    $username = "root";
-    $password = "";
-    $database = "g1sereeb";
-    $mysqli = new mysqli("localhost", $username, $password, $database);
+// Conexión a la base de datos
+$mysqli = new mysqli(
+    "db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com",
+    "usug1",
+    "u55gG7y3",
+    "g1sereeb"
+);
 
+// Datos necesarios desde Laravel
+$elct       = $intervencionct->oct_nivel . ' ' . $intervencionct->onivel_educativo;
+$idct       = $intervencionct->idct_departamento;
+$fechafinn  = $intervencionct->ofechafin;
+$linkcarpeta = 'https://entregasrecepcion.seiem.gob.mx/' . $intervencionct->ourl;
 
-    $elct       = $intervencionct->oct_nivel.' '.$intervencionct->onivel_educativo;
-    $idct       = $intervencionct->idct_departamento;
-    $fechafinn  = $intervencionct->ofechafin;
+// Configurar PHPMailer
+$mail = new PHPMailer();
+$mail->CharSet = 'UTF-8'; // ✅ Evita caracteres raros
+$mail->isSMTP();
+$mail->Timeout    = 30;
+$mail->Mailer     = "smtp";
+$mail->Host       = "smtp.gmail.com";
+$mail->Port       = 465;
+$mail->SMTPAuth   = true;
+$mail->Username   = "entregasrecepcion.elemental@seiem.edu.mx";
+$mail->Password   = "entregas2025";
+$mail->SMTPSecure = "ssl";
 
+// ⚠️ Aquí sustituimos el correo antiguo de Juan Carlos por uno institucional nuevo
+$mail->setFrom('notificaciones.er@seiem.edu.mx', 'NOTIFICACIÓN DE INTERVENCIÓN PARA E-R');
 
-    $linkcarpeta= 'https://entregasrecepcion.seiem.gob.mx/'.$intervencionct->ourl;
+// Destinatarios
+$mail->addAddress('modernizacion.administrativa@dee.edu.mx');
 
+// Opcional: agregar BCC o más CC si lo necesitas
+// $mail->addBCC('otro.correo@seiem.gob.mx');
 
+include 'contenido.php'; // Define $message
 
+$mail->Subject  = "NOTIFICACIÓN DE INTERVENCIÓN PARA ENTREGA-RECEPCIÓN";
+$mail->Body     = $message;
+$mail->AltBody  = strip_tags($message);
+$mail->isHTML(true);
 
-        require_once 'PHPMailer/PHPMailerAutoload.php';
-        require_once 'PHPMailer/class.smtp.php';
+$mail->SMTPOptions = [
+    'ssl' => [
+        'verify_peer'      => false,
+        'verify_peer_name' => false,
+        'allow_self_signed'=> true,
+    ]
+];
 
-        $mail = new PHPMailer();
-        $mail->isSMTP();                    // Set mailer to use SMTP
-        $mail->Timeout    =   30;
-        $mail->Mailer     = "smtp";
-        $mail->Host       = "smtp.gmail.com";     // Specify main and backup SMTP servers
-        $mail->Port       = 465;          
-        $mail->SMTPAuth   = true;             // Enable SMTP authentication
-        $mail->Username   = "entregasrecepcion.elemental@seiem.edu.mx";        // SMTP username
-        $mail->Password   = "entregas2025";          // SMTP password
-        $mail->SMTPSecure = "ssl";          // Enable TLS encryption, `ssl` also accepte
+// Enviar y actualizar en la base de datos
+if (!$mail->send()) {
+    echo '<br>❌ Mailer Error: ' . $mail->ErrorInfo;
+    $oky = 0;
+} else {
+    echo '✅ Notificación enviada correctamente.';
+    $oky = 1;
 
-        //$mail->AddEmbeddedImage('Captura.PNG', 'PROGRAMA_SIMPOSIO_2019', 'Captura.PNG'); 
+    $sql = "UPDATE b3adg_intervenciones 
+            SET onotificado = 1 
+            WHERE idct_departamento = $idct 
+              AND ofechafin = '$fechafinn' ";
 
-
-        $mail->From = "carlos.sanchez@seiem.gob.mx";
-
-        $mail->FromName = utf8_decode("(CORREO PRUEBA) NOTIFICACIÓN DE INTERVENCIÓN PARA E-R ");
-
-
-        //$mail->addAddress('carlos.sanchez@seiem.gob.mx');
-        $mail->addAddress('modernizacion.administrativa@dee.edu.mx');
-
-        $mail->addBCC('carlos.sanchez@seiem.gob.mx');
-
-
-        include 'contenido.php';
-
-        if(!$mail->send()) 
-        {   
-            echo '<BR>Mailer Error: '.$mail->ErrorInfo;
-            $oky = 0;
-        } else {
-            //echo $message;
-            //echo "<br><b style='color:green; font-size:12px;'>SE ENVIÓ LA CONTRASEÑA A TU CORREO<br></b><br>";
-            $oky = 1;
-              
-            $sql = "UPDATE b3adg_intervenciones 
-                    SET onotificado = 1 
-                    WHERE idct_departamento = $idct 
-                    AND ofechafin = '$fechafinn' ";
-
-            if ($mysqli->query($sql) === TRUE) 
-            {
-                //echo "ok";
-            } else {
-                //echo "Error updating record: " . $mysqli->error;
-            }
-        }
-
-
-
-
-
+    $mysqli->query($sql);
+}
 ?>

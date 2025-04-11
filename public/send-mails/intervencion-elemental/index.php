@@ -1,84 +1,67 @@
-<?php 
+<?php
 
+require __DIR__ . '/../../PHPMailer/PHPMailerAutoload.php';
+require __DIR__ . '/../../PHPMailer/class.smtp.php';
 
-/*
-    $username = "usug1";
-    $password = "u55UG$1n";
-    $database = "g1sereeb";
-    $mysqli = new mysqli("db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com", $username, $password, $database);
-*/
-    $username = "root";
-    $password = "";
-    $database = "g1sereeb";
-    $mysqli = new mysqli("localhost", $username, $password, $database);
+$mail = new PHPMailer();
+$mail->CharSet = 'UTF-8'; // ? Para que los acentos no se vean mal
 
+// ? Variables recibidas desde el controlador Laravel
+$elct        = $getct->oclave . ' - ' . $getct->onombre_ct;
+$entrega     = $request->oentrega;
+$recibe      = $request->orecibe;
+$motivo      = $request->omotivo;
+$fecha_entre = $request->ofecha_entrega;
+$hora_entre  = $request->ohora_entrega;
+$elcorreo    = $getoficio->ocorreo;
 
-    $elct       = $getct->oclave.' - '.$getct->onombre_ct; 
-    $entrega    = $request->oentrega;
-    $recibe     = $request->orecibe;
-    $motivo     = $request->omotivo;
-    $fecha_entre= $request->ofecha_entrega;
-    $hora_entre = $request->ohora_entrega;
+// ? Conexión a base de datos (si se actualiza la tabla)
+$mysqli = new mysqli("db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com", "usug1", "u55gG7y3", "g1sereeb");
 
-    $elcorreo   = $getoficio->ocorreo;
+// ? Configurar correo
+$mail->isSMTP();
+$mail->Host       = 'smtp.gmail.com';
+$mail->Port       = 465;
+$mail->SMTPAuth   = true;
+$mail->Username   = 'entregasrecepcion.elemental@seiem.edu.mx';
+$mail->Password   = 'entregas2025';
+$mail->SMTPSecure = 'ssl';
 
+// ?? ESTE CORREO YA NO DEBE USARSE:
+// Puedes reemplazarlo por ejemplo con: 'notificaciones.er@seiem.edu.mx'
+$mail->setFrom('emanuel.salinas@seiem.gob.mx', "NOTIFICACIÓN DE INTERVENCIÓN E-R");
 
+$mail->addAddress($elcorreo);
+$mail->addCC('modernizacion.administrativa@dee.edu.mx');
 
-        require_once 'PHPMailer/PHPMailerAutoload.php';
-        require_once 'PHPMailer/class.smtp.php';
+// ? Contenido desde archivo HTML
+include 'contenido.php'; // $message debe estar definido ahí
 
-        $mail = new PHPMailer();
-        $mail->isSMTP();                    // Set mailer to use SMTP
-        $mail->Timeout    =   30;
-        $mail->Mailer     = "smtp";
-        $mail->Host       = "smtp.gmail.com";     // Specify main and backup SMTP servers
-        $mail->Port       = 465;          
-        $mail->SMTPAuth   = true;             // Enable SMTP authentication
-        $mail->Username   = "entregasrecepcion.elemental@seiem.edu.mx";        // SMTP username
-        $mail->Password   = "entregas2025";          // SMTP password
-        $mail->SMTPSecure = "ssl";          // Enable TLS encryption, `ssl` also accepte
+$mail->Subject  = "NOTIFICACIÓN PARA INTERVENCIÓN DE ENTREGA-RECEPCIÓN";
+$mail->Body     = $message;
+$mail->AltBody  = strip_tags($message);
+$mail->isHTML(true);
 
-        //$mail->AddEmbeddedImage('Captura.PNG', 'PROGRAMA_SIMPOSIO_2019', 'Captura.PNG'); 
+$mail->SMTPOptions = [
+    'ssl' => [
+        'verify_peer'      => false,
+        'verify_peer_name' => false,
+        'allow_self_signed'=> true,
+    ],
+];
 
+// ? Enviar correo
+if (!$mail->send()) {
+    echo '? Error al enviar: ' . $mail->ErrorInfo;
+} else {
+    echo '? Correo enviado correctamente.';
 
-        $mail->From = "carlos.sanchez@seiem.gob.mx";
-
-        $mail->FromName = utf8_decode("(CORREO PRUEBA 2.0) NOTIFICACIÃ“N PARA INTERVENCIÃ“N DE E-R ");
-
-
-        //$mail->addAddress('carlos.sanchez@seiem.gob.mx');
-        $mail->addAddress($elcorreo);
-        $mail->addCC('modernizacion.administrativa@dee.edu.mx');
-
-        $mail->addBCC('carlos.sanchez@seiem.gob.mx');
-
-
-        include 'contenido.php';
-
-        if(!$mail->send()) 
-        {   
-            echo '<BR>Mailer Error: '.$mail->ErrorInfo;
-            $oky = 0;
-        } else {
-            //echo $message;
-            //echo "<br><b style='color:green; font-size:12px;'>SE ENVIÃ“ LA CONTRASEÃ‘A A TU CORREO<br></b><br>";
-            $oky = 1;
-              
-            $sql = "UPDATE b3adg_intervenciones  SET  onotifica_nivel = 1 
-                    WHERE idct_departamento = $getoficio->id_ct
-                    AND idct_escuela = $request->idct_escuela 
-                    AND ogenerada = 1";
-
-            if ($mysqli->query($sql) === TRUE) 
-            {
-                //echo "ok";
-            } else {
-                //echo "Error updating record: " . $mysqli->error;
-            }
-        }
-
-
-
-
-
-?>
+    // ? Actualización de tabla si fue exitosa
+    $sql = "UPDATE b3adg_intervenciones 
+            SET onotifica_nivel = 1 
+            WHERE idct_departamento = {$getoficio->id_ct}
+              AND idct_escuela = {$request->idct_escuela} 
+              AND ogenerada = 1";
+    
+    $mysqli->query($sql);
+}

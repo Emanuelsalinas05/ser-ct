@@ -93,7 +93,7 @@
 
           $message .=utf8_decode('Dicha información se podrá consultar, descargar y/o verificar en el siguiente link: ');
 
-          $message .='<a target="_blank" href="'.$linkcarpeta.'" download><i>';
+          $message .='<a target="_blank" href="'.utf8_decode($linkcarpeta).'" download><i>';
           $message .= $linkcarpeta;
           $message .='</i></a>';
           $message .='<br><br><b>Se solicita respetuosamente acusar de recibido contestando a todos.</b><br><br>Sin otro particular, reciba un cordial saludo.
@@ -105,7 +105,7 @@
               </html>';
 
 
-          $mail->Subject = utf8_decode(" (CORREO PRUEBA 3.0 ) CARPETA DE ENTREGA Y RECEPCIÓN DEL CCT ".$elct);
+          $mail->Subject = utf8_decode(" DESySA (CORREO PRUEBA 3.0 ) CARPETA DE ENTREGA Y RECEPCIÓN DEL CCT ".$elct);
           $mail->Body    = $message;
 
           $mail->AltBody = "O SE QUE MUESTRE ESTO";

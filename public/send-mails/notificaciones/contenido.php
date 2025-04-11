@@ -85,8 +85,8 @@
 
           $message .=utf8_decode('Podrás consultar el oficio de intervención en el siguiente link: ');
 
-          $message .='<a target="_blank" href="'.$linkcarpeta.'" download><i>';
-          $message .= $linkcarpeta;
+          $message .='<a target="_blank" href="'.utf8_decode($linkcarpeta).'" download><i>';
+          $message .= utf8_decode($linkcarpeta);
           $message .='</i></a>
                       </p>
                     </td>

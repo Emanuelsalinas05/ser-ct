@@ -77,9 +77,9 @@
           $message .='<b>'.utf8_decode($elct).'</b>';
           $message .='<br><br>';
 
-          $message .= '<b>ENTREGA: </b>'.$entrega.'<br>';
-          $message .= '<b>RECIBE: </b>'.$recibe.'<br>';
-          $message .= '<b>MOTIVO: </b>'.$motivo.'<br>';
+          $message .= '<b>ENTREGA: </b>'.utf8_decode($entrega).'<br>';
+          $message .= '<b>RECIBE: </b>'.utf8_decode($recibe).'<br>';
+          $message .= '<b>MOTIVO: </b>'.utf8_decode($motivo).'<br>';
           $message .= '<b>FECHA Y HORA DE ENTREGA: </b>'.$fecha_entre.' '.$hora_entre.'hrs.<br>';
 
 
