@@ -241,7 +241,10 @@ Route::get('/home', function() {
     Route::resource('certificados-emitidos', _xCaoehController::class);
 
 
-    Route::resource('reportes-mensuales', _adgIntervencionesgeneradasexcelController::class);
+    Route::get('/reportes-mensuales', [_adgIntervencionesgeneradasexcelController::class, 'index'])->name('reportes.index');
+    Route::get('/reportes/print-reporte-actos', [ReportesMensualesController::class, 'reporteActos'])->name('reporte.actos');
+    Route::get('/reportes/print-reporte-intervencion', [ReportesMensualesController::class, 'reporteIntervencion'])->name('reporte.intervencion');
+    Route::get('/reportes/print-reporte-noadeudos', [ReportesMensualesController::class, 'reporteNoAdeudos'])->name('reporte.noadeudos');
 
     
     Route::resource('informacion-niveles', _adgInfonivelesController::class);
