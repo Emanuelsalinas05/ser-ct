@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 {{-- Customize layout sections --}}
-@section('title', '18. OTROS HECHOS')
+@section('title', '18. OTROS HECHOS (Generales)')
 @section('content_header_title', 'Home')
-@section('content_header_subtitle', ' 18. OTROS HECHOS')
+@section('content_header_subtitle', ' 18. OTROS HECHOS (Generales)')
 
 {{-- Content body: main page content --}}
 

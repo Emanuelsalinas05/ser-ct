@@ -5,53 +5,49 @@
 @endsection
 
 @section('header_img')
-<div class="row">
-    <div class="col-7" style="text-align: right;">
-        <img src="img/log_edomex_inicio_.png" class="anch img-fluid" >
-    </div>
-    <div class="col-5" style="text-align: left;" >
-        <p style="color:#802434; font-family: Italic;">  
-            <b><i style=" font-size:40px;">SEIEM</i> </b>
-            <!--
-            <p> <i style="font-size: 16px;">Sistema de Entrega y Recepción para Centros de Trabajo</i></p>
-            -->
-            
-        </p>
-    </div>
-</div>
-@endsection
+    <div class="row w-100 align-items-center px-4 mt-3 mb-4">
 
-@section('header_text')
-    <i style=" font-family: Italic; font-size:25px;">
-        <b class="guinda">  Sistema de Entrega y Recepción  para Centros de Trabajo
-        </b>
-        <br>
-    </i>
+        <!-- Logo Izquierdo (Edomex) -->
+        <div class="col-6 d-flex justify-content-start align-items-center">
+            <img src="img/log_edomex_inicio_.png" class="anch img-fluid" >
+        </div>
+
+        <!-- Logo Derecho (SEIEM) -->
+        <div class="col-6 d-flex flex-column align-items-end justify-content-center">
+            <p class="m-0" style="color:#424040; font-family: Italic;">
+                <b><i style="font-size:40px;">SEIEM</i></b>
+            </p>
+        </div>
+
+    </div>
 @endsection
 
 
 @section('content')
 
-        @if (Route::has('login'))
-            @auth
-                @section('content_img')
-                    <a class="nav-link" href="{{ route('home') }}" >
-                        <img class="img-fluid" src="img/ircursos.png" width="70%">
-                    </a>
-                @endsection
-            @else
-                @section('content_img')
-                    <img class="img-fluid " src="img/e-r.png" width="50%">
-                @endsection
+    @if (Route::has('login'))
+        @auth
+            @section('content_img')
+                <a class="nav-link" href="{{ route('home') }}" >
+                    <img class="img-fluid" src="img/ircursos.png" width="70%">
+                </a>
+            @endsection
+        @else
+            @section('content_img')
+                <div class="d-none d-md-flex justify-content-start justify-content-center-sm align-items-start" style="margin-top: 80px; padding-left: 30px;">
+                    <img class="img-fluid custom-img" src="img/e-r.png">
+                </div>
 
-                @section('login')
+            @endsection
 
-                    @include('layouts.form-log')
+            @section('login')
+
+                @include('layouts.form-log')
 
 
-                @endsection
-            @endauth
-        @endif
+            @endsection
+        @endauth
+    @endif
 
 @endsection
 

@@ -9,7 +9,7 @@
     </p>
 </li>
 
-<x-adminlte-card    title="18.1 OTROS HECHOS"             
+<x-adminlte-card    title="18.1 OTROS HECHOS (GENERALES)"
                     theme="lightblue" 
                     theme-mode="outline"
                     icon="fas fa-icon fa-file-alt" 

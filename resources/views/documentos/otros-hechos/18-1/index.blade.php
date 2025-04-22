@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 {{-- Customize layout sections --}}
-@section('title', '18.1 OTROS HECHOS')
+@section('title', '18.1 OTROS HECHOS (Generales)')
 @section('content_header_title', 'Home')
-@section('content_header_subtitle', ' 18.1 OTROS HECHOS')
+@section('content_header_subtitle', ' 18.1 OTROS HECHOS (Generales)')
 
 {{-- Content body: main page content --}}
 
@@ -12,15 +12,15 @@
     <div class="card-header bg-light shadow-sm d-flex mb-2">
         <div class="d-flex justify-content-between">
             <b><i class="nav-icon fa fa-folder-open"></i>&nbsp;
-            {{  $documento->onum_documento }} {{ $documento->odocumento }}
-            </b> 
+                {{  $documento->onum_documento }} {{ $documento->odocumento }}
+            </b>
         </div>
     </div>
     <div class="card-body table-responsive" >
 
         <li class=" d-flex justify-content-between align-items-center"
             style="border:none;">
-            <a  href="{{ url('/otroshechos') }}" 
+            <a  href="{{ url('/otroshechos') }}"
                 class="btn btn-outline-secondary tn-sm" style="font-size: 12px;">
                 <i class="fas fa-backward"></i>&nbsp;
                 VOLVER A &nbsp; <b>{{$anexo->onum_anexo.'. '.$anexo->oanexo}}</b>
@@ -36,8 +36,8 @@
                 {{ $documento->odescripcion }}.
                 <br>AL TERMINAR CON EL REGISTRO DA CLIC EN "<B>FINALIZAR REGISTRO</B>" PARA CONCLUIR ESTE APARTADO.
             </p>
-            
-             @include('documentos.otros-hechos.18-1.form')
+
+            @include('documentos.otros-hechos.18-1.form')
 
         </x-adminlte-callout>
         @endif
@@ -47,80 +47,80 @@
         <table  class="table table-striped table-sm"
                 style="font-size:14px;">
             <thead class="bg-lightblue ">
-                <tr>
-                    <th scope="col">PROG.</th>
-                    <th scope="col">NOMBRE DEL DOCUMENTO</th>
-                    <th scope="col">ADJUNTAR ARCHIVO</th>
-                    <th scope="col"></th>
-                </tr>
+            <tr>
+                <th scope="col">PROG.</th>
+                <th scope="col">NOMBRE DEL DOCUMENTO</th>
+                <th scope="col">ADJUNTAR ARCHIVO</th>
+                <th scope="col"></th>
+            </tr>
             </thead>
             <tbody>
-                @foreach($iotroshechos as $key => $inventario)
-                <tr>
-                    <th scope="row" width="5%">
-                        {{ $key+1 }}
-                    </th>
-                      
-                    <td width="50%">
-                        {{ $inventario->onombre_documento }}
-                    </td>
-                      
-                    <td width="40%">
-                        <a  href="storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
-                            target="_blank"
-                            download 
-                            title="{{ $inventario->oarchivo_adjunto }}">
-                            {{ $inventario->oarchivo_adjunto }}
-                        </a>
-                    </td>
-                      
-                    <td width="5%">
+            @foreach($iotroshechos as $key => $inventario)
+            <tr>
+                <th scope="row" width="5%">
+                    {{ $key+1 }}
+                </th>
+
+                <td width="50%">
+                    {{ $inventario->onombre_documento }}
+                </td>
+
+                <td width="40%">
+                    <a  href="storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
+                        target="_blank"
+                        download
+                        title="{{ $inventario->oarchivo_adjunto }}">
+                        {{ $inventario->oarchivo_adjunto }}
+                    </a>
+                </td>
+
+                <td width="5%">
                     @if($avances->ootros_hechos_a==0)
-                        <x-adminlte-button  data-toggle="modal" 
-                                            icon="fas fa-minus"
-                                            data-target="#modaldelete{{ $inventario->id }}" 
-                                            class="bg-danger btn-sm"/>
-                        @include('documentos.otros-hechos.18-1.form-delete')
+                    <x-adminlte-button  data-toggle="modal"
+                                        icon="fas fa-minus"
+                                        data-target="#modaldelete{{ $inventario->id }}"
+                                        class="bg-danger btn-sm"/>
+                    @include('documentos.otros-hechos.18-1.form-delete')
                     @endif
-                    </td>
-                </tr>
-                @endforeach
+                </td>
+            </tr>
+            @endforeach
             </tbody>
         </table>
 
-            <br>
+        <br>
 
-                @if($avances->ootros_hechos_a==0)
-                <li class="list-group-item d-flex justify-content-between align-items-center"
-                    style="border:none;">
-                    &nbsp;
-                    <form   name="FrmCartel" id="FrmCartel" method="post" 
-                            action="{{ route($documento->ourl_documentos.'.update', $datosacta->id ) }}" >
-                            @method('PATCH')
-                            @csrf
-                        <input  type="hidden" 
-                                name="acta" 
-                                id="acta" 
-                                value="{{ $datosacta->id }}">
-                        
-                        <input  type="hidden" 
-                                name="actionplantilla" 
-                                id="actionplantilla" 
-                                value="2">
+        @if($avances->ootros_hechos_a==0)
+        <li class="list-group-item d-flex justify-content-between align-items-center"
+            style="border:none;">
+            &nbsp;
+            <form   name="FrmCartel" id="FrmCartel" method="post"
+                    action="{{ route($documento->ourl_documentos.'.update', $datosacta->id ) }}" >
+                @method('PATCH')
+                @csrf
+                <input  type="hidden"
+                        name="acta"
+                        id="acta"
+                        value="{{ $datosacta->id }}">
 
-                        <button class="btn btn-success btn-sm"
-                                style="font-size: 14px;">
-                            FINALIZAR REGISTRO DE OTROS HECHOS&nbsp;
-                            <i class="fas fa-user-check"></i>
-                        </button>
+                <input  type="hidden"
+                        name="actionplantilla"
+                        id="actionplantilla"
+                        value="2">
 
-                    </form>
-                </li>
-                @endif
+                <button class="btn btn-success btn-sm"
+                        style="font-size: 14px;">
+                    FINALIZAR REGISTRO DE OTROS HECHOS&nbsp;
+                    <i class="fas fa-user-check"></i>
+                </button>
 
-            @endif
+            </form>
+        </li>
+        @endif
 
-        
+        @endif
+
+
     </div>
 </div>
 @stop
