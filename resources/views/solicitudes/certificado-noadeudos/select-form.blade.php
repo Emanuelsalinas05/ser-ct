@@ -2,7 +2,7 @@
     style="border:none;">
     
     <b class="text-orange">
-        ** SI DESEAS CAMBIAR EL TIPO DE CERTIFICADO DE NO ADEUDO, DA CLIC EN EL BOTÓN <i>"CAMBIAR TIPO"</i>
+        SI DESEAS CAMBIAR EL TIPO DE CERTIFICADO DE NO ADEUDO, DA CLIC EN EL BOTÓN <i>"CAMBIAR TIPO"</i>
     </b>
 
     <form   name="FrmCartel" 

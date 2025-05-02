@@ -18,7 +18,7 @@
             </tr>
             <tr>
                 <td align="right"><b>AUTOR</b></td>
-                <td>Nombre completo del autor de las obras biblio-hemerográfica..</td>
+                <td>Nombre completo del autor de las obras <biblio-hemerográfica></biblio-hemerográfica>.</td>
             </tr>
             <tr>
                 <td align="right"><b>EDITORIAL Y FECHA DE PUBLICACIÓN</b></td>

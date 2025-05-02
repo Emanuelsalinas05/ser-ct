@@ -7,13 +7,13 @@
 <tr>
 	<td align="right"
 		class="text-info">
-		<b>COLOCAR LA FECHA DEL OFICIO:</i>
+		<b>COLOCA LA FECHA DEL OFICIO:</b>
 	</td>
 	<td width="5%">
-		<input 	type="date" 
-				name="ofechax" id="ofechax"
-				class="form-control form-control-sm"
-				value="{{ old('ofechax') }}">
+		<input 	type="date"
+				  name="ofechax" id="ofechax"
+				  class="form-control form-control-sm"
+				  value="{{ old('ofechax') }}">
 		@error('ofechax') <span style="color:red;">{{ $message }}</span> @enderror
 	</td>
 	<td width="5%">
@@ -30,13 +30,13 @@
 <tr>
 	<td align="right"
 		class="text-info">
-		<b>COLOCA EL NÚMERO DE TÚ OFICIO</b>
+		<b>COLOCA EL NÚMERO DE TU OFICIO</b>
 	</td>
 	<td colspan="2">
-		<input 	type="text" 
-				name="onumero_oficio" id="onumero_oficio"
-				class="form-control form-control-sm"
-				value="{{ old('onumero_oficio') }}">
+		<input 	type="text"
+				  name="onumero_oficio" id="onumero_oficio"
+				  class="form-control form-control-sm"
+				  value="{{ old('onumero_oficio') }}">
 		@error('onumero_oficio') <span style="color:red;">{{ $message }}</span> @enderror
 	</td>
 	<td></td>
@@ -55,11 +55,11 @@
 		<b>LOCALIDAD</b>
 	</td>
 	<td  width="60%" colspan="3">
-		<input 	type="text" 
-				name="olocalidad" id="olocalidad"
-				class="form-control form-control-sm"
-				value="{{ old('olocalidad') }}"
-				onkeyup="javascript:this.value=this.value.toUpperCase();">
+		<input 	type="text"
+				  name="olocalidad" id="olocalidad"
+				  class="form-control form-control-sm"
+				  value="{{ old('olocalidad') }}"
+				  onkeyup="javascript:this.value=this.value.toUpperCase();">
 		@error('olocalidad') <span style="color:red;">{{ $message }}</span> @enderror
 	</td>
 </tr>
@@ -69,11 +69,11 @@
 		<b>MUNICIPIO</b>
 	</td>
 	<td colspan="3">
-		<input 	type="text" 
-				name="omunicipio" id="omunicipio"
-				class="form-control form-control-sm"
-				value="{{ old('omunicipio') }}"
-				onkeyup="javascript:this.value=this.value.toUpperCase();">
+		<input 	type="text"
+				  name="omunicipio" id="omunicipio"
+				  class="form-control form-control-sm"
+				  value="{{ old('omunicipio') }}"
+				  onkeyup="javascript:this.value=this.value.toUpperCase();">
 		@error('omunicipio') <span style="color:red;">{{ $message }}</span> @enderror
 	</td>
 </tr>
@@ -90,13 +90,13 @@
 		<b>TÍTULO Y NOMBRE </b>
 	</td>
 	<td colspan="3">
-		<input 	type="text" 
+		<input 	type="text"
 				name="otitular_caf" id="otitular_caf"
 				class="form-control form-control-sm"
 				value="{{ old('otitular_caf') }}"
 				placeholder="Ejemplo:    Lic. Nombre(s)   Apellido   Apellido">
 		@error('otitular_caf') <span style="color:red;">{{ $message }}</span> @enderror
-	</td>
+</td>
 </tr>
 -->
 <tr class="bg-lightblue">
@@ -108,22 +108,22 @@
 <tr>
 	<td align="right"
 		class="text-info">
-		<b>COLOCAR LA FECHA Y HORA EN QUE SE REALIZARÁ LA ENTREGA RECEPCIÓN DEL CENTRO DE TRABAJO</b>
+		<b>COLOCA LA FECHA Y HORA EN QUE SE REALIZARÁ LA ENTREGA RECEPCIÓN DEL CENTRO DE TRABAJO</b>
 		<br>
-		<i>**MISMA FECHA Y HORA EXPRESADAS EN LA ACTA</i>
+		<b>MISMA FECHA Y HORA EXPRESADAS EN EL ACTA</b>
 	</td>
 	<td width="5%">
-		<input 	type="date" 
-				name="ofecha" id="ofecha"
-				class="form-control form-control-sm"
-				value="{{ old('ofecha') }}">
+		<input 	type="date"
+				  name="ofecha" id="ofecha"
+				  class="form-control form-control-sm"
+				  value="{{ old('ofecha') }}">
 		@error('ofecha') <span style="color:red;">{{ $message }}</span> @enderror
 	</td>
 	<td width="5%">
-		<input 	type="time" 
-				name="ohora" id="ohora"
-				class="form-control form-control-sm"
-				value="{{ old('ohora') }}">
+		<input 	type="time"
+				  name="ohora" id="ohora"
+				  class="form-control form-control-sm"
+				  value="{{ old('ohora') }}">
 		@error('ohora') <span style="color:red;">{{ $message }}</span> @enderror
 	</td>
 	<td></td>

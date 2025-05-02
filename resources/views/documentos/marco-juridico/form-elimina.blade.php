@@ -1,5 +1,5 @@
 <x-adminlte-modal   id="deletemj{{ $juridico->id }}" 
-                    title="ELININAR ORDENAMIENTO JURÍDICO" 
+                    title="ELIMINAR ORDENAMIENTO JURÍDICO"
                     size="lg" 
                     theme="danger"
                     icon="fas fa-minus" 

@@ -69,7 +69,7 @@ class RegistroActaController extends Controller
                 ootros_hechos_a
 */
 
-        return view('documentos.acta-datos.edit', 
+        return view('documentos.acta-datos.edit',
                 compact('centrotrabajo', 'datosacta','avances',)
                 );
     }

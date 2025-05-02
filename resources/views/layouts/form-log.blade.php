@@ -10,7 +10,8 @@
 <form method="POST" action="{{ route('login') }}" style="max-width: 380px; margin: 0 auto;">
     @csrf
 
-    <!-- Usuario -->
+    <!-- Clave Centro de Trabajo -->
+    <label for="email" style="color: #802434; font-weight: 600; font-size: 14px; margin-bottom: 6px;">Clave Centro de Trabajo</label>
     <div class="input-group mb-4">
         <input type="text"
                name="email"
@@ -20,19 +21,20 @@
                value="{{ old('email') }}" autofocus>
 
         <div class="input-group-append">
-            <span class="input-group-text" style="background: none; border: none;">
-                <i class="fas fa-user-circle" style="color: #802434; font-size: 18px;"></i>
-            </span>
+        <span class="input-group-text" style="background: none; border: none;">
+            <i class="fas fa-user-circle" style="color: #802434; font-size: 18px;"></i>
+        </span>
         </div>
 
         @error('email')
         <span class="invalid-feedback" role="alert">
-            <strong>{{ $message }}</strong>
-        </span>
+        <strong>{{ $message }}</strong>
+    </span>
         @enderror
     </div>
 
     <!-- Contraseña -->
+    <label for="password" style="color: #802434; font-weight: 600; font-size: 14px; margin-bottom: 6px;">Contraseña</label>
     <div class="input-group mb-4" id="show_hide_password">
         <input type="password"
                name="password"
@@ -42,19 +44,20 @@
                placeholder="CONTRASEÑA">
 
         <div class="input-group-append">
-            <span class="input-group-text" style="background: none; border: none;">
-                <a href="#" style="background: none; border: none; padding: 0;">
-                    <i class="fa fa-eye-slash" style="color: #802434; font-size: 18px;"></i>
-                </a>
-            </span>
+        <span class="input-group-text" style="background: none; border: none;">
+            <a href="#" style="background: none; border: none; padding: 0;">
+                <i class="fa fa-eye-slash" style="color: #802434; font-size: 18px;"></i>
+            </a>
+        </span>
         </div>
 
         @error('password')
         <span class="invalid-feedback" role="alert">
-            <strong>{{ $message }}</strong>
-        </span>
+        <strong>{{ $message }}</strong>
+    </span>
         @enderror
     </div>
+
 
     <!-- Botón -->
     <div class="d-flex justify-content-center">

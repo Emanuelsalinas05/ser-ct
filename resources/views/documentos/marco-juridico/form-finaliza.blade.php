@@ -1,5 +1,5 @@
 <x-adminlte-modal   id="finaliza" 
-                    title="FINALIZAR REGISTRO DE ORDENAMIENTO JURÍDICO-ADMINISTRATIVOS" 
+                    title="FINALIZAR REGISTRO DE ORDENAMIENTO JURÍDICO-ADMINISTRATIVO"
                     size="lg" 
                     theme="info"
                     icon="fa fa-file" 
@@ -7,7 +7,7 @@
     <div>
         <p style="text-align:justify; font-size: 14px;">
             <i>
-                *** AL FINALIZAR EL REGISTRO DE ORDENAMIENTO JURÍDICO ADMINISTRATIVO, 
+                AL FINALIZAR EL REGISTRO DE ORDENAMIENTOS JURÍDICO-ADMINISTRATIVOS,
                 NO PODRÁS MODIFICAR Y/O QUITAR ALGÚN ELEMENTO REGISTRADO.
             </i>
         </p>
@@ -23,7 +23,7 @@
                     <button class="btn btn-success btn-sm btn-block"
                             style="font-size: 14px;">
                             &nbsp;
-                        SI, FINALIZAR REGISTRO DE ORDENAMIENTOS JURÍDICO-ADMINISTRATIVOS
+                        SÍ, FINALIZAR REGISTRO DE ORDENAMIENTOS JURÍDICO-ADMINISTRATIVOS
                         <i class="fas fa-check"></i>
                     </button>
 

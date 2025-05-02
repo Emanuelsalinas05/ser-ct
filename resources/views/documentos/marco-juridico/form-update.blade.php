@@ -58,7 +58,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td align="right" width="30%">URL ORDENBAMIENTO</td>
+                    <td align="right" width="30%">URL ORDENAMIENTO</td>
                     <td  width="70%">
                         <input  type="text" 
                                 name="olocalizador" id="olocalizador"

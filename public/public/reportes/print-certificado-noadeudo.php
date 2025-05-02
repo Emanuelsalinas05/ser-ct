@@ -13,7 +13,7 @@ try {
     $Conn->setDriver("com.mysql.jdbc.Driver");
     $Conn->setConnectString($cad);
     $Conn->setUser('usug1');
-    $Conn->setPassword('u55UG$1n');
+    $Conn->setPassword('u55gG7y3');
     $conexion = $Conn->getConnection();
     
     $stmnt = new Java("java.sql.Statement");

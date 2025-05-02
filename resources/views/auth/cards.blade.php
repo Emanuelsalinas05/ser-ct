@@ -11,9 +11,7 @@
                     </a>
                 </td>
                 <td>
-                    <a  href="formatos/ilovepdf_merged.pdf"
-                    class="btn btn-light" 
-                        target="_blank">
+                    <a href="formatos/Normatividad.pdf" class="btn btn-light" target="_blank">
                         <img src="img/noamas.png" class="img-fluid" width="50%">
                     </a>
                 </td>

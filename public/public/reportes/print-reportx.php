@@ -5,7 +5,7 @@ $unidadx   = $_GET['un1d'];
 
 
     $username = "usug1";
-    $password = "u55UG$1n";
+    $password = "u55gG7y3";
     $database = "g1sereeb";
     $mysqli = new mysqli("db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com", $username, $password, $database);
 

@@ -27,8 +27,8 @@
             <tr>
                 <th>CATEGORÍA - PUESTO</th>
                 <th>TOTAL DE PLAZAS</th>
-                <th>TOTAL OCUPADAS</th>
-                <th>TOTAL VACANTES</th>
+                <th>TOTAL  OCUPADAS </th>
+                <th>TOTAL DE VACANTES</th>
                 <th></th>
             </tr>
         </thead>

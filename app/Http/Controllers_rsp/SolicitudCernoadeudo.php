@@ -170,7 +170,7 @@ class SolicitudCernoadeudo extends Controller
                     $update_solicitud->update([ 'oselecttipo' => 0 ]);
 
                     return redirect()->back()
-                            ->with("success", "VUELVE A ELEGIR EL TIPO DE CERTIFICADO QUE DESEAR SOLICITAR");
+                            ->with("success", "VUELVE A ELEGIR EL TIPO DE CERTIFICADO A SOLICITAR");
         }
 
 

@@ -111,26 +111,27 @@ Route::middleware(["auth"])->group(function()
     Route::resource('entregas-recepcion', EntregasRecepcionController::class);
     //Route::get('/entregas-recepcion/', [EntregasRecepcionController::class, 'show'])->name('admin.er.show');
     //Route::get('entregas-recepcion/buscar', 'EntregasRecepcionController@busqueda');
-    Route::get('/check-marco-juridico/{id}', [ReviewAvanceacta::class, 'marcjuridico'])->name('admin.er.acta-content.anexos.index');
-    Route::get('/check-recursos-humanos/{id}', [ReviewAvanceacta::class, 'rhumanos'])->name('admin.er.acta-content.anexos.index');
-    Route::get('/check-recursos-materiales/{id}', [ReviewAvanceacta::class, 'rmateriales'])->name('admin.er.acta-content.anexos.index');
-    Route::get('/check-situacion-tics/{id}', [ReviewAvanceacta::class, 'situaciontics'])->name('admin.er.acta-content.anexos.index');
-    Route::get('/check-archivos/{id}', [ReviewAvanceacta::class, 'carchivos'])->name('admin.er.acta-content.anexos.index');
-    Route::get('/check-no-adeudos/{id}', [ReviewAvanceacta::class, 'cernoadeudos'])->name('admin.er.acta-content.anexos.index');
-    Route::get('/check-informe-gestion/{id}', [ReviewAvanceacta::class, 'infogestion'])->name('admin.er.acta-content.anexos.index');
-    Route::get('/check-otroshechos/{id}', [ReviewAvanceacta::class, 'otrosh'])->name('admin.er.acta-content.anexos.index');
+    Route::prefix('check')->name('entregas-recepcion.check.')->group(function () {
+        Route::get('marco-juridico/{id}', [ReviewAvanceacta::class, 'marcjuridico'])->name('marco-juridico');
+        Route::get('recursos-humanos/{id}', [ReviewAvanceacta::class, 'rhumanos'])->name('recursos-humanos');
+        Route::get('recursos-materiales/{id}', [ReviewAvanceacta::class, 'rmateriales'])->name('recursos-materiales');
+        Route::get('situacion-tics/{id}', [ReviewAvanceacta::class, 'situaciontics'])->name('situacion-tics');
+        Route::get('archivos/{id}', [ReviewAvanceacta::class, 'carchivos'])->name('archivos');
+        Route::get('no-adeudos/{id}', [ReviewAvanceacta::class, 'cernoadeudos'])->name('no-adeudos');
+        Route::get('informe-gestion/{id}', [ReviewAvanceacta::class, 'infogestion'])->name('informe-gestion');
+        Route::get('otros-hechos/{id}', [ReviewAvanceacta::class, 'otrosh'])->name('otros-hechos');
+    });
 
-    Route::resource('entregas-finalizadas', FinalizadasController::class);
-    Route::get('/ok-marco-juridico/{id}', [ReviewOk::class, 'marcjuridico'])->name('admin.er.finalizadas.acta-content.anexos.index');
-    Route::get('/ok-recursos-humanos/{id}', [ReviewOk::class, 'rhumanos'])->name('admin.er.finalizadas.acta-content.anexos.index');
-    Route::get('/ok-recursos-materiales/{id}', [ReviewOk::class, 'rmateriales'])->name('admin.er.finalizadas.acta-content.anexos.index');
-    Route::get('/ok-situacion-tics/{id}', [ReviewOk::class, 'situaciontics'])->name('admin.er.finalizadas.acta-content.anexos.index');
-    Route::get('/ok-archivos/{id}', [ReviewOk::class, 'carchivos'])->name('admin.er.finalizadas.acta-content.anexos.index');
-    Route::get('/ok-no-adeudos/{id}', [ReviewOk::class, 'cernoadeudos'])->name('admin.er.finalizadas.acta-content.anexos.index');
-    Route::get('/ok-informe-gestion/{id}', [ReviewOk::class, 'infogestion'])->name('admin.er.finalizadas.acta-content.anexos.index');
-    Route::get('/ok-otroshechos/{id}', [ReviewOk::class, 'otrosh'])->name('admin.er.finalizadas.acta-content.anexos.index');
-
-
+    Route::prefix('ok')->name('entregas-finalizadas.ok.')->group(function () {
+        Route::get('marco-juridico/{id}', [ReviewOk::class, 'marcjuridico'])->name('marco-juridico');
+        Route::get('recursos-humanos/{id}', [ReviewOk::class, 'rhumanos'])->name('recursos-humanos');
+        Route::get('recursos-materiales/{id}', [ReviewOk::class, 'rmateriales'])->name('recursos-materiales');
+        Route::get('situacion-tics/{id}', [ReviewOk::class, 'situaciontics'])->name('situacion-tics');
+        Route::get('archivos/{id}', [ReviewOk::class, 'carchivos'])->name('archivos');
+        Route::get('no-adeudos/{id}', [ReviewOk::class, 'cernoadeudos'])->name('no-adeudos');
+        Route::get('informe-gestion/{id}', [ReviewOk::class, 'infogestion'])->name('informe-gestion');
+        Route::get('otros-hechos/{id}', [ReviewOk::class, 'otrosh'])->name('otros-hechos');
+    });
 
 
     // CENTROS DE TRABAJO
@@ -161,15 +162,17 @@ Route::middleware(["auth"])->group(function()
     //  DATOS DEL ACTA, AVANCE DE ENTREGA-RECEPCION 
     Route::resource('entrega-recepcion', ActaController::class);
     //  HISTORICO DE ENTREGA-RECEPCION
-    Route::resource('historico-entregas-recepcion', EntregasRecepcionHistoricoController::class);
-    Route::get('/history-marco-juridico/{id}', [ReviewOkx::class, 'marcjuridico'])->name('entregas.acta-content.anexos.index');
-    Route::get('/history-recursos-humanos/{id}', [ReviewOkx::class, 'rhumanos'])->name('entregas.acta-content.anexos.index');
-    Route::get('/history-recursos-materiales/{id}', [ReviewOkx::class, 'rmateriales'])->name('entregas.acta-content.anexos.index');
-    Route::get('/history-situacion-tics/{id}', [ReviewOkx::class, 'situaciontics'])->name('entregas.acta-content.anexos.index');
-    Route::get('/history-archivos/{id}', [ReviewOkx::class, 'carchivos'])->name('entregas.acta-content.anexos.index');
-    Route::get('/history-no-adeudos/{id}', [ReviewOkx::class, 'cernoadeudos'])->name('entregas.acta-content.anexos.index');
-    Route::get('/history-informe-gestion/{id}', [ReviewOkx::class, 'infogestion'])->name('entregas.acta-content.anexos.index');
-    Route::get('/history-otroshechos/{id}', [ReviewOkx::class, 'otrosh'])->name('entregas.acta-content.anexos.index');
+    Route::prefix('history')->name('entregas-historico.history.')->group(function () {
+        Route::get('marco-juridico/{id}', [ReviewOkx::class, 'marcjuridico'])->name('marco-juridico');
+        Route::get('recursos-humanos/{id}', [ReviewOkx::class, 'rhumanos'])->name('recursos-humanos');
+        Route::get('recursos-materiales/{id}', [ReviewOkx::class, 'rmateriales'])->name('recursos-materiales');
+        Route::get('situacion-tics/{id}', [ReviewOkx::class, 'situaciontics'])->name('situacion-tics');
+        Route::get('archivos/{id}', [ReviewOkx::class, 'carchivos'])->name('archivos');
+        Route::get('no-adeudos/{id}', [ReviewOkx::class, 'cernoadeudos'])->name('no-adeudos');
+        Route::get('informe-gestion/{id}', [ReviewOkx::class, 'infogestion'])->name('informe-gestion');
+        Route::get('otros-hechos/{id}', [ReviewOkx::class, 'otrosh'])->name('otros-hechos');
+    });
+
 
     Route::resource('solicitud-certificado', SolicitudCernoadeudo::class);
 
@@ -209,16 +212,6 @@ Route::middleware(["auth"])->group(function()
 
     //  DOCUMENTOS
     Route::resource('documentos', AnexosActoController::class);
-
-
-   // Route::get('/check-marco-juridico/{id}', [_xUsuarioslevelController::class, 'usrdir'])->name('admin.users.anexos.index');
-
-/*
-Route::get('/home', function() {
-    return view('home');
-})->name('home')->middleware('auth');
-*/  
-    
 
 
     // PARA LA AUTORIDAD INMEDIATA

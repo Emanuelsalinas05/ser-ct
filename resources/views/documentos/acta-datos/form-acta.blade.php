@@ -124,14 +124,14 @@
             @error('oidentificacion_entrega_a') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
         
-        <td align="right"><b>* ARCHIVO IIDENTIFICACIÓN</b>:</td>
+        <td align="right"><b>* ARCHIVO IDENTIFICACIÓN</b>:</td>
         <td colspan="2">
             <input  type="file" name="oidentificacion_url_entrega_a"
                     class="form-control form-control-sm"
                     accept="application/pdf">
             @error('oidentificacion_url_entrega_a') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
-        <td align="right"><b>* NÚMERO IIDENTIFICACIÓN</b>:</td>
+        <td align="right"><b>* NÚMERO IDENTIFICACIÓN</b>:</td>
         <td >
             <input  type="text" name="onumero_identificacion_entrega_a"
                     class="form-control form-control-sm"
@@ -192,14 +192,14 @@
             @error('oidentificacion_recibe_a') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
         
-        <td align="right"><b>* ARCHIVO DE IIDENTIFICACIÓN</b>:</td>
+        <td align="right"><b>* ARCHIVO DE IDENTIFICACIÓN</b>:</td>
         <td colspan="2">
             <input  type="file" name="oidentificacion_url_recibe_a"
                     class="form-control form-control-sm"
                     accept="application/pdf">
             @error('oidentificacion_url_recibe_a') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
-        <td align="right"><b>* NÚMERO IIDENTIFICACIÓN</b>:</td>
+        <td align="right"><b>* NÚMERO IDENTIFICACIÓN</b>:</td>
         <td >
             <input  type="text" name="onumero_identificacion_recibe_a"
                     class="form-control form-control-sm"
@@ -274,14 +274,14 @@
             @error('oidentificacion_testigo') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
         
-        <td align="right"><b>* ARCHIVO DE IIDENTIFICACIÓN</b>:</td>
+        <td align="right"><b>* ARCHIVO DE IDENTIFICACIÓN</b>:</td>
         <td colspan="2">
             <input  type="file" name="oidentificacion_url_testigo"
                     class="form-control form-control-sm"
                     accept="application/pdf">
             @error('oidentificacion_url_testigo') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
-        <td align="right"><b>* NÚMERO IIDENTIFICACIÓN</b>:</td>
+        <td align="right"><b>* NÚMERO IDENTIFICACIÓN</b>:</td>
         <td >
             <input  type="text" name="onumero_identificacion_testigo_a"
                     class="form-control form-control-sm"
@@ -357,14 +357,14 @@
             @error('oidentificacion_testigo2') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
         
-        <td  align="right"><b>* ARCHIVO DE IIDENTIFICACIÓN</b>:</td>
+        <td  align="right"><b>* ARCHIVO DE IDENTIFICACIÓN</b>:</td>
         <td colspan="2">
             <input  type="file" name="oidentificacion_url_testigo2"
                     class="form-control form-control-sm"
                     accept="application/pdf">
             @error('oidentificacion_url_testigo2') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
-        <td align="right"><b>* NÚMERO IIDENTIFICACIÓN</b>:</td>
+        <td align="right"><b>* NÚMERO IDENTIFICACIÓN</b>:</td>
         <td >
             <input  type="text" name="onumero_identificacion_testigo2_a"
                     class="form-control form-control-sm"
