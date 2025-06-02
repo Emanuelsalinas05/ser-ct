@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 {{-- Customize layout sections --}}
-@section('title', '8.5 RELACIÓN DE LOS BIENES BAJO CUSTODÍA DEL TITULAR')
+@section('title', '8.5 RELACIÓN DE LOS BIENES BAJO CUSTODIA DEL TITULAR')
 @section('content_header_title', 'Home')
-@section('content_header_subtitle', ' 8.5 RELACIÓN DE LOS BIENES BAJO CUSTODÍA DEL TITULAR')
+@section('content_header_subtitle', ' 8.5 RELACIÓN DE LOS BIENES BAJO CUSTODIA DEL TITULAR')
 
 {{-- Content body: main page content --}}
 

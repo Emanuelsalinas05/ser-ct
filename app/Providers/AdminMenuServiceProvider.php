@@ -42,19 +42,36 @@ class AdminMenuServiceProvider extends ServiceProvider
     private function buildAdminMenu(BuildingMenu $event, $user)
     {
         $event->menu->add([
-            'text' => 'Entregas - Recepción', 'icon' => 'fas fa-file-alt', 'classes' => self::MENU_PRIMARY,
+            'text' => 'Entregas - Recepción',
+            'icon' => 'fas fa-file-alt',
+            'classes' => self::MENU_PRIMARY,
             'submenu' => [
-                ['text' => 'En curso', 'url' => 'entregas-recepcion', 'icon' => 'fas fa-hourglass-half', 'active' => ['entregas-recepcion*']],
-                ['text' => 'Finalizadas', 'url' => 'entregas-finalizadas', 'icon' => 'fas fa-check-circle', 'active' => ['entregas-finalizadas*']],
-                ['text' => 'Históricas', 'url' => 'historico-entregas-recepcion', 'icon' => 'fas fa-archive', 'active' => ['historico-entregas-recepcion*']],
+                [
+                    'text' => 'En curso',
+                    'url' => 'entregas-recepcion',
+                    'icon' => 'fas fa-hourglass-half',
+                    'active' => ['entregas-recepcion*'],
+                ],
+                [
+                    'text' => 'Finalizadas',
+                    'url' => 'entregas-finalizadas',
+                    'icon' => 'fas fa-check-circle',
+                    'active' => ['entregas-finalizadas*'],
+                ],
+                [
+                    'text' => 'Históricas',
+                    'url' => 'historico-entregas-recepcion',
+                    'icon' => 'fas fa-archive',
+                    'active' => ['historico-entregas-recepcion*'],
+                ],
             ],
         ]);
+
 
         $event->menu->add([
             'text' => 'Intervención', 'icon' => 'fas fa-toolbox', 'classes' => self::MENU_WARNING,
             'submenu' => [
                 ['text' => 'Solicitud de intervención', 'url' => 'solicitud-intervencion', 'icon' => 'fas fa-file-signature', 'active' => ['solicitud-intervencion*']],
-                ['text' => 'Reportes de intervención', 'url' => 'reportes-intervencion', 'icon' => 'fas fa-chart-pie', 'active' => ['reportes-intervencion*']],
                 ['text' => 'Intervención DEE', 'url' => 'intervenciones-niveles', 'icon' => 'fas fa-university', 'active' => ['intervenciones-niveles*']],
                 ['text' => 'Información por niveles', 'url' => 'informacion-niveles', 'icon' => 'fas fa-info-circle', 'active' => ['informacion-niveles*']],
             ],
@@ -109,11 +126,7 @@ class AdminMenuServiceProvider extends ServiceProvider
             ->exists();
 
         $event->menu->add(
-            ['text' => 'Datos del C.T.', 'url' => 'centro-trabajo', 'icon' => 'fas fa-school', 'classes' => self::MENU_PRIMARY, 'active' => ['centro-trabajo*']],
             ['text' => 'Entrega Recepción', 'url' => 'entrega-recepcion', 'icon' => 'fas fa-file-signature', 'classes' => self::MENU_PRIMARY, 'active' => ['entrega-recepcion*']],
-            ['text' => 'Solicitudes', 'icon' => 'fas fa-envelope-open-text', 'submenu' => [
-                ['text' => 'Certificado de no adeudo', 'url' => 'solicitud-certificado', 'icon' => 'far fa-file', 'active' => ['solicitud-certificado*']]
-            ]]
         );
 
         if ($intervencionGenerada) {
@@ -123,8 +136,6 @@ class AdminMenuServiceProvider extends ServiceProvider
                 ['text' => '8. SITUACIÓN DE LOS RECURSOS MATERIALES', 'url' => 'recursos-materiales', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['recursos-materiales*', 'inventario-bienes*', 'inventario-almacen*', 'relacion-bienes-custodia*']],
                 ['text' => '9. SITUACIÓN DE LAS TIC´S', 'url' => 'inventario-equipo', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['inventario-equipo*']],
                 ['text' => '13. ARCHIVOS', 'url' => 'relacion-archivos', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['relacion-archivos*', 'relacion-archivos-historico*', 'documentos-noconvencionles*']],
-                ['text' => '14. CERTIFICADOS DE NO ADEUDO', 'url' => 'certificados-no-adeudo', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['certificados-no-adeudo*']],
-                ['text' => '15. INFORME DE GESTIÓN', 'url' => 'informe-gestion-plantilla', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['informe-gestion-plantilla*', 'informe-compromisos*']],
                 ['text' => '18. OTROS HECHOS (Generales)', 'url' => 'otros-hechos', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['otros-hechos*']],
                 ['text' => 'Entregas Realizadas', 'url' => 'historico-entregas-recepcion', 'icon' => 'fas fa-check-circle', 'classes' => self::MENU_SUCCESS, 'active' => ['historico-entregas-recepcion*']]
             );

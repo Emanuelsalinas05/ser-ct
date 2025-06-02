@@ -7,7 +7,7 @@
     <div>
         <p style="text-align:justify; font-size: 14px;">
             <i>
-                AL FINALIZAR EL REGISTRO DE ORDENAMIENTOS JURÍDICO-ADMINISTRATIVOS,
+                AL FINALIZAR EL REGISTRO DE ORDENAMIENTO JURÍDICO-ADMINISTRATIVO,
                 NO PODRÁS MODIFICAR Y/O QUITAR ALGÚN ELEMENTO REGISTRADO.
             </i>
         </p>
@@ -23,7 +23,7 @@
                     <button class="btn btn-success btn-sm btn-block"
                             style="font-size: 14px;">
                             &nbsp;
-                        SÍ, FINALIZAR REGISTRO DE ORDENAMIENTOS JURÍDICO-ADMINISTRATIVOS
+                        SÍ, FINALIZAR REGISTRO DE ORDENAMIENTO JURÍDICO-ADMINISTRATIVO
                         <i class="fas fa-check"></i>
                     </button>
 

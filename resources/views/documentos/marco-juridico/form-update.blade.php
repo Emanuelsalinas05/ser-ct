@@ -71,7 +71,7 @@
 
             <center>
                 <button class="btn btn-outline-success btn-sm btn-block">
-                    SI, ACTUALIZAR EL REGISTRO
+                    SÍ, ACTUALIZAR EL REGISTRO
                 </button>
             </center>
 
