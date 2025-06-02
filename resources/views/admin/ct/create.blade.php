@@ -1,259 +1,142 @@
 @extends('layouts.app')
 
-{{-- Customize layout sections --}}
 @section('title', 'CENTROS DE TRABAJO')
 @section('content_header_title', 'Home')
-@section('content_header_subtitle', ' CENTROS DE TRABAJO')
-
-{{-- Content body: main page content --}}
+@section('content_header_subtitle', 'CENTROS DE TRABAJO')
 
 @section('content')
-<div class="col-12 card card-secondary card-outline shadow" >
-    <div class="card-header bg-light shadow-sm d-flex mb-2">
-        <div class="d-flex justify-content-between">
-            <b><i class="nav-icon fa fa-home"></i>&nbsp;
-                CENTROS DE TRABAJO {{ Auth::user()->onivel=='ELEMENTAL' ? 'DIRECCIÓN DE EDUCACIÓN ELEMENTAL' : 'DIRECCIÓN DE EDUCACIÓN SECUNDARIA Y SERVICIOS DE APOYO' }}
-            </b> 
+    <div class="col-12 card card-secondary card-outline shadow">
+        <div class="card-header bg-light shadow-sm d-flex justify-content-between align-items-center">
+            <b>
+                <i class="nav-icon fa fa-home"></i>&nbsp;
+                CENTROS DE TRABAJO {{ Auth::user()->onivel == 'ELEMENTAL' ? 'DIRECCIÓN DE EDUCACIÓN ELEMENTAL' : 'DIRECCIÓN DE EDUCACIÓN SECUNDARIA Y SERVICIOS DE APOYO' }}
+            </b>
+        </div>
+
+        <div class="card-body">
+            <div class="mb-3">
+                <a href="{{ url('/centros-de-trabajo') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Volver a CT Escuelas
+                </a>
+            </div>
+
+            <form name="FrmCartel" id="FrmCartel" method="POST" action="{{ route('centros-de-trabajo.store') }}">
+                @csrf
+
+                <legend class="text-info fw-bold mb-3">REGISTRAR CENTRO DE TRABAJO</legend>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="oct" class="form-label">Clave de centro de trabajo</label>
+                        <input type="text" name="oct" id="oct" class="form-control form-control-sm" value="{{ old('oct') }}">
+                        @error('oct') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-md-8">
+                        <label for="onombrect" class="form-label">Nombre del centro de trabajo</label>
+                        <input type="text" name="onombrect" id="onombrect" class="form-control form-control-sm" value="{{ old('onombrect') }}">
+                        @error('onombrect') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="ovalle" class="form-label">Valle</label>
+                        <select name="ovalle" id="ovalle" class="form-control form-control-sm">
+                            <option disabled selected>-- Selecciona --</option>
+                            <option value="MEXICO">MÉXICO</option>
+                            <option value="TOLUCA">TOLUCA</option>
+                        </select>
+                        @error('ovalle') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="osubdir" class="form-label">Subdirección</label>
+                        <select name="osubdir" id="osubdir" class="form-control form-control-sm">
+                            <option disabled selected>-- Selecciona --</option>
+                            <option value="0">SIN SUBDIRECCIÓN</option>
+                            @foreach($subdirs as $sub)
+                                <option value="{{ $sub->idct_subdireccion }}">{{ $sub->cct_subdireccion }}</option>
+                            @endforeach
+                        </select>
+                        @error('osubdir') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="odepto" class="form-label">Departamento</label>
+                        <select name="odepto" id="odepto" class="form-control form-control-sm">
+                            <option disabled selected>-- Selecciona --</option>
+                            <option value="0">SIN DEPARTAMENTO</option>
+                            @foreach($deptos as $dep)
+                                <option value="{{ $dep->idct_departamento }}">{{ $dep->cct_departamento }}</option>
+                            @endforeach
+                        </select>
+                        @error('odepto') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="osector" class="form-label">Sector</label>
+                        <select name="osector" id="osector" class="form-select selectpicker" data-live-search="true" title="Buscar sector...">
+                            <option value="0">SIN SECTOR</option>
+                            @foreach($sectors as $sect)
+                                <option value="{{ $sect->idct_sector }}">{{ $sect->cct_sector }}</option>
+                            @endforeach
+                        </select>
+                        @error('osector') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="osuper" class="form-label">Supervisión</label>
+                        <select name="osuper" id="osuper" class="form-select selectpicker" data-live-search="true" title="Buscar supervisión...">
+                            <option value="0">SIN SUPERVISIÓN</option>
+                            @foreach($supers as $sup)
+                                <option value="{{ $sup->idct_supervicion }}">{{ $sup->cct_supervision }}</option>
+                            @endforeach
+                        </select>
+                        @error('osuper') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-md-8">
+                        <label for="odomicilio" class="form-label">Domicilio</label>
+                        <input type="text" name="odomicilio" id="odomicilio" class="form-control form-control-sm" value="{{ old('odomicilio') }}">
+                        @error('odomicilio') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="ocolonia" class="form-label">Colonia</label>
+                        <input type="text" name="ocolonia" id="ocolonia" class="form-control form-control-sm" value="{{ old('ocolonia') }}">
+                        @error('ocolonia') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="ocp" class="form-label">C.P.</label>
+                        <input type="text" name="ocp" id="ocp" class="form-control form-control-sm" maxlength="5" value="{{ old('ocp') }}">
+                        @error('ocp') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="otel" class="form-label">Teléfono</label>
+                        <input type="text" name="otel" id="otel" class="form-control form-control-sm" maxlength="10" value="{{ old('otel') }}">
+                        @error('otel') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="ocorreo" class="form-label">Correo</label>
+                        <input type="email" name="ocorreo" id="ocorreo" class="form-control form-control-sm" value="{{ old('ocorreo') }}">
+                        @error('ocorreo') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="ompio" class="form-label">Municipio</label>
+                        <input type="text" name="ompio" id="ompio" class="form-control form-control-sm" value="{{ old('ompio') }}">
+                        @error('ompio') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="fas fa-save"></i> Guardar centro de trabajo
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-    <div class="card-body table-responsive" >
-
-
-        <li class=" d-flex justify-content-between align-items-center"
-            style="border:none;">
-            <a  href="{{ url('/centros-de-trabajo') }}" 
-                class="btn btn-outline-secondary tn-sm" style="font-size: 12px;">
-                <i class="fas fa-backward"></i>&nbsp;
-                VOLVER A &nbsp; <b>CT ESCUELAS</b>
-            </a>&nbsp;
-        </li>
-        <br>
-
-                                   
-        <form   name="FrmCartel" id="FrmCartel" method="post" 
-                action="{{ route('centros-de-trabajo.store') }}"  
-                style="font-size:12px;">
-        @method('POST')
-        @csrf
-
-            <legend style="font-size:14px;" class="text-info">
-                <b>REGISTRAR CENTRO DE TRABAJO</b>
-            </legend>
-                
-            <table class="table table-sm col-sm-10" >
-                <tr>
-                    <td align="right" width="35%">CLAVE DE CENTRO DE TRABAJO
-                        
-                    </td>
-                    <td>
-                        <input  type="text" 
-                                name="oct" id="oct"
-                                class="form-control form-control-sm col-sm-4">
-                        @error('oct') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right">
-                        NOMBRE CENTRO DE TRABAJO
-                    </td>
-                    <td>
-                        <input  type="text" 
-                                name="onombrect" id="onombrect"
-                                class="form-control form-control-sm">
-                        @error('onombrect') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right">
-                        NIVEL
-                    </td>
-                    <td><b>ESCUELA</b>
-                        <!--
-                        <select name="onivel" id="onivel" 
-                                class="form-control form-control-sm col-sm-4">
-                            <option value="" selected disabled>-- Elije el nivel --</option>
-                            <option value="ESCUELA" >ESCUELA</option>
-                            <option value="SECTOR" >SECTOR</option>
-                            <option value="SUPERVISIÓN" >SUPERVISIÓN</option>
-                        </select>
-                    -->
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right">
-                        SUBDIRECCIÓN
-                    </td>
-                    <td> 
-                        <select name="osubdir" id="osubdir" 
-                                class="form-control form-control-sm ">
-                            <option value="" selected disabled>-- Elije la subdirección --</option>
-                            <option value="0" >SIN SUBDIRECCIÓN</option>
-                            @foreach($subdirs as $sub)
-                                <option value="{{ $sub->idct_subdireccion }}" >
-                                    {{ $sub->cct_subdireccion }}  
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('osubdir') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right">
-                        DEPARTAMENTO
-                    </td>
-                    <td> 
-                        <select name="odepto" id="odepto" 
-                                class="form-control form-control-sm  ">
-                            <option value="" selected disabled>-- Elije el departamento --</option>
-                            <option value="0" >SIN DEPARTAMENTO</option>
-                            @foreach($deptos as $dep)
-                                <option value="{{ $dep->idct_departamento }}" >
-                                    {{ $dep->cct_departamento }}  
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('odepto') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right">
-                        SECTOR
-                    </td>
-                    <td> 
-                        <select name="osector" id="osector" 
-                                class="selectpicker" 
-                                data-live-search="true" style="cursor: pointer;"  
-                                data-width="100%"  
-                                title="Sector a buscar...">
-                            <option value="0" >SIN SECTOR</option>
-                            @foreach($sectors as $sect)
-                                <option value="{{ $sect->idct_sector }}" 
-                                        data-tokens="{{ $sect->cct_sector }}">
-                                    {{ $sect->cct_sector }}  
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('osector') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-
-                <tr>
-                    <td align="right">
-                        SUPERVISIÓN
-                    </td>
-                    <td> 
-
-                        <select name="osuper" id="osuper" 
-                                class="selectpicker" 
-                                data-live-search="true" style="cursor: pointer;"  
-                                data-width="100%"  
-                                title="Supervisión a buscar..."> 
-                            <option value="0" >SIN SUPERVISIÓN</option>
-                            @foreach($supers as $sup)
-                                <option value="{{ $sup->idct_supervicion }}" 
-                                        data-tokens="{{ $sup->cct_supervision }}" >
-                                    {{ $sup->cct_supervision }}  
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('osuper') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right">
-                        VALLE
-                    </td>
-                    <td>
-                        <select name="ovalle" id="ovalle" 
-                                class="form-control form-control-sm col-sm-4">
-                            <option value="" selected disabled>-- Elije el Valle --</option>
-                            <option value="MEXICO" >MEXICO</option>
-                            <option value="TOLUCA" >TOLUCA</option>
-                        </select>
-                        @error('ovalle') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right">
-                        DOMICILIO
-                    </td>
-                    <td>
-                        <input  type="text" 
-                                name="odomicilio" id="odomicilio"
-                                class="form-control form-control-sm">
-                        @error('odomicilio') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right">
-                        COLONIA
-                    </td>
-                    <td>
-                        <input  type="text" 
-                                name="ocolonia" id="ocolonia"
-                                class="form-control form-control-sm">
-                        @error('ocolonia') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right">
-                        C.P.
-                    </td>
-                    <td>
-                        <input  type="text" 
-                                name="ocp" id="ocp"
-                                class="form-control form-control-sm col-sm-4"
-                                maxlength="5">
-                        @error('ocp') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right">
-                        TELEFONO
-                    </td>
-                    <td>
-                        <input  type="text" 
-                                name="otel" id="otel"
-                                class="form-control form-control-sm col-sm-4"
-                                maxlength="10">
-                        @error('otel') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right">
-                        CORREO
-                    </td>
-                    <td>
-                        <input  type="text" 
-                                name="ocorreo" id="ocorreo"
-                                class="form-control form-control-sm col-sm-6">
-                        @error('ocorreo') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-                <tr>
-                    <td align="right">
-                        MUNICIPIO
-                    </td>
-                    <td>
-                        <input  type="text" 
-                                name="ompio" id="ompio"
-                                class="form-control form-control-sm">
-                        @error('ompio') <span style="color:red;">{{ $message }}</span> @enderror
-                    </td>
-                </tr>
-                <tr>
-                    <td align="center" colspan="2">
-                        <button type="submit" 
-                                class="btn btn-success btn-sm">
-                            GUARDAR CENTRO DE TRABAJO
-                        </button>
-                    </td>
-                </tr>
-            </table>
-        </form>
-
-
-        
-    </div>
-</div>
-@stop
+@endsection

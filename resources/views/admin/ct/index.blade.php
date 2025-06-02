@@ -1,136 +1,85 @@
 @extends('layouts.app')
 
-{{-- Customize layout sections --}}
 @section('title', 'CENTROS DE TRABAJO')
 @section('content_header_title', 'Home')
 @section('content_header_subtitle', ' CENTROS DE TRABAJO')
 
-{{-- Content body: main page content --}}
-
 @section('content')
-<div class="col-12 card card-secondary card-outline shadow" >
-    <div class="card-header bg-light shadow-sm d-flex mb-2">
-        <div class="d-flex justify-content-between">
-            <b><i class="nav-icon fa fa-home"></i>&nbsp;
-                CENTROS DE TRABAJO {{ Auth::user()->onivel=='ELEMENTAL' ? 'DIRECCIÓN DE EDUCACIÓN ELEMENTAL' : 'DIRECCIÓN DE EDUCACIÓN SECUNDARIA Y SERVICIOS DE APOYO' }}
-            </b> 
+    <div class="col-12 card card-secondary card-outline shadow">
+        <div class="card-header bg-light shadow-sm d-flex justify-content-between align-items-center mb-2">
+            <b>
+                <i class="nav-icon fa fa-home"></i>&nbsp;
+                CENTROS DE TRABAJO {{ Auth::user()->onivel == 'ELEMENTAL' ? 'DIRECCIÓN DE EDUCACIÓN ELEMENTAL' : 'DIRECCIÓN DE EDUCACIÓN SECUNDARIA Y SERVICIOS DE APOYO' }}
+            </b>
         </div>
-    </div>
-    <div class="card-body table-responsive" >
 
+        <div class="card-body table-responsive">
 
-        <li class=" d-flex justify-content-between align-items-center"
-            style="border:none;">
-            <a  href="{{ route('centros-de-trabajo.create') }}" 
-                class="btn btn-outline-success tn-sm" style="font-size: 12px;">
-                &nbsp; <b>AGREGAR NUEVO CT </b>&nbsp;<i class="fas fa-save"></i>&nbsp;
-            </a>
-            &nbsp;
-        </li>
-        <br>
+            {{-- Botón agregar nuevo --}}
+            <div class="mb-3 d-flex justify-content-between align-items-center">
+                <a href="{{ route('centros-de-trabajo.create') }}" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-plus"></i> Agregar nuevo CT
+                </a>
+            </div>
 
-         @if(Auth::user()->orol==1)
-        <x-adminlte-callout>
-                <form   name="FrmCartel" id="FrmCartel" 
-                        method="get" 
-                        action="{{ route('centros-de-trabajo.show', 0 ) }}" >
+            {{-- Filtro visible solo para rol 1 --}}
+            @if(Auth::user()->orol == 1)
+                <x-adminlte-callout>
+                    <form method="GET" action="{{ route('centros-de-trabajo.show', 0) }}" class="row g-2 align-items-center">
                         @method('PATCH')
                         @csrf
+                        <div class="col-md-3 text-end">
+                            <label for="elct" class="col-form-label text-info fw-bold">Centro de trabajo:</label>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" name="elct" id="elct" class="form-control" required value="{{ old('elct') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-outline-success btn-sm w-100">
+                                <i class="fa fa-search"></i> Buscar CT
+                            </button>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <a href="{{ url('/centros-de-trabajo') }}" class="btn btn-outline-info btn-sm w-100">
+                                Ver todos los CT
+                            </a>
+                        </div>
+                    </form>
+                </x-adminlte-callout>
+            @endif
 
-                    <table class="table-sm " style="font-size:14px;">
-                        <tr>
-                            <td align="right" width="25%">
-                                <b class="text-info">INGRESA EL CENTRO DE TRABAJO</b>
-                            </td>
-                            <td width="20%">
-                                <input  type="text" 
-                                        id="elct" name="elct"
-                                        class="form-control"
-                                        required 
-                                        value="{{ old('elct') }}" >
-                            </td>
-                            <td width="25%">
-                                <button type="submit" 
-                                        class="btn btn-outline-success btn-sm">
-                                    BUSCAR CT &nbsp;&nbsp;
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </td>
-                            <td width="35%" align="right">
-                                <a href="{{ url('/centros-de-trabajo') }}"
-                                    class="btn btn-outline-info" 
-                                    style="font-size:14px; text-decoration: none;">
-                                    VER TODOS LOS CT
-                                </a>
-                            </td>
-                        </tr>
-                    </table>
-                </form>
-        </x-adminlte-callout>
-        @endif
-
-
-        <table  class="table table-striped table-sm"
-                id="example130"
-                style="font-size:13px;">
-            <thead class="bg-lightblue">
-                <tr align="center">
-                    <th>NOMBRE DEL CENTRO DE TRABAJO</th>
-                    <th>DESCRIPCIÓN MODALIDAD</th>
-                    <th>VALLE</th>
-                    <th>SUPERVISION</th>
-                    <th>SECTOR</th>
-                    <th>DEPARTAMENTO</th>
-                    <th>SUBDIRECCIÓN</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($cts as $key => $ct)
+            {{-- Tabla --}}
+            <table class="table table-striped table-bordered table-sm text-center align-middle" id="example130" style="font-size:13px;">
+                <thead class="bg-lightblue">
                 <tr>
-                    <td>
-                        {{ $ct->cct_escuela.' - '.$ct->cct->onombre_ct }}
-                    </td>
-                    <td>
-                        {{ $ct->cct->desc_modal }}
-                    </td>
-                    <td>
-                        {{ $ct->ovalle }}
-                    </td>
-
-                    <td align="center">
-                        @if($ct->cct_supervision<=1)
-                            ---
-                        @else
-                            {{ $ct->cct_supervision }}
-                        @endif
-                    </td>
-
-                    <td align="center">
-                        @if($ct->cct_sector<=1)
-                            ---
-                        @else
-                            {{ $ct->cct_sector }}
-                        @endif
-                    </td>
-
-                    <td align="center">
-                        @if($ct->cct_departamento<=1)
-                            ---
-                        @else
-                            {{ $ct->cct_departamento }}
-                        @endif
-                    </td>
-
-                    <td align="center">
-                        {{ $ct->cct_subdireccion }}
-                    </td>
+                    <th>Nombre del centro de trabajo</th>
+                    <th>Descripción modalidad</th>
+                    <th>Valle</th>
+                    <th>Supervisión</th>
+                    <th>Sector</th>
+                    <th>Departamento</th>
+                    <th>Subdirección</th>
                 </tr>
+                </thead>
+                <tbody>
+                @foreach($cts as $ct)
+                    <tr>
+                        <td class="text-start">{{ $ct->cct_escuela }} - {{ $ct->cct->onombre_ct }}</td>
+                        <td>{{ $ct->cct->desc_modal }}</td>
+                        <td>{{ $ct->ovalle }}</td>
+                        <td>{{ $ct->cct_supervision > 1 ? $ct->cct_supervision : '---' }}</td>
+                        <td>{{ $ct->cct_sector > 1 ? $ct->cct_sector : '---' }}</td>
+                        <td>{{ $ct->cct_departamento > 1 ? $ct->cct_departamento : '---' }}</td>
+                        <td>{{ $ct->cct_subdireccion }}</td>
+                    </tr>
                 @endforeach
-            </tbody>
-        </table>
+                </tbody>
+            </table>
 
-         {{ $cts->links('vendor.pagination.bootstrap-5') }}
-        
+            {{-- Paginación --}}
+            <div class="d-flex justify-content-center">
+                {{ $cts->links('vendor.pagination.bootstrap-5') }}
+            </div>
+        </div>
     </div>
-</div>
 @stop

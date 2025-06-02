@@ -13,17 +13,17 @@
         <div class="d-flex justify-content-between">
             <b><i class="nav-icon fa fa-users"></i>&nbsp;
                 USUARIOS DE ENTREGA - RECEPCIÓN
-            </b> 
+            </b>
         </div>
     </div>
     <div class="card-body table-responsive" >
 
 
-        <form   name="FrmCartel" id="FrmCartel" 
-                method="get" 
+        <form   name="FrmCartel" id="FrmCartel"
+                method="get"
                 action="{{ route('usuarios.show', 0 ) }}" >
-                @method('PATCH')
-                @csrf
+            @method('PATCH')
+            @csrf
 
             <table class="table table-sm " style="font-size:14px;">
                 <tr>
@@ -31,14 +31,14 @@
                         <b class="text-info">BUSCAR CENTRO DE TRABAJO</b>
                     </td>
                     <td width="20%">
-                        <input  type="text" 
+                        <input  type="text"
                                 id="elct" name="elct"
                                 class="form-control"
-                                required 
+                                required
                                 value="{{ old('elct', $requeste) }}" >
                     </td>
                     <td width="25%">
-                        <button type="submit" 
+                        <button type="submit"
                                 class="btn btn-outline-success btn-sm">
                             VER USUARIO &nbsp;&nbsp;
                             <i class="fa fa-search"></i>
@@ -46,8 +46,8 @@
                     </td>
                     <td width="35%" align="right">
                         <a href="{{ url('/usuarios') }}"
-                            class="btn btn-outline-info"
-                            style="font-size:14px;">
+                           class="btn btn-outline-info"
+                           style="font-size:14px;">
                             VER TODOS LOS USUARIOS
                         </a>
                     </td>
@@ -61,28 +61,31 @@
                 style="font-size:14px;"
                 id="example1300">
             <thead class="bg-lightblue" align="center">
-                <tr>
-                    <th>CENTRO DE TRABAJO</th>
-                    <th>PERFIL DEL USUARIO</th>
-                    <th>USUARIO</th>
-                    <th>CONTRASEÑA</th>
-                    <th></th>
-                </tr>
+            <tr>
+                <th>CENTRO DE TRABAJO</th>
+                <th>PERFIL DEL USUARIO</th>
+                <th>USUARIO</th>
+                <th>CONTRASEÑA</th>
+                <th></th>
+            </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>{{ $userx->email.' - '.$userx->elct->onombre_ct }}</td>
-                    <td>{{ $userx->roluser->orol}}</td>
-                    <td>{{ $userx->email}}</td>
-                    <td>{{ $userx->opwd}}</td>
-                    <td> 
-                        <a  href="{{ route('usuarios.edit', $userx->id_ct) }}"
-                            class="btn btn-outline-dark btn-sm" 
-                                style="font-size: 12px;">
-                            <i class="fa fa-edit"></i>
-                        </a>
-                    </td>
-                </tr>
+            <tr>
+                <td>
+                    {{ $userx->email }} -
+                    {{ optional($userx->centrotrabajo)->onombre_ct ?? '---' }}
+                </td>
+                <td>{{ $userx->roluser->orol }}</td>
+                <td>{{ $userx->email }}</td>
+                <td>{{ $userx->opwd }}</td>
+                <td>
+                    <a href="{{ route('usuarios.edit', $userx->id) }}"
+                       class="btn btn-outline-dark btn-sm"
+                       style="font-size: 12px;">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                </td>
+            </tr>
             </tbody>
         </table>
         @else
@@ -92,7 +95,7 @@
             </h3>
         </center>
         @endif
-        
+
 
 
     </div>

@@ -1,67 +1,87 @@
 @extends('layouts.app')
 
-{{-- Customize layout sections --}}
 @section('title', 'CENTROS DE TRABAJO')
 @section('content_header_title', 'Home')
-@section('content_header_subtitle', ' CENTROS DE TRABAJO')
-
-{{-- Content body: main page content --}}
+@section('content_header_subtitle', 'CENTROS DE TRABAJO')
 
 @section('content')
-<div class="col-12 card card-secondary card-outline shadow" >
-    <div class="card-header bg-light shadow-sm d-flex mb-2">
-        <div class="d-flex justify-content-between">
-            <b><i class="nav-icon fa fa-home"></i>&nbsp;
-                CENTROS DE TRABAJO {{ Auth::user()->onivel=='ELEMENTAL' ? 'DIRECCIÓN DE EDUCACIÓN ELEMENTAL' : 'DIRECCIÓN DE EDUCACIÓN SECUNDARIA Y SERVICIOS DE APOYO' }}
-            </b> 
-        </div>
+<div class="card card-secondary card-outline shadow">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-home"></i>
+            CENTROS DE TRABAJO
+            {{ Auth::user()->onivel === 'ELEMENTAL' ? 'DIRECCIÓN DE EDUCACIÓN ELEMENTAL' : 'DIRECCIÓN DE EDUCACIÓN SECUNDARIA Y SERVICIOS DE APOYO' }}
+        </h5>
+        <a href="{{ route('centros-de-trabajo.create') }}" class="btn btn-sm btn-outline-success">
+            <i class="fas fa-plus"></i> Agregar nuevo CT
+        </a>
     </div>
-    <div class="card-body table-responsive" >
 
+    <div class="card-body table-responsive">
+        {{-- Filtro visible solo para rol 1 --}}
+        @if(Auth::user()->orol == 1)
+        <x-adminlte-callout>
+            <form method="GET" action="{{ route('centros-de-trabajo.show', 0) }}" class="row g-2 align-items-center">
+                @method('PATCH')
+                @csrf
+                <div class="col-md-3 text-end">
+                    <label for="elct" class="col-form-label text-info fw-bold">Centro de trabajo:</label>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="elct" id="elct" class="form-control" required value="{{ old('elct') }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-success btn-sm w-100">
+                        <i class="fa fa-search"></i> Buscar CT
+                    </button>
+                </div>
+                <div class="col-md-3 text-end">
+                    <a href="{{ url('/centros-de-trabajo') }}" class="btn btn-outline-info btn-sm w-100">
+                        Ver todos los CT
+                    </a>
+                </div>
+            </form>
+        </x-adminlte-callout>
+        @endif
 
-        <li class=" d-flex justify-content-between align-items-center"
-            style="border:none;">
-            <a  href="{{ route('centros-de-trabajo.create') }}" 
-                class="btn btn-outline-success tn-sm" style="font-size: 12px;">
-                &nbsp; <b>AGREGAR NUEVO CT </b>&nbsp;<i class="fas fa-save"></i>&nbsp;
-            </a>
-            &nbsp;
-        </li>
-        <br>
-
-
-        <table  class="table table-striped table-sm"
-                id="example13"
-                style="font-size:13px;">
+        {{-- Tabla de centros --}}
+        <table class="table table-bordered table-striped table-sm text-center align-middle" id="example130" style="font-size:13px;">
             <thead class="bg-lightblue">
-                <tr>
-                    <th>#</th>
-                    <th>NOMBRE DEL CENTRO DE TRABAJO</th>
-                    <th>DIRECCIÓN</th>
-                    <th>DESCRIPCIÓN MODALIDAD</th>
-                </tr>
+            <tr>
+                <th>Nombre del CT</th>
+                <th>Modalidad</th>
+                <th>Valle</th>
+                <th>Supervisión</th>
+                <th>Sector</th>
+                <th>Departamento</th>
+                <th>Subdirección</th>
+            </tr>
             </thead>
             <tbody>
-                @foreach($cts as $key => $ct)
-                <tr>
-                    <td>{{$ct->idct_escuela}}</td>
-                    
-                    <td>
-                        {{ $ct->cct_escuela.' - '.$ct->cct->onombre_ct }}
-                    </td>
-                    
-                    <td>
-                        {{ $ct->cct->odireccion }}
-                    </td>
-                    
-                    <td>
-                        {{ $ct->cct->desc_modal }}
-                    </td>
-                </tr>
-                @endforeach
+            @forelse($cts as $ct)
+            <tr>
+                <td class="text-start">{{ $ct->cct_escuela }} - {{ $ct->cct->onombre_ct }}</td>
+                <td>{{ $ct->cct->desc_modal ?? '---' }}</td>
+                <td>{{ $ct->ovalle ?? '---' }}</td>
+                <td>{{ $ct->cct_supervision > 1 ? $ct->cct_supervision : '---' }}</td>
+                <td>{{ $ct->cct_sector > 1 ? $ct->cct_sector : '---' }}</td>
+                <td>{{ $ct->cct_departamento > 1 ? $ct->cct_departamento : '---' }}</td>
+                <td>{{ $ct->cct_subdireccion ?? '---' }}</td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="7" class="text-center text-muted">
+                    <i class="fas fa-exclamation-circle"></i> No hay registros disponibles.
+                </td>
+            </tr>
+            @endforelse
             </tbody>
         </table>
-        
+
+        {{-- Paginación --}}
+        <div class="d-flex justify-content-center">
+            {{ $cts->links('vendor.pagination.bootstrap-5') }}
+        </div>
     </div>
 </div>
 @stop
