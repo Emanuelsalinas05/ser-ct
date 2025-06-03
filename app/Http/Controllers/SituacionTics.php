@@ -39,9 +39,9 @@ class SituacionTics extends Controller
         $icomputo   = Inventariocomputo::whereIdActa($datosacta->id)->whereNotIn('status', ['B'])->get();
         $icomputoc  = Inventariocomputo::whereIdActa($datosacta->id)->whereNotIn('status', ['B'])->count();
 
-        return view('documentos.situacion-tics.9-1.index', 
-                compact('anexo', 'documento', 'datosacta', 'avances', 'icomputo', 'icomputoc')
-                );
+        return view('documentos.situacion-tics.9-1.index',
+            compact('anexo', 'documento', 'datosacta', 'avances', 'icomputo', 'icomputoc')
+        );
     }
 
     public function store(Request $request)
@@ -56,38 +56,38 @@ class SituacionTics extends Controller
 
         if($request->actiontic=='1')
         {
-                if($request->hasFile('onombre_archivo'))
-                {
-                    $file->storeAs('inventario-equipo/9-1/'.$elct, $nombredoc.'.'.$file->extension(), 'public');
-                    Inventariocomputo::create([
-                        'id_acta'           => $idacta,
-                        'id_ct'             => Auth::user()->id_ct,
-                        'onombre_documento' => $nombredoc,
-                        'ourl'              => 'inventario-equipo/9-1/'.$elct.'/',
-                        'oarchivo_adjunto'  => $nombredoc.'.'.$file->extension(),
-                        'oanio'             => date('Y-m-d'), 
-                        'ofile'             => 1,     
-                    ]);
-                    return redirect()->back()->with("success", "Se ha cargado el archivo $nombredoc correctamente"); 
-                }else{
-                    return redirect()->back()->with("warning", "No se ha cargado ningún archivo");
-                }
-
-        }else if($request->actiontic=='9'){
-
-                $update_almacen = Inventariocomputo::whereIdActa($idacta)->whereOfile(1);
-                $update_almacen->update([ 'status' => 'B' ]);
-
+            if($request->hasFile('onombre_archivo'))
+            {
+                $file->storeAs('inventario-equipo/9-1/'.$elct, $nombredoc.'.'.$file->extension(), 'public');
                 Inventariocomputo::create([
                     'id_acta'           => $idacta,
                     'id_ct'             => Auth::user()->id_ct,
-                    'onombre_documento' => 'N/A',
-                    'ourl'              => 'N/A',
-                    'oarchivo_adjunto'  => 'N/A',
-                    'oanio'             => date('Y-m-d'),     
+                    'onombre_documento' => $nombredoc,
+                    'ourl'              => 'inventario-equipo/9-1/'.$elct.'/',
+                    'oarchivo_adjunto'  => $nombredoc.'.'.$file->extension(),
+                    'oanio'             => date('Y-m-d'),
+                    'ofile'             => 1,
                 ]);
+                return redirect()->back()->with("success", "Se ha cargado el archivo $nombredoc correctamente");
+            }else{
+                return redirect()->back()->with("warning", "No se ha cargado ningún archivo");
+            }
 
-                return redirect()->back()->with("success", "Se ha registrado correctamente la información"); 
+        }else if($request->actiontic=='9'){
+
+            $update_almacen = Inventariocomputo::whereIdActa($idacta)->whereOfile(1);
+            $update_almacen->update([ 'status' => 'B' ]);
+
+            Inventariocomputo::create([
+                'id_acta'           => $idacta,
+                'id_ct'             => Auth::user()->id_ct,
+                'onombre_documento' => 'N/A',
+                'ourl'              => 'N/A',
+                'oarchivo_adjunto'  => 'N/A',
+                'oanio'             => date('Y-m-d'),
+            ]);
+
+            return redirect()->back()->with("success", "Se ha registrado correctamente la información");
         }
 
     }
@@ -103,17 +103,56 @@ class SituacionTics extends Controller
             unlink(storage_path('app/public/'.$almacen->ourl.$almacen->oarchivo_adjunto));
 
             return redirect()->back()->with("success", "Se ha removido el archivo correctamente");
-  
+
         }else if($request->actionplantilla==2){
 
             $avances_plantilla = Avanceanexos::whereIdActa($request->acta);
-            $avances_plantilla->update([ 'oinventario_equipo_a' => 1 , 
-                                         'oopenanexo' => 1,
-                                        ]);  
-  
+            $avances_plantilla->update([ 'oinventario_equipo_a' => 1 ,
+                'oopenanexo' => 1,
+            ]);
+
             return redirect()->route('documentos.situacion-tics.index')
-                    ->with("success", "Se ha finalizado el inventario de existencias en almacenes"); 
+                ->with("success", "Se ha finalizado inventario de equipo de cómputo y comunicaciones.");
         }
     }
+    public function edit($id)
+    {
+        $inventario = Inventariocomputo::findOrFail($id);
+        return view('documentos.situacion-tics.9-1.edit', compact('inventario'));
+    }
+    public function actualizar(Request $request, $id)
+    {
+        $inventario = Inventariocomputo::findOrFail($id);
+
+        // Validar nombre
+        $request->validate([
+            'onombre_documento' => 'required|string|max:255',
+            'onombre_archivo' => 'nullable|file|max:10240' // máximo 10MB
+        ]);
+
+        // Actualiza nombre del documento
+        $inventario->onombre_documento = str_replace(' ', '', $request->onombre_documento);
+
+        // Si hay nuevo archivo, lo guarda y reemplaza
+        if ($request->hasFile('onombre_archivo')) {
+            // Elimina el archivo anterior si existe
+            Storage::disk('public')->delete($inventario->ourl . $inventario->oarchivo_adjunto);
+
+            $archivo = $request->file('onombre_archivo');
+            $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+
+            // Guarda nuevo archivo
+            $archivo->storeAs($inventario->ourl, $nombreArchivo, 'public');
+
+            // Actualiza nombre del archivo en DB
+            $inventario->oarchivo_adjunto = $nombreArchivo;
+        }
+
+        $inventario->save();
+
+        return redirect()->route('documentos.situacion-tics.index')
+            ->with('success', 'Documento actualizado correctamente.');
+    }
+
 
 }

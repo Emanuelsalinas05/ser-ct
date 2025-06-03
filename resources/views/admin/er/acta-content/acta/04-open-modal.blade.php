@@ -38,7 +38,7 @@
                         <button type="submit" 
                                 class="btn btn-outline-success btn-sm btn-block"
                                 title="APERTURAR ANEXO {{ $documento->odocumento }}">
-                            SI, APERTURAR ESTE ANEXO&nbsp;
+                            SÍ, APERTURAR ESTE ANEXO&nbsp;
                             <i class="fas fa-unlock-alt"></i>
                         </button>
 

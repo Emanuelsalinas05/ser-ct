@@ -29,7 +29,7 @@
                             <input type="hidden" name="idacta" value="{{ $datosacta->id }}">
                             <button type="submit" class="btn btn-outline-success btn-sm btn-block"
                                     title="APROBAR">
-                                SI, PERMITIR&nbsp;<i class="fas fa-check"></i>
+                                SÍ, PERMITIR&nbsp;<i class="fas fa-check"></i>
                             </button>
                         </form>
                 </center>

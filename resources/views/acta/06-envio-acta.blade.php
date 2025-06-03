@@ -73,9 +73,10 @@
             value="60">
 	<tr>
 		<td colspan="2" class="text-secondary">
-			A CONTINUACÍON SE ENVÍARÁ CORREO AL ÓRGANO INTERNO DE CONTROL QUIEN RECIBIRÁ EL CONTENIDO DE 
-			LA <b> {{ $datosacta->tipoacta->otipoacta }}</b> REALIZADA	. <br>
-			POR LO QUE DEBERÁS ESCRIBIR TÚ CORREO AL CUAL SE TE MARCARÁ COPIA. 
+			A CONTINUACIÓN SE ENVIARÁ CORREO AL ÓRGANO INTERNO DE CONTROL, QUIEN RECIBIRÁ EL CONTENIDO DE
+			<b>{{ $datosacta->tipoacta->otipoacta }}</b> REALIZADA. <br>
+			POR LO TANTO, DEBERÁS ESCRIBIR TU CORREO, AL CUAL SE TE MARCARÁ COPIA.
+
 		</td>
 	</tr>
 	<tr>
@@ -122,7 +123,7 @@
 			align="right"
 			style="font-size:16px;">
 			<b class="text-danger">
-				DA CLIC UNA SOLA VEZ EN EL BOTÓN "ENVIAR CORREO", ES NORMAL QUE TARDE UNOS SEGUNDOS.
+				DA CLIC UNA SOLA VEZ EN EL BOTÓN "ENVIAR CORREO"; ES NORMAL QUE EL PROCESO TARDE UNOS SEGUNDOS.
 			</b>
 		</td>
 	</tr>
@@ -130,7 +131,7 @@
 		<td colspan="2"
 			align="right">
 			<button class="btn btn-success btn-sm">
-				ENVIAR CORREO AL ÓRGANO INTERNO DE CONTROL
+				HAZ CLIC PARA ENVIAR UN CORREO AL ÓRGANO INTERNO DE CONTROL.
 				&nbsp;
 				<i class="fas fa-mail-bulk" style="font-size:18px;"></i>
 			</button>
@@ -149,12 +150,8 @@
 				style="font-size:20px;">
 				<i class="fas fa-mail-bulk" ></i>
 				&nbsp;
-				SE HA ENVIADO EL {{ $datosacta->tipoacta->otipoacta }} Y SUS ANEXOS AL OIC. 
-				SE HA CONCLUIDO EXITOSAMENTE EL ACTO DE ENTREGA Y RECEPCIÓN 
-<!--
-				SE HA NOTIFICADO AL OIC. 
-				, FAVOR DE ESPERA LA FINALIZACIÓN PARA CONCLUIR EL PROCESO DE ENTREGA - RECEPCIÓN
-			-->
+				SE HA ENVIADO EL {{ $datosacta->tipoacta->otipoacta }} Y SUS ANEXOS AL ÓRGANO INTERNO DE CONTROL.<br>
+				SE HA CONCLUIDO EXITOSAMENTE EL ACTO DE ENTREGA Y RECEPCIÓN.
 			</b>&nbsp;&nbsp;
 
 		</td>

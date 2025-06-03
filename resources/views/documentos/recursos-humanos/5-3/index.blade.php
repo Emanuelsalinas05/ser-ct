@@ -154,7 +154,7 @@
 
                     <button class="btn btn-success btn-sm"
                             style="font-size: 14px;">
-                        FINALIZAR REGISTRO DE SERVIDORES COMISIONADO&nbsp;
+                        FINALIZAR REGISTRO&nbsp;
                         <i class="fas fa-user-check"></i>
                     </button>
 

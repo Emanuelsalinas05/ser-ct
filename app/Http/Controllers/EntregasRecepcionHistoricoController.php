@@ -205,7 +205,7 @@ class EntregasRecepcionHistoricoController extends Controller
                 $avances_plantilla->update(['ocheckacta'=> 1,]);
             
                 return redirect()->back()
-                        ->with('success', 'Se aprobo al C.T para poder cargar el acta escaneada y firmadaa');
+                        ->with('success', 'Se aprobó al C.T para poder cargar el acta escaneada y firmadaa');
 
         }else if($request->action=='2'){
 
@@ -233,7 +233,7 @@ class EntregasRecepcionHistoricoController extends Controller
                 $update_actt->update(['oopenanexo' => 1,]);  
 
                 return redirect()->back()
-                        ->with('success', 'Se aperturo el anexo: '.$doc->onum_documento.' - '.$doc->odocumento);
+                        ->with('success', 'Se apertur: '.$doc->onum_documento.' - '.$doc->odocumento);
         
         }else if($request->action=='3'){
 

@@ -84,7 +84,7 @@
         <td colspan="3"></td>
     </tr>
     <tr>
-        <td align="right" colspan="2"><b>* MEDIO DE DENTIFICACIÓN</b>:</td>
+        <td align="right" colspan="2"><b>* MEDIO DE IDENTIFICACIÓN</b>:</td>
         <td>
             {{$datosacta->oidentificacion_recibe_ac}} : {{$datosacta->onumero_identificacion_recibe_ac}}
         </td>
@@ -125,7 +125,7 @@
         <td></td>
     </tr>
     <tr>
-        <td align="right" colspan="2"><b>* MEDIO DE DENTIFICACIÓN</b>:</td>
+        <td align="right" colspan="2"><b>* MEDIO DE IDENTIFICACIÓN</b>:</td>
         <td>
             {{$datosacta->oidentificacion_representante_ac}} : {{$datosacta->onumero_identificacion_representante_ac}}
         </td>
@@ -166,7 +166,7 @@
         <td></td>
     </tr>
     <tr>
-        <td align="right" colspan="2"><b>* MEDIO DE DENTIFICACIÓN</b>:</td>
+        <td align="right" colspan="2"><b>* MEDIO DE IDENTIFICACIÓN</b>:</td>
         <td>
             {{$datosacta->oidentificacion_testigo1_ac}} : {{$datosacta->onumero_identificacion_testigo1_ac}}
         </td>
@@ -197,7 +197,7 @@
         <td></td>
     </tr>
     <tr>
-        <td align="right" colspan="2"><b>* MEDIO DE DENTIFICACIÓN</b>:</td>
+        <td align="right" colspan="2"><b>* MEDIO DE IDENTIFICACIÓN</b>:</td>
         <td>
             {{$datosacta->oidentificacion_testigo2_ac}}  : {{$datosacta->onumero_identificacion_testigo2_ac}}
         </td>

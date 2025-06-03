@@ -13,7 +13,7 @@
         
         <button class="btn btn-warning btn-sm btn" 
                 style="font-size:12px;">
-            CLIC AQUÍ PARA EL CASO DE QUE EN ESTE ANEXO, NO APLICA INFORMACIÓN&nbsp;<i class="fas fa-file-upload"></i>
+            DAR CLIC AQUÍ, EN CASO DE NO CONTAR CON EQUIPO DE CÓMPUTO ARRENDADO.&nbsp;<i class="fas fa-file-upload"></i>
         </button>    
          <i style="font-size: 12px;">
             &nbsp;

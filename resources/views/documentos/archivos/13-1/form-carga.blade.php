@@ -15,7 +15,7 @@
         class="btn btn-info btn-xs"
         style="text-decoration:none; font-size: 14px; color: white;">
         <i class="far fa-hand-point-right"></i>&nbsp;&nbsp;
-        DESCARGAR AQUÍ EL FORMATO PARA EL LLENADO DE RELACIÓN DE ARCHIVOS EN TRÁMITE &nbsp;
+        DESCARGAR AQUÍ EL FORMATO  PARA EL LLENADO DE LA RELACIÓN DE ARCHIVO DE CONCENTRACIÓN O HISTÓRICO &nbsp;
         <i class="fa fa-file-alt"></i>&nbsp;&nbsp;
         <i class="far fa-hand-point-left"></i>
     </a>

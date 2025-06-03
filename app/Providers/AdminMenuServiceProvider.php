@@ -58,12 +58,6 @@ class AdminMenuServiceProvider extends ServiceProvider
                     'icon' => 'fas fa-check-circle',
                     'active' => ['entregas-finalizadas*'],
                 ],
-                [
-                    'text' => 'Históricas',
-                    'url' => 'historico-entregas-recepcion',
-                    'icon' => 'fas fa-archive',
-                    'active' => ['historico-entregas-recepcion*'],
-                ],
             ],
         ]);
 
@@ -84,7 +78,6 @@ class AdminMenuServiceProvider extends ServiceProvider
             'text' => 'Reportes', 'icon' => 'fas fa-chart-line', 'classes' => self::MENU_DANGER,
             'submenu' => [
                 ['text' => 'Reportes mensuales', 'url' => 'reportes-mensuales', 'icon' => 'fas fa-calendar-alt', 'active' => ['reportes-mensuales*']],
-                ['text' => 'Exportar datos', 'url' => 'file-export', 'icon' => 'fas fa-file-export', 'active' => ['file-export*']],
             ],
         ]);
     }
@@ -98,17 +91,10 @@ class AdminMenuServiceProvider extends ServiceProvider
             'submenu' => [
                 ['text' => 'En Curso', 'url' => 'entregas-recepcion', 'icon' => 'fas fa-folder-open', 'active' => ['entregas-recepcion*']],
                 ['text' => 'Finalizadas', 'url' => 'entregas-finalizadas', 'icon' => 'fas fa-check-circle', 'active' => ['entregas-finalizadas*']],
-                ['text' => 'Históricas', 'url' => 'historico-entregas-recepcion', 'icon' => 'fas fa-archive', 'active' => ['historico-entregas-recepcion*']],
             ],
         ]);
         $this->addCertificadosMenu($event, $user);
-        $event->menu->add([
-            'text' => 'Reportes',
-            'url' => 'reportes-mensuales',
-            'icon' => 'fas fa-chart-line',
-            'classes' => self::MENU_DANGER,
-            'active' => ['reportes-mensuales*']
-        ]);
+
         $event->menu->add([
             'text' => 'Intervención', 'icon' => 'fas fa-toolbox', 'classes' => self::MENU_WARNING,
             'submenu' => [
@@ -136,8 +122,9 @@ class AdminMenuServiceProvider extends ServiceProvider
                 ['text' => '8. SITUACIÓN DE LOS RECURSOS MATERIALES', 'url' => 'recursos-materiales', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['recursos-materiales*', 'inventario-bienes*', 'inventario-almacen*', 'relacion-bienes-custodia*']],
                 ['text' => '9. SITUACIÓN DE LAS TIC´S', 'url' => 'inventario-equipo', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['inventario-equipo*']],
                 ['text' => '13. ARCHIVOS', 'url' => 'relacion-archivos', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['relacion-archivos*', 'relacion-archivos-historico*', 'documentos-noconvencionles*']],
-                ['text' => '18. OTROS HECHOS (Generales)', 'url' => 'otros-hechos', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['otros-hechos*']],
-                ['text' => 'Entregas Realizadas', 'url' => 'historico-entregas-recepcion', 'icon' => 'fas fa-check-circle', 'classes' => self::MENU_SUCCESS, 'active' => ['historico-entregas-recepcion*']]
+                ['text' => '18. OTROS HECHOS (GENERALES)', 'url' => 'otros-hechos', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['otros-hechos*']],
+                ['text' => 'Entregas Realizadas', 'url' => 'entregas-finalizadas', 'icon' => 'fas fa-check-circle', 'classes' => self::MENU_SUCCESS, 'active' => ['entregas-finalizadas*']],
+
             );
         }
     }
@@ -157,7 +144,6 @@ class AdminMenuServiceProvider extends ServiceProvider
     private function addCertificadosMenu(BuildingMenu $event, $user)
     {
         $submenu = [
-            ['text' => 'Solicitudes Recibidas', 'url' => 'ver-solicitudes-noadeudos', 'icon' => 'fas fa-inbox', 'active' => ['ver-solicitudes-noadeudos*']],
             ['text' => 'Solicitudes Aprobadas', 'url' => 'solicitudes-noadeudos', 'icon' => 'fas fa-thumbs-up', 'active' => ['solicitudes-noadeudos*']],
         ];
 

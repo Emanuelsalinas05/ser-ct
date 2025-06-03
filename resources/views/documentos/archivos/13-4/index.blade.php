@@ -34,7 +34,7 @@
                 <i class="fa fa-info-circle"></i>&nbsp;
                 <b class="text-info">INDICACIONES PARA EL REGISTRO:</b><br>
                 {{ $documento->odescripcion }}.
-                <br>DEBERÁS SUBIR UN ARCHIVO EN FORMATO EXCEL CON LA INFORMACIÓN DE TODO EL ACERVO BIBLIO-HEMEROGRÁFICO<br>
+                <br>DEBERÁS SUBIR UN ARCHIVO EN FORMATO EXCEL CON LA INFORMACIÓN DE TODO EL ACERVO BIBLIO-HEMEROGRÁFICO.<br>
                 <x-adminlte-button  label="(CLIC PARA CONSULTAR EL FORMATO DE LLENADO) " 
                                     data-toggle="modal" 
                                     data-target="#modalCustomHelp" 

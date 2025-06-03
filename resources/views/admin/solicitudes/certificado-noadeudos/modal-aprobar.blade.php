@@ -31,7 +31,7 @@
                         <button type="submit" 
                                 class="btn btn-success btn-sm btn-block"
                                 title="APROBAR">
-                            SI, APROBAR ESTA SOLICITUD&nbsp;
+                            SÍ, APROBAR ESTA SOLICITUD&nbsp;
                             <i class="fas fa-check"></i>
                         </button>
 

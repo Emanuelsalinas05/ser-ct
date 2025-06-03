@@ -104,7 +104,6 @@ Route::middleware(["auth"])->group(function()
         ->name('admin.users.users-levels.05supervision.index');
 
     Route::resource('usuarios-levels', CentrosTrabajo01Controller::class);
-    Route::get('entregas-finalizadas', [FinalizadasController::class, 'index'])->name('entregas-finalizadas');
     Route::get('historico-entregas-recepcion', [EntregasRecepcionHistoricoController::class, 'index'])->name('historico-entregas-recepcion');
     Route::resource('entregas-finalizadas', FinalizadasController::class);
 
@@ -198,6 +197,9 @@ Route::middleware(["auth"])->group(function()
     Route::get('situacion-tics', [App\Http\Controllers\AnexosActoController::class, 'situaciontics'])
         ->name('documentos.situacion-tics.index');
     Route::resource('inventario-equipo', SituacionTics::class);
+    Route::get('/inventario-equipo/{id}/edit', [SituacionTics::class, 'edit'])->name('inventario-equipo.edit');
+    Route::patch('/inventario-equipo/{id}/actualizar', [SituacionTics::class, 'actualizar'])->name('inventario-equipo.actualizar');
+
     //  13. ARCHIVOS
     Route::get('archivos',[App\Http\Controllers\AnexosActoController::class,'archivos'])->name('documentos.archivos.index');
     Route::resource('relacion-archivos',RmarchivosTramite::class);

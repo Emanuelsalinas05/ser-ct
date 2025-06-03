@@ -3,7 +3,7 @@
     <b class="text-info">INDICACIONES PARA EL REGISTRO:</b><br>
     {{ $documento->odescripcion }}.&nbsp;
     <br>
-    <x-adminlte-button  label="REGISTRAR ARCHIVOS ENTRÁMITE" 
+    <x-adminlte-button  label="REGISTRAR ARCHIVOS EN TRÁMITE"
                         data-toggle="modal" 
                         icon="fa fa-file-alt"
                         data-target="#modalCustomxxx" 

@@ -90,7 +90,7 @@ class RmarchivosTramite extends Controller
                     'oanio'             => date('Y-m-d'),    
                 ]);
 
-                return redirect()->back()->with("success", "Se ha guardado el registro correctamente");
+                return redirect()->back()->with("success", "Se ha finalizado la relación de archivos en trámite");
 
         }
   
@@ -115,7 +115,7 @@ class RmarchivosTramite extends Controller
             $avances_plantilla->update(['orelacion_archivos_a' => 1]);  
   
             return redirect()->route('documentos.archivos.index')
-                    ->with("success", "Se ha finalizado el inventario de existencias en almacenes");  
+                    ->with("success", "Se ha finalizado la relación de archivos en trámite");
 
         }else if($request->actionarchivos==3){
 

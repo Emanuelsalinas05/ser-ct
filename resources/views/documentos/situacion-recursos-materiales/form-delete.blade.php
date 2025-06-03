@@ -1,5 +1,5 @@
 <x-adminlte-modal   id="modaldelete{{ $inventario->id }}" 
-                    title="ELININAR DOCUMENTO REGISTRADO" 
+                    title="ELIMINAR DOCUMENTO REGISTRADO"
                     size="lg" 
                     theme="danger"
                     icon="fa fa-users" 
@@ -30,7 +30,7 @@
             </P>
             <center>
                 <button class="btn btn-outline-success btn-sm btn-block">
-                    SI, ELIMINAR EL DOCUMENTO REGISTRADO
+                    SÍ, ELIMINAR EL DOCUMENTO REGISTRADO
                 </button>
             </center>
 

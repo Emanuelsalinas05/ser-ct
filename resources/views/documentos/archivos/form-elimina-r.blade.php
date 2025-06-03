@@ -1,5 +1,5 @@
 <x-adminlte-modal   id="modaldeletex{{ $inventario->id }}" 
-                    title="ELININAR REGISTRO DE COMISIONADO REGISTRADO" 
+                    title="ELIMINAR REGISTRO DE COMISIONADO REGISTRADO"
                     size="lg" 
                     theme="danger"
                     icon="fa fa-users" 
@@ -25,7 +25,7 @@
             </P>
             <center>
                 <button class="btn btn-outline-success btn-sm btn-block">
-                    SI, ELIMINAR EL REGISTRO
+                    SÍ, ELIMINAR EL REGISTRO
                 </button>
             </center>
 

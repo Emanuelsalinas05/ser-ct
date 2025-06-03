@@ -180,7 +180,7 @@
         <td class="bg-info" colspan="2">
             <center >
                 <b style="font-size:18px;">
-                    EN ESPERA DE CARGA Y ENVIO DE LA CARPETA FINAL DE ARCHIVOS
+                    EN ESPERA DE CARGA Y ENVÍO DE LA CARPETA FINAL DE ARCHIVOS
                 </b>
             </center>
         </td>

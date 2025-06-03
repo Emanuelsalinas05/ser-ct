@@ -113,7 +113,7 @@ class PlantillaComisionadosController extends Controller
                                         ]);
   
             return redirect()->route('documentos.recursos-humanos.index')
-                    ->with("success", "Se ha finalizado el registro de servidores comisionados");
+                    ->with("success", "Se ha finalizado el registro de relación de servidores públicos comisionados");
         }   
     }
 

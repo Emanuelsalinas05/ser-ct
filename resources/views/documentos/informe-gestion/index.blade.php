@@ -27,7 +27,7 @@
             </a>&nbsp;
         </li>
         <br>
-        <span style="font-size:14px;">Completa cada apartado y después podrás dar clic en el botón de "<b>FINALIZAR ANEXO</b>"</span>
+        <span style="font-size:14px;">COMPLETA CADA APARTADO Y DESPUÉS PODRÁS DAR CLIC EN EL BOTÓN DE"<b>FINALIZAR ANEXO</b>"</span>
         <br>
         <br>
 

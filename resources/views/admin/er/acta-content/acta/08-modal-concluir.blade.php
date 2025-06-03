@@ -19,7 +19,7 @@
 
                 <button type="submit" class="btn btn-outline-success btn-sm btn-block"
                         title="FINALIZAR  {{ $datosacta->tipoacta->otipoacta }}">
-                    SI, FINALIZAR &nbsp;<i class="fa fa-check"></i>
+                    SÍ, FINALIZAR &nbsp;<i class="fa fa-check"></i>
                 </button>
 
             </form>

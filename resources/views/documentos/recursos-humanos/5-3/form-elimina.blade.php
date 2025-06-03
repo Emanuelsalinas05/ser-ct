@@ -1,5 +1,5 @@
 <x-adminlte-modal   id="modaldelete{{ $comisionado->id }}" 
-                    title="ELININAR REGISTRO DE COMISIONADO REGISTRADO" 
+                    title="ELIMINAR REGISTRO DE SERVIDOR PÚBLICO COMISIONADO"
                     size="lg" 
                     theme="danger"
                     icon="fa fa-users" 
@@ -24,7 +24,7 @@
             </P>
             <center>
                 <button class="btn btn-outline-success btn-sm btn-block">
-                    SI, ELIMINAR EL REGISTRO
+                    SÍ, ELIMINAR EL REGISTRO
                 </button>
             </center>
 

@@ -1,5 +1,5 @@
 <x-adminlte-modal   id="modaldeletefile{{ $inventario->id }}" 
-                    title="ELININAR ARCHIVO DE PLANTILLA DE PERSONAL" 
+                    title="ELIMINAR ARCHIVO DE PLANTILLA DE PERSONAL"
                     size="lg" 
                     theme="danger"
                     icon="fa fa-users" 
@@ -24,7 +24,7 @@
             </P>
             <center>
                 <button class="btn btn-outline-success btn-sm btn-block">
-                    SI, ELIMINAR EL REGISTRO
+                    SÍ, ELIMINAR EL REGISTRO
                 </button>
             </center>
 
