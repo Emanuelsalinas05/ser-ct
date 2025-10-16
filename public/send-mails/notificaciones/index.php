@@ -1,72 +1,74 @@
 <?php
+// PHPMailer (legado)
+require __DIR__ . '/../../PHPMailer/PHPMailerAutoload.php';
+require __DIR__ . '/../../PHPMailer/class.smtp.php';
 
-require_once 'PHPMailer/PHPMailerAutoload.php';
-require_once 'PHPMailer/class.smtp.php';
 
-// Conexión a la base de datos
-$mysqli = new mysqli(
-    "db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com",
-    "usug1",
-    "u55gG7y3",
-    "g1sereeb"
-);
+$oky = 0;
 
-// Datos necesarios desde Laravel
-$elct       = $intervencionct->oct_nivel . ' ' . $intervencionct->onivel_educativo;
-$idct       = $intervencionct->idct_departamento;
-$fechafinn  = $intervencionct->ofechafin;
-$linkcarpeta = 'https://entregasrecepcion.seiem.gob.mx/' . $intervencionct->ourl;
+/* ==== Datos esperados del controlador ==== */
+$elct        = isset($intervencionct) ? trim($intervencionct->oct_nivel.' '.$intervencionct->onivel_educativo) : '';
+$idct        = isset($intervencionct) ? (int)$intervencionct->idct_departamento : 0;
+$fechafinn   = isset($intervencionct) ? (string)$intervencionct->ofechafin : '';
+$linkcarpeta = isset($intervencionct) ? ('https://entregasrecepcion.seiem.gob.mx/'.$intervencionct->ourl) : '';
+$destinatario = $destinatario ?? null;
 
-// Configurar PHPMailer
+/* ==== PHPMailer SMTP ==== */
 $mail = new PHPMailer();
-$mail->CharSet = 'UTF-8'; // ✅ Evita caracteres raros
 $mail->isSMTP();
 $mail->Timeout    = 30;
-$mail->Mailer     = "smtp";
-$mail->Host       = "smtp.gmail.com";
-$mail->Port       = 465;
+$mail->Host       = 'smtp.gmail.com';
+$mail->Port       = 587;
+$mail->SMTPSecure = 'tls';
 $mail->SMTPAuth   = true;
-$mail->Username   = "entregasrecepcion.elemental@seiem.edu.mx";
-$mail->Password   = "entregas2025";
-$mail->SMTPSecure = "ssl";
+$mail->Username   = 'entregasrecepcion.elemental@seiem.edu.mx';
+$mail->Password   = 'jsav xcmh mhdi beup'; // usa APP password
+$mail->CharSet    = 'UTF-8';
 
-// ⚠️ Aquí sustituimos el correo antiguo de Juan Carlos por uno institucional nuevo
-$mail->setFrom('notificaciones.er@seiem.edu.mx', 'NOTIFICACIÓN DE INTERVENCIÓN PARA E-R');
+$mail->setFrom('entregasrecepcion.elemental@seiem.edu.mx', 'NOTIFICACIÓN DE INTERVENCIÓN PARA E-R');
 
-// Destinatarios
-$mail->addAddress('modernizacion.administrativa@dee.edu.mx');
-
-// Opcional: agregar BCC o más CC si lo necesitas
-// $mail->addBCC('otro.correo@seiem.gob.mx');
-
-include 'contenido.php'; // Define $message
-
-$mail->Subject  = "NOTIFICACIÓN DE INTERVENCIÓN PARA ENTREGA-RECEPCIÓN";
-$mail->Body     = $message;
-$mail->AltBody  = strip_tags($message);
-$mail->isHTML(true);
-
-$mail->SMTPOptions = [
-    'ssl' => [
-        'verify_peer'      => false,
-        'verify_peer_name' => false,
-        'allow_self_signed'=> true,
-    ]
-];
-
-// Enviar y actualizar en la base de datos
-if (!$mail->send()) {
-    echo '<br>❌ Mailer Error: ' . $mail->ErrorInfo;
-    $oky = 0;
+/* ==== Destinatario ==== */
+if ($destinatario && filter_var($destinatario, FILTER_VALIDATE_EMAIL)) {
+    $mail->addAddress($destinatario);
 } else {
-    echo '✅ Notificación enviada correctamente.';
-    $oky = 1;
-
-    $sql = "UPDATE b3adg_intervenciones 
-            SET onotificado = 1 
-            WHERE idct_departamento = $idct 
-              AND ofechafin = '$fechafinn' ";
-
-    $mysqli->query($sql);
+    $mail->addAddress('modernizacion.administrativa@dee.edu.mx');
 }
-?>
+
+/* ==== Render del HTML ==== */
+ob_start();
+include __DIR__.'/contenido.php'; // define $message
+$mail->isHTML(true);
+$mail->Subject = 'Notificación para intervención de Entrega-Recepción';
+$mail->Body    = $message;
+$mail->AltBody = strip_tags($message);
+
+
+
+
+/* ==== Enviar y actualizar DB ==== */
+try {
+    if ($mail->send()) {
+        echo '✅ Notificación enviada correctamente.';
+        $oky = 1;
+
+        $mysqli = @new mysqli(
+            'db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com',
+            'usug1',
+            'u55gG7y3',
+            'g1sereeb'
+        );
+        if ($mysqli && !$mysqli->connect_errno) {
+            $mysqli->set_charset('utf8mb4');
+            $stmt = $mysqli->prepare(
+                "UPDATE b3adg_intervenciones
+                 SET onotificado = 1
+                 WHERE idct_departamento = ? AND ofechafin = ?"
+            );  
+        }
+    } else {
+        echo '❌ Mailer Error: '.$mail->ErrorInfo;
+        $oky = 0;
+    }
+} catch (\Throwable $e) {
+    $oky = 0;
+}

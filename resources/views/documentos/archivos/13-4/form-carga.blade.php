@@ -1,8 +1,6 @@
-<form   name="FrmCartel" id="FrmCartel" method="post" 
-        action="{{ route($documento->ourl_documentos.'.store') }}" 
-        enctype="multipart/form-data">
-        @method('POST')
-        @csrf
+<form method="post" action="{{ route('documentos-noconvencionles.store') }}" enctype="multipart/form-data">
+    @csrf
+
 
         <input  type="hidden" name="iddoc" id="iddoc"
                 value="{{ $documento->id }}">

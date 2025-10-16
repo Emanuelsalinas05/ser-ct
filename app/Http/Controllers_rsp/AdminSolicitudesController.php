@@ -29,7 +29,7 @@ class AdminSolicitudesController extends Controller
 
     public function index()
     {
-        /*
+        
         $solicitudes = Solicitudnoadeudo::select('g1solicitudes_noadeudos.*', 
                         DB::raw('date_format(g1solicitudes_noadeudos.ofecha, "%d-%m-%Y") as fecha'),
                         DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'),)

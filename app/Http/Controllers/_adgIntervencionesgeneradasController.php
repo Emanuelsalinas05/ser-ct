@@ -3,58 +3,46 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Contracts\Validation\Rule;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Controller;
-
+use Illuminate\Support\Facades\DB;
 use App\Models\Ctitulares;
 use App\Models\Intervencion;
 
 class _adgIntervencionesgeneradasController extends Controller
 {
+    public function index()
+    {
+        $nivel = (Auth::user()->onivel === 'ELEMENTAL')
+            ? 'DIRECCION DE EDUCACION ELEMENTAL'
+            : 'DIRECCION DE EDUCACION SECUNDARIA Y SERVICIOS DE APOYO';
 
+        $subdep = Ctitulares::where('onivel', $nivel)
+            ->orderBy('oorden', 'ASC')
+            ->get();
 
-        public function index()
-        {   
-                if(Auth::user()->onivel='ELEMENTAL')
-                {
-                    $nivel = 'DIRECCIÓN DE EDUCACIÓN ELEMENTAL';
-                }else{
-                    $nivel = 'DIRECCIÓN DE EDUCACIÓN SECUNDARIA Y SERVICIOS DE APOYO';
-                }
+        return view('adg.levels.generadas.index', compact('subdep'));
+    }
 
-                $subdep = Ctitulares::whereOnivel($nivel)->OrderBy('oorden','ASC')->get();
+    public function edit(string $id)
+    {
+        $intervencionesc = Intervencion::select('idct_departamento','oct_nivel','onivel_educativo')
+            ->where('idct_departamento', $id)
+            ->where('ofin', 1)
+            ->where('istatus', '!=', 'B')
+            ->groupBy('idct_departamento','oct_nivel','onivel_educativo')
+            ->count();
 
-                
-                return view('adg.levels.generadas.index',
-                        compact('subdep')
-                        );
-        }
+        $intervenciones = Intervencion::select(
+                'idct_departamento','oct_nivel','onivel_educativo','ofechafin','ourl','oarchivo',
+                DB::raw('DATE_FORMAT(ofechafin, "%d-%m-%Y") as fechaentrega')
+            )
+            ->where('idct_departamento', $id)
+            ->where('ofin', 1)
+            ->where('istatus', '!=', 'B')
+            ->groupBy('idct_departamento','oct_nivel','onivel_educativo','ofechafin','ourl','oarchivo')
+            ->orderBy('ofechafin', 'DESC') // ordena por fecha real, no por cadena formateada
+            ->get();
 
-
-
-
-        public function edit(string $id)
-        {   
-
-            //$intervenciones = Intervencion::whereIdctDepartamento($id)->whereOfin(1)->get();
-
-            $intervencionesc= Intervencion::select('idct_departamento', 'oct_nivel', 'onivel_educativo')
-                            ->where('idct_departamento',$id)->whereOfin(1)->whereNotIn('istatus',['B'])
-                            ->GroupBy('idct_departamento', 'oct_nivel', 'onivel_educativo')->count();
-
-            $intervenciones = Intervencion::select('idct_departamento', 'oct_nivel', 'onivel_educativo', 'ofechafin',
-                                DB::raw('date_format(ofechafin, "%d-%m-%Y") as fechaentrega'), 'ourl', 'oarchivo') 
-                            ->where('idct_departamento',$id)->whereOfin(1)->whereNotIn('istatus',['B'])
-                            ->GroupBy('idct_departamento', 'oct_nivel', 'onivel_educativo','ofechafin', 'ourl', 'oarchivo')
-                            ->OrderBy(DB::raw('date_format(ofechafin, "%d-%m-%Y")'),'DESC')->get();
-
-            return view('adg.levels.generadas.edit',
-                        compact('intervencionesc', 'intervenciones')
-                        );
-        }
-
+        return view('adg.levels.generadas.edit', compact('intervencionesc','intervenciones'));
+    }
 }

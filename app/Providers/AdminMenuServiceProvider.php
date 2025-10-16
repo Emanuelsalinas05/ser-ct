@@ -104,47 +104,86 @@ class AdminMenuServiceProvider extends ServiceProvider
         $this->addUsuariosMenu($event);
     }
 
+private function buildEntregadorMenu(BuildingMenu $event, $user): void
+{
+    // Acceso principal
+    $event->menu->add([
+        'text'    => 'Entrega Recepción',
+        'url'     => 'entrega-recepcion',
+        'icon'    => 'fas fa-file-signature',
+        'classes' => self::MENU_PRIMARY,
+        'active'  => ['entrega-recepcion*'],
+    ]);
 
-    private function buildEntregadorMenu(BuildingMenu $event, $user)
-    {
-        $intervencionGenerada = Intervencion::where('idct_escuela', $user->id_ct)
-            ->where('ogenerada', 1)
-            ->exists();
+    // Intervención ACTIVA
+    $intervencionActiva = \App\Models\Intervencion::where('idct_escuela', $user->id_ct)
+        ->where('ogenerada', 1)->where('ofin', 0)->where('istatus', '!=', 'B')
+        ->exists();
+    if (!$intervencionActiva) { return; }
 
-        $event->menu->add(
-            ['text' => 'Entrega Recepción', 'url' => 'entrega-recepcion', 'icon' => 'fas fa-file-signature', 'classes' => self::MENU_PRIMARY, 'active' => ['entrega-recepcion*']],
-        );
+    // Flags 14 y 15
+    $idTipoActa = \App\Models\DatosActa::where('id_user', $user->id)
+        ->where('oconcluida', 0)
+        ->value('id_tipoacta');
+    $mostrar15 = ((int)$idTipoActa === 1);
 
-        if ($intervencionGenerada) {
-            $event->menu->add(
-                ['text' => '1. MARCO JURÍDICO', 'url' => 'marco-juridico', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['marco-juridico*']],
-                ['text' => '5. RECURSOS HUMANOS', 'url' => 'recursos-humanos', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['recursos-humanos*', 'plantilla-personal*', 'plantilla-comisionados*']],
-                ['text' => '8. SITUACIÓN DE LOS RECURSOS MATERIALES', 'url' => 'recursos-materiales', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['recursos-materiales*', 'inventario-bienes*', 'inventario-almacen*', 'relacion-bienes-custodia*']],
-                ['text' => '9. SITUACIÓN DE LAS TIC´S', 'url' => 'inventario-equipo', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['inventario-equipo*']],
-                ['text' => '13. ARCHIVOS', 'url' => 'relacion-archivos', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['relacion-archivos*', 'relacion-archivos-historico*', 'documentos-noconvencionles*']],
-                ['text' => '18. OTROS HECHOS (GENERALES)', 'url' => 'otros-hechos', 'icon' => 'far fa-file-alt', 'classes' => self::MENU_WARNING, 'active' => ['otros-hechos*']],
-                ['text' => 'Entregas Realizadas', 'url' => 'entregas-finalizadas', 'icon' => 'fas fa-check-circle', 'classes' => self::MENU_SUCCESS, 'active' => ['entregas-finalizadas*']],
+    $mostrar14 = \App\Models\Solicitudnoadeudo::where('id_ct', $user->id_ct)
+        ->where('status', '!=', 'B')
+        ->where(fn($q) => $q->whereNull('ofinalizado')->orWhere('ofinalizado', 0))
+        ->exists();
 
-            );
-        }
+    // Módulos
+    $items = [
+        ['text'=>'Solicitar Certificado','url'=>'solicitud-certificado','icon'=>'fas fa-file-signature','classes'=>self::MENU_INFO,'active'=>['solicitud-certificado*']],
+
+        ['text'=>'1. MARCO JURÍDICO','url'=>'marco-juridico','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['marco-juridico*']],
+        ['text'=>'5. RECURSOS HUMANOS','url'=>'recursos-humanos','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['recursos-humanos*','plantilla-personal*','plantilla-comisionados*']],
+        ['text'=>'8. SITUACIÓN DE LOS RECURSOS MATERIALES','url'=>'recursos-materiales','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['recursos-materiales*','inventario-bienes*','inventario-almacen*','relacion-bienes-custodia*']],
+        ['text'=>'9. SITUACIÓN DE LAS TIC´S','url'=>'inventario-equipo','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['inventario-equipo*']],
+        ['text'=>'13. ARCHIVOS','url'=>'relacion-archivos','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['relacion-archivos*','relacion-archivos-historico*','documentos-noconvencionales*']],
+    ];
+
+    if ($mostrar14) {
+        $items[] = ['text'=>'14. CERTIFICADO DE NO ADEUDO','url'=>'solicitud-certificado','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['solicitud-certificado*']];
+    }
+    if ($mostrar15) {
+        $items[] = ['text'=>'15. INFORME DE GESTIÓN','url'=>'informe-gestion','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['informe-gestion*']];
     }
 
+    $items[] = ['text'=>'18. OTROS HECHOS (GENERALES)','url'=>'otros-hechos','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['otros-hechos*']];
+    $items[] = ['text'=>'Entregas Realizadas','url'=>'entregas-finalizadas','icon'=>'fas fa-check-circle','classes'=>self::MENU_SUCCESS,'active'=>['entregas-finalizadas*']];
+
+    $event->menu->add(...$items);
+}
 
 
 
 
-    private function buildCoordinadorMenu(BuildingMenu $event)
-    {
+
+
+private function buildCoordinadorMenu(BuildingMenu $event)
+{
+    $user = auth()->user();
+
+    if ($user->orol == 2) {
         $event->menu->add(
-            ['text' => 'Ver solicitudes CNA', 'url' => 'ver-solicitudes-noadeudos', 'icon' => 'fas fa-envelope-open-text', 'classes' => self::MENU_INFO, 'active' => ['ver-solicitudes-noadeudos*']],
-            ['text' => 'Solicitudes aprobadas', 'url' => 'solicitudes-noadeudos', 'icon' => 'fas fa-file-alt', 'classes' => self::MENU_INFO, 'active' => ['solicitudes-noadeudos*']]
+            [
+                'text' => 'Solicitudes CNA (Mi Nivel)',
+                'url' => 'ver-solicitudes-noadeudos',
+                'icon' => 'fas fa-envelope-open-text',
+                'classes' => self::MENU_INFO,
+                'active' => ['ver-solicitudes-noadeudos*']
+            ]
         );
     }
+}
+
 
     private function addCertificadosMenu(BuildingMenu $event, $user)
     {
         $submenu = [
             ['text' => 'Solicitudes Aprobadas', 'url' => 'solicitudes-noadeudos', 'icon' => 'fas fa-thumbs-up', 'active' => ['solicitudes-noadeudos*']],
+             ['text' => 'Ver solicitudes CNA', 'url' => 'ver-solicitudes-noadeudos', 'icon' => 'fas fa-envelope-open-text', 'classes' => self::MENU_INFO, 'active' => ['ver-solicitudes-noadeudos*']],
         ];
 
         if (in_array($user->orol, [1, 99])) {

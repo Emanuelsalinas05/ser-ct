@@ -72,6 +72,32 @@ class EntregasRecepcionController extends Controller
                 return redirect()->route('home')->with('error', 'No tiene permisos para acceder a esta sección.');
         }
     }
+       public function solicitarIntervencion(Request $request)
+{
+    $usuario = auth()->user();
+    $actaId  = $request->input('acta_id');
+
+    $path = base_path('send-mails/correos.php');
+    if (!file_exists($path)) {
+        return back()->with('error', 'No se encontró el módulo legacy de correos (send-mails/correos.php).');
+    }
+
+    require_once $path;
+
+    // TODO: ajusta al nombre real de la función dentro de correos.php
+    if (!function_exists('enviar_intervencion_elemental')) {
+        return back()->with('error', 'La función enviar_intervencion_elemental no existe en correos.php.');
+    }
+
+    // Pasa los datos que tu script espere
+    $ok = enviar_intervencion_elemental([
+        'ct'      => $usuario->id_ct,
+        'usuario' => ['nombre' => $usuario->name, 'email' => $usuario->email],
+        'acta_id' => $actaId,
+    ]);
+
+    return back()->with($ok ? 'success' : 'error', $ok ? 'Solicitud enviada.' : 'No se pudo enviar el correo.');
+}
     public function edit(string $id)
     {
         if(Auth::user()->onivel=='ELEMENTAL'){

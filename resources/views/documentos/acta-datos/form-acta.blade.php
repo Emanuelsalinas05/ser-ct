@@ -111,15 +111,10 @@
         <td>
             <select name="oidentificacion_entrega_a" 
                     class="form-control form-control-sm">
-                <option value="" disabled selected>-----</option>
-                <option value="INE" 
-                @if($datosacta->oidentificacion_entrega_a=='INE') selected @else old('oidentificacion_entrega_a') @endif>
-                    INE
-                </option>
-                <option value="CEDULA"
-                @if($datosacta->oidentificacion_entrega_a=='CEDULA') selected @else old('oidentificacion_entrega_a') @endif>CEDULA</option>
-                <option value="PASAPORTE"
-                @if($datosacta->oidentificacion_entrega_a=='PASAPORTE') selected @else old('oidentificacion_entrega_a') @endif>PASAPORTE</option>
+                <option value="" disabled {{ old('oidentificacion_entrega_a', $datosacta->oidentificacion_entrega_a) ? '' : 'selected' }}>-----</option>
+                <option value="INE" {{ old('oidentificacion_entrega_a', $datosacta->oidentificacion_entrega_a)=='INE' ? 'selected' : '' }}>INE</option>
+                <option value="CEDULA" {{ old('oidentificacion_entrega_a', $datosacta->oidentificacion_entrega_a)=='CEDULA' ? 'selected' : '' }}>CEDULA</option>
+                <option value="PASAPORTE" {{ old('oidentificacion_entrega_a', $datosacta->oidentificacion_entrega_a)=='PASAPORTE' ? 'selected' : '' }}>PASAPORTE</option>
             </select>
             @error('oidentificacion_entrega_a') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
@@ -129,6 +124,9 @@
             <input  type="file" name="oidentificacion_url_entrega_a"
                     class="form-control form-control-sm"
                     accept="application/pdf">
+            @if($datosacta->oidentificacion_url_entrega_a)
+                <small><a target="_blank" href="{{ Storage::url($datosacta->oidentificacion_url_entrega_a) }}">Ver archivo actual</a></small>
+            @endif
             @error('oidentificacion_url_entrega_a') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
         <td align="right"><b>* NÚMERO IDENTIFICACIÓN</b>:</td>
@@ -147,9 +145,6 @@
     <tr>
         <td  align="right"><b>NOMBRE</b>:</td>
         <td colspan="2">
-            <!--
-            {{$datosacta->onombre_recibe_a}}
-        -->
             <input  type="text" name="onombre_recibe_a"
                     class="form-control form-control-sm"
                     value="{{ old('onombre_recibe_a', $datosacta->onombre_recibe_a) }}">
@@ -157,9 +152,6 @@
 
         <td  align="right"><b>RFC</b>:</td>
         <td>
-            <!--
-            {{$datosacta->orfc_recibe_a}}
-        -->
             <input  type="text" name="orfc_recibe_a"
                     class="form-control form-control-sm"
                     value="{{ old('orfc_recibe_a', $datosacta->orfc_recibe_a) }}">
@@ -178,16 +170,10 @@
         <td>
             <select name="oidentificacion_recibe_a" 
                     class="form-control form-control-sm">
-                <option value="" disabled selected>-----</option>
-                <option value="INE"
-                @if($datosacta->oidentificacion_recibe_a=='INE') selected @else old('oidentificacion_recibe_a') @endif>
-                INE</option>
-                <option value="CEDULA"
-                @if($datosacta->oidentificacion_recibe_a=='CEDULA') selected @else old('oidentificacion_recibe_a') @endif>
-                CEDULA</option>
-                <option value="PASAPORTE"
-                @if($datosacta->oidentificacion_recibe_a=='PASAPORTE') selected @else old('oidentificacion_recibe_a') @endif>
-                PASAPORTE</option>
+                <option value="" disabled {{ old('oidentificacion_recibe_a', $datosacta->oidentificacion_recibe_a) ? '' : 'selected' }}>-----</option>
+                <option value="INE" {{ old('oidentificacion_recibe_a', $datosacta->oidentificacion_recibe_a)=='INE' ? 'selected' : '' }}>INE</option>
+                <option value="CEDULA" {{ old('oidentificacion_recibe_a', $datosacta->oidentificacion_recibe_a)=='CEDULA' ? 'selected' : '' }}>CEDULA</option>
+                <option value="PASAPORTE" {{ old('oidentificacion_recibe_a', $datosacta->oidentificacion_recibe_a)=='PASAPORTE' ? 'selected' : '' }}>PASAPORTE</option>
             </select>
             @error('oidentificacion_recibe_a') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
@@ -197,6 +183,9 @@
             <input  type="file" name="oidentificacion_url_recibe_a"
                     class="form-control form-control-sm"
                     accept="application/pdf">
+            @if($datosacta->oidentificacion_url_recibe_a)
+                <small><a target="_blank" href="{{ Storage::url($datosacta->oidentificacion_url_recibe_a) }}">Ver archivo actual</a></small>
+            @endif
             @error('oidentificacion_url_recibe_a') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
         <td align="right"><b>* NÚMERO IDENTIFICACIÓN</b>:</td>
@@ -240,7 +229,7 @@
                     data-width="350" 
                     title="ELIJE EL C.T. DEL TESTIGO 1">
                 @foreach($centrotrabajo as $ct)
-                <option value="{{$ct->oclave}}">
+                <option value="{{$ct->oclave}}" {{ $ct->oclave==old('oct_testigo_a',$datosacta->oct_testigo_a) ? 'selected' : '' }}>
                     {{$ct->oclave.' - '.$ct->onombre_ct}}
                 </option>
                 @endforeach
@@ -260,16 +249,10 @@
         <td>
             <select name="oidentificacion_testigo" 
                     class="form-control form-control-sm">
-                <option value="" disabled selected>-----</option>
-                <option value="INE"
-                @if($datosacta->oidentificacion_recibe_a=='INE') selected @else old('oidentificacion_recibe_a') @endif>
-                INE</option>
-                <option value="CEDULA"
-                @if($datosacta->oidentificacion_recibe_a=='CEDULA') selected @else old('oidentificacion_recibe_a') @endif>
-                CEDULA</option>
-                <option value="PASAPORTE"
-                @if($datosacta->oidentificacion_recibe_a=='PASAPORTE') selected @else old('oidentificacion_recibe_a') @endif>
-                PASAPORTE</option>
+                <option value="" disabled {{ old('oidentificacion_testigo', $datosacta->oidentificacion_testigo) ? '' : 'selected' }}>-----</option>
+                <option value="INE" {{ old('oidentificacion_testigo', $datosacta->oidentificacion_testigo)=='INE' ? 'selected' : '' }}>INE</option>
+                <option value="CEDULA" {{ old('oidentificacion_testigo', $datosacta->oidentificacion_testigo)=='CEDULA' ? 'selected' : '' }}>CEDULA</option>
+                <option value="PASAPORTE" {{ old('oidentificacion_testigo', $datosacta->oidentificacion_testigo)=='PASAPORTE' ? 'selected' : '' }}>PASAPORTE</option>
             </select>
             @error('oidentificacion_testigo') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
@@ -279,6 +262,9 @@
             <input  type="file" name="oidentificacion_url_testigo"
                     class="form-control form-control-sm"
                     accept="application/pdf">
+            @if($datosacta->oidentificacion_url_testigo)
+                <small><a target="_blank" href="{{ Storage::url($datosacta->oidentificacion_url_testigo) }}">Ver archivo actual</a></small>
+            @endif
             @error('oidentificacion_url_testigo') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
         <td align="right"><b>* NÚMERO IDENTIFICACIÓN</b>:</td>
@@ -323,7 +309,7 @@
                     data-width="350" 
                     title="ELIJE EL C.T. DEL TESTIGO 2">
                 @foreach($centrotrabajo as $ct)
-                <option value="{{$ct->oclave}}">
+                <option value="{{$ct->oclave}}" {{ $ct->oclave==old('oct_testigo2_a',$datosacta->oct_testigo2_a) ? 'selected' : '' }}>
                     {{$ct->oclave.' - '.$ct->onombre_ct}}
                 </option>
                 @endforeach
@@ -343,16 +329,10 @@
         <td>
             <select name="oidentificacion_testigo2" 
                     class="form-control form-control-sm">
-                <option value="" disabled selected>-----</option>
-                <option value="INE"
-                @if($datosacta->oidentificacion_recibe_a=='INE') selected @else old('oidentificacion_recibe_a') @endif>
-                INE</option>
-                <option value="CEDULA"
-                @if($datosacta->oidentificacion_recibe_a=='CEDULA') selected @else old('oidentificacion_recibe_a') @endif>
-                CEDULA</option>
-                <option value="PASAPORTE"
-                @if($datosacta->oidentificacion_recibe_a=='PASAPORTE') selected @else old('oidentificacion_recibe_a') @endif>
-                PASAPORTE</option>
+                <option value="" disabled {{ old('oidentificacion_testigo2', $datosacta->oidentificacion_testigo2) ? '' : 'selected' }}>-----</option>
+                <option value="INE" {{ old('oidentificacion_testigo2', $datosacta->oidentificacion_testigo2)=='INE' ? 'selected' : '' }}>INE</option>
+                <option value="CEDULA" {{ old('oidentificacion_testigo2', $datosacta->oidentificacion_testigo2)=='CEDULA' ? 'selected' : '' }}>CEDULA</option>
+                <option value="PASAPORTE" {{ old('oidentificacion_testigo2', $datosacta->oidentificacion_testigo2)=='PASAPORTE' ? 'selected' : '' }}>PASAPORTE</option>
             </select>
             @error('oidentificacion_testigo2') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
@@ -362,6 +342,9 @@
             <input  type="file" name="oidentificacion_url_testigo2"
                     class="form-control form-control-sm"
                     accept="application/pdf">
+            @if($datosacta->oidentificacion_testigo2_url ?? false)
+                <small><a target="_blank" href="{{ Storage::url($datosacta->oidentificacion_testigo2_url) }}">Ver archivo actual</a></small>
+            @endif
             @error('oidentificacion_url_testigo2') <span style="color:red;">{{ $message }}</span> @enderror
         </td>
         <td align="right"><b>* NÚMERO IDENTIFICACIÓN</b>:</td>
@@ -388,7 +371,7 @@
                     <input  type="radio" 
                             class="form-check-input" 
                             value="1" 
-                            name="orepresentante_a"id="orepresentante_a"
+                            name="orepresentante_a" id="orepresentante_a1"
                             onclick="representante(1)">SI
                 </label>
             </div>
@@ -397,7 +380,7 @@
                     <input  type="radio" 
                             class="form-check-input" 
                             value="2" 
-                            name="orepresentante_a"id="orepresentante_a"
+                            name="orepresentante_a" id="orepresentante_a2"
                             onclick="representante(2)">NO
                 </label>
             </div>
@@ -458,7 +441,7 @@
                     <input  type="radio" 
                             class="form-check-input" 
                             value="1" 
-                            name="ohechos_ax"id="ohechos_ax"
+                            name="ohechos_ax" id="ohechos_ax1"
                             onclick="ohechos(1)">SI
                 </label>
             </div>
@@ -467,7 +450,7 @@
                     <input  type="radio" 
                             class="form-check-input" 
                             value="2" 
-                            name="ohechos_ax"id="ohechos_ax"
+                            name="ohechos_ax" id="ohechos_ax2"
                             onclick="ohechos(2)">NO
                 </label>
             </div>
@@ -504,6 +487,9 @@
             <input  type="file" name="ourl_hechos"
                     class="form-control form-ourl_hechos-sm"
                     accept="application/pdf">
+            @if($datosacta->ourl_hechos)
+                <small><a target="_blank" href="{{ Storage::url($datosacta->ourl_hechos) }}">Ver archivo actual</a></small>
+            @endif
         </td>
     </tr>
     <tr>
@@ -544,3 +530,21 @@
 </table>
 
 </form>
+
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function(){
+    // Preseleccionar radios desde old() o BD
+    var rep = @json(old('orepresentante_a', $datosacta->orepresentante_a));
+    var hx  = @json(old('ohechos_ax', $datosacta->ohechos_a ? '1' : '2'));
+
+    if(rep=='1'){ document.getElementById('orepresentante_a1').checked=true; }
+    else if(rep=='2'){ document.getElementById('orepresentante_a2').checked=true; }
+
+    if(hx=='1'){ document.getElementById('ohechos_ax1').checked=true; }
+    else { document.getElementById('ohechos_ax2').checked=true; }
+
+    // Mostrar/ocultar secciones según valores actuales
+    representante(rep ? String(rep) : '2');
+    ohechos(hx ? String(hx) : '2');
+});
+</script>

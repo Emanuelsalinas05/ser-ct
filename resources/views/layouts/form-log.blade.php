@@ -1,8 +1,8 @@
 <div style="text-align: center; margin-bottom: 30px;">
-    <h3 style="color: #802434; font-weight: bold; margin-bottom: 15px;">¡BIENVENIDO SEREEB!</h3>
+    <h3 style="color: #802434; font-weight: bold; margin-bottom: 15px;">¡BIENVENIDO SER-CT!</h3>
     <p style="font-size: 14px; color: #6c757d; line-height: 1.8; margin: 0;">
-        Sistema para la Entrega Recepción de Escuelas<br>
-        de Educación Básica
+        Sistema para la Entrega y Recepción de<br>
+       Centros de Trabajo
     </p>
 </div>
 

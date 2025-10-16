@@ -38,7 +38,7 @@
                             <select class="form-control form-control-sm"
                                     id="f3ch4"
                                     name="f3ch4" required>
-                                    <option value="" selected disabled> -- SELECCIONA EL PERDIODO -- </option>
+                                    <option value="" selected disabled> -- SELECCIONA EL PERÍODO -- </option>
                                 @foreach($getmensual as $key => $gm)
                                     <option value="{{ $gm->fecha }}">{{ $gm->fecha }}</option>
                                 @endforeach

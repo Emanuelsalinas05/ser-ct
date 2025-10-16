@@ -13,7 +13,7 @@
         <div class="d-flex justify-content-between">
             <b><i class="nav-icon fa fa-book"></i>&nbsp;
                 ENTREGAS-RECEPCIÓN FINALIZADAS
-            </b> 
+            </b>
         </div>
     </div>
     <div class="card-body table-responsive" >
@@ -25,7 +25,7 @@
                     id="example13"
                     style="font-size:12px;">
             <thead class="bg-lightblue" align="center">
-                <tr> 
+                <tr>
                     <th>TIPO DE ACTA</th>
                     <th>CENTRO DE TRABAJO</th>
                     <th>SERVIDOR PÚBLICO RESPONSABLE</th>
@@ -43,11 +43,11 @@
                     <td width="15%">
                         {{ $acta3->tipoacta->otipoacta }}
                     </td>
-                    
+
                     <td width="30%">
                         {{ $acta3->elct->oclave.' - '.$acta3->elct->onombre_ct }}
                     </td>
-                    
+
                     <td width="35%">
                         @if($acta3->id_tipoacta==1)
                                 <b>RECIBE</b>: {{ $acta3->onombre_recibe_a }}
@@ -57,16 +57,16 @@
                                 <b>RECIBE</b>: {{ $acta3->onombre_recibe_ac }}
                         @endif
                     </td>
-                    
-                    
+
+
                     <td width="10%" style="font-size:11px;">
                         <b>FECHA</b>: {{ $acta3->id_tipoacta==1 ? $acta3->ofecha_fin_a : $acta3->ofecha_fin_ac }}
                         <br>
                         <b>HORA</b>:  {{ $acta3->id_tipoacta==1 ? $acta3->ohora_fin_a  : $acta3->ohora_fin_ac }}
                     </td>
-                    
+
                     <td width="10%" align="center">
-                        <a  href="{{route('entregas-finalizadas.edit', $acta3->idd)}}" 
+                        <a  href="{{route('entregas-finalizadas.edit', $acta3->id)}}"
                             class="btn btn-outline-dark btn-sm"
                             title="VER ANEXOS Y AVANCE DE: {{ $acta3->elct->oclave.' - '.$acta3->elct->onombre_ct }}"
                             style="text-decoration: none; font-size:12px;">
@@ -82,7 +82,7 @@
 
 
         </x-adminlte-callout>
-        
+
     </div>
 </div>
 @stop

@@ -50,7 +50,8 @@ class _adgIntervencionesController extends Controller
 
             $getoficix = Ctitulares::whereIdCt(Auth::user()->id_ct)->first();
             $getoficio = Ctitulares::whereIn('id_ct', [$orga->idct_direccion, $orga->idct_subdireccion, $orga->idct_departamento])->first();
-            $getof = $getoficio->ooficio;
+            $getof = $getoficio ? $getoficio->ooficio : null;
+
             
 
             $sectores = Organitation::select('idct_sector', 'g1organigrama.cct_sector', 'g1centros_trabajo.onombre_ct')
@@ -160,7 +161,7 @@ class _adgIntervencionesController extends Controller
                                     'idct_departamento' => $getoficio->id_ct,
                                     'oct_nivel'         => $getoficio->oclave,
                                     'onivel_educativo'  => $getoficio->onombre_ct,
-                                    'otitular_nivel'    => $getoficio->otitular,
+                                   'otitular_nivel' => $getoficio->otitular,
                                     'ofecha_realizacion'=> date('Y-m-d'),
                                     'idct_escuela'      => $request->idct_escuela,
                                     'oclave'            => $getct->oclave,
@@ -176,6 +177,7 @@ class _adgIntervencionesController extends Controller
                                     'onivel'            => Auth::user()->onivel,
                             ]);
                         
+                            
                         require_once 'send-mails/intervencion-elemental/index.php';
 
                         return redirect(url('solicitud-intervencion'))

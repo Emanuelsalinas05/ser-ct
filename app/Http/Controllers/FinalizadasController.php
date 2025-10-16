@@ -28,23 +28,28 @@ class FinalizadasController extends Controller
 {
 
     public function index()
-    {   
-           
+    {
+
             if(Auth::user()->onivel=='ELEMENTAL'){
                 $us=76;
             }else if(Auth::user()->onivel=='SECUNDARIA'){
                 $us=89;
             }
-            
 
-            switch (Auth::user()->ocargo) 
+        if (Auth::user()->role_id == 3) {
+            require_once 'public/controllers/entregas/finalizadas/06escuela.php';
+            return view('admin.er.finalizadas.index3', compact('datosacta3', 'us'));
+        }
+
+
+        switch (Auth::user()->ocargo)
             {
                 case 'DIRECCIÓN':
                     require_once 'controllers/entregas/finalizadas/01direccion.php';
                     return view('admin.er.finalizadas.index',
                                 compact('datosacta','datosacta2','datosacta3','us')
                                 );
-                break;   
+                break;
 
                 case 'SUBDIRECCIÓN':
                     require_once 'controllers/entregas/finalizadas/02subdireccion.php';
@@ -63,7 +68,7 @@ class FinalizadasController extends Controller
                 case 'SECTOR':
                     require_once 'controllers/entregas/finalizadas/04sector.php';
                     return view('admin.er.finalizadas.index2',
-                                compact('datosacta2','datosacta3','us') 
+                                compact('datosacta2','datosacta3','us')
                                 );
                 break;
 
@@ -72,7 +77,8 @@ class FinalizadasController extends Controller
                     return view('admin.er.finalizadas.index3',
                                 compact('datosacta3','us')
                                 );
-                break;         
+                break;
+
             }
 
 
@@ -83,19 +89,18 @@ class FinalizadasController extends Controller
 
 
 
-
-
-
-
-    public function show()
+    public function show($id)
     {
-            //$datosacta = DatosActa::get();
-            $datosacta   = DatosActa::whereIdCtorigen(Auth::user()->id_ct)->paginate(10);
+        $acta = DatosActa::findOrFail($id);
 
-            return view('admin.er.finalizadas.show',
-                    compact('datosacta')
-                    );
+        // Solo puede ver si pertenece al mismo centro de trabajo
+        if (Auth::user()->role_id == 3 && $acta->id_ct != Auth::user()->id_ct) {
+            abort(403, 'No tienes permiso para ver esta acta.');
+        }
+
+        return view('admin.er.finalizadas.show', compact('acta'));
     }
+
 
 
 
@@ -120,7 +125,7 @@ class FinalizadasController extends Controller
                     $anexos = Anexos::whereNotIn('onum_anexo', [14,15])->OrderBy('onum_anexo', 'ASC')->get();
             }else if($datosacta->id_tipoacta==1){
 
-                   $anexos  = Anexos::OrderBy('onum_anexo', 'ASC')->get(); 
+                   $anexos  = Anexos::OrderBy('onum_anexo', 'ASC')->get();
             }
 
             require_once 'controllers/entregas/finalizadas/edit/index.php';
@@ -132,6 +137,6 @@ class FinalizadasController extends Controller
 
 
 
-    
+
 
 }
