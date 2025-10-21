@@ -102,7 +102,7 @@ class SolicitudCernoadeudo extends Controller
                 ]);
         }
         
-        return redirect()->back()->with("success", "REGISTRA LOS DATOS PARA OBTENER TU OFICIO DE SOLICITUD DE CERTIFICADO DE NO ADEUDO");
+        return redirect()->back()->with("success", "Registra los datos para obtener tu oficio de solicitud de certificado de no adeudo");
 
     }
 
@@ -164,7 +164,7 @@ class SolicitudCernoadeudo extends Controller
                         'ofecha.required'                    => 'INGRESA LA FECHA DEL ACTA',
                         'ofechax.required'                   => 'INGRESA LA FECHA DEL OFICIO',
                         'ohora.required'                     => 'INGRESA LA HORA',
-                        'onombre_autoridadinmediata.required'=> 'INGRESA EL NOMBNRE DE LA AUTORIDAD',
+                        'onombre_autoridadinmediata.required'=> 'INGRESA EL NOMBRE DE LA AUTORIDAD',
                         'ocargo_autoridadinmediata.required' => 'INGRESA EL CARGO DE LA AUTORIDAD',
                         'onumero_oficio.required'            =>'INGRESA EL NÚMERO DE TÚ OFICIO',
                     ]);

@@ -19,7 +19,8 @@
                             icon="fas fa-file" 
                             v-centered static-backdrop >
                 <center style="font-size:16px;">
-                        ¿DESEAS PERMITIR MODIFICAR ACTA</b>? <br>
+                        ¿Desea permitir modificar el acta? <br>
+                        <small class="text-muted">Esta acción permitirá al usuario realizar cambios en los datos del acta.</small>
                         <form   name="FrmCartel" id="FrmCartel" method="post" 
                                 action="{{ route('entregas-recepcion.update', $datosacta->id ) }}" >
                                 @method('PATCH')
@@ -58,7 +59,8 @@
                             icon="fas fa-unlock-alt" 
                             v-centered static-backdrop >
                 <center style="font-size:16px;">
-                        ¿DESEAS APROBAR PARA PROCEDER A SUBIR EL ACTA ESCANEADA Y FIRMADA</b>? <br>
+                        ¿Desea aprobar para proceder a subir el acta escaneada y firmada? <br>
+                        <small class="text-muted">Esta acción permitirá al usuario subir el documento final del acta.</small>
                         <form   name="FrmCartel" id="FrmCartel" method="post" 
                                 action="{{ route('entregas-recepcion.update', $datosacta->id ) }}" >
                                 @method('PATCH')

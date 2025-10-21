@@ -112,7 +112,7 @@
                     <tfoot>
                         <tr>
                             <td colspan="4" align="right">
-                                <button class="btn btn-success btn-sm">
+                                <button class="btn btn-success btn-sm" onclick="this.disabled=true; this.form.submit();">
                                     AGREGAR SERVIDOR COMISIONADO
                                     <i class="fas fa-check"></i>
                                 </button>

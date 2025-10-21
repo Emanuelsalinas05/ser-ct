@@ -27,7 +27,10 @@ class PlantillaComisionadosController extends Controller
     public function index()
     {
         $anexo         = Anexos::whereOnumAnexo(5)->first();
-        $centrotrabajo = CentrosTrabajo::get();
+        $centrotrabajo = CentrosTrabajo::where('ostatus', 'ACTIVO')
+                                        ->where('omodalidad', '!=', 'PARTICULAR')
+                                        ->orderBy('onombre_ct', 'ASC')
+                                        ->get();
         $documento     = Documentos::whereId(3)->first();
         $datosacta     = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
 
@@ -49,6 +52,19 @@ class PlantillaComisionadosController extends Controller
 
         if($request->action==1)
         {
+            // Validar duplicidad
+            $duplicado = Plantillacomisionados::where('id_acta', $request->acta)
+                                            ->where('onombre_servidor', strtoupper($request->onombre_servidor))
+                                            ->where('operiodoinicio', $request->operiodoinicio)
+                                            ->where('ounidad_adscripcion', $request->ounidad_adscripcion)
+                                            ->where('ocomisionado_act', $request->ocomisionado_act)
+                                            ->where('status', 'A')
+                                            ->exists();
+            
+            if($duplicado) {
+                return redirect()->back()->with("error", "Ya existe un registro con los mismos datos. Verifique la información.");
+            }
+
             Plantillacomisionados::create([
                 'id_acta'             => $request->acta,
                 'id_ct'               => Auth::user()->id_ct,

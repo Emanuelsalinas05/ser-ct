@@ -59,7 +59,7 @@
 				  name="olocalidad" id="olocalidad"
 				  class="form-control form-control-sm"
 				  value="{{ old('olocalidad') }}"
-				  onkeyup="javascript:this.value=this.value.toUpperCase();">
+				  onkeyup="javascript:this.value=this.value.toLowerCase();" onblur="javascript:this.value=this.value.replace(/\b\w/g, l => l.toUpperCase());">
 		@error('olocalidad') <span style="color:red;">{{ $message }}</span> @enderror
 	</td>
 </tr>
@@ -73,7 +73,7 @@
 				  name="omunicipio" id="omunicipio"
 				  class="form-control form-control-sm"
 				  value="{{ old('omunicipio') }}"
-				  onkeyup="javascript:this.value=this.value.toUpperCase();">
+				  onkeyup="javascript:this.value=this.value.toLowerCase();" onblur="javascript:this.value=this.value.replace(/\b\w/g, l => l.toUpperCase());">
 		@error('omunicipio') <span style="color:red;">{{ $message }}</span> @enderror
 	</td>
 </tr>

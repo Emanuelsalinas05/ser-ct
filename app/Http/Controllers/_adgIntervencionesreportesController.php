@@ -57,7 +57,7 @@ class _adgIntervencionesreportesController extends Controller
                                 ->count();
 
             $intervenciones = Intervencion::select('idct_departamento','oct_nivel','onivel_educativo','ofechafin','ourl','oarchivo','ofile','onotificado',
-                                DB::raw('date_format(ofechafin, "%d-%m-%Y") as fechaentrega')) 
+                                DB::raw('date_format(ofechafin, "%d/%m/%Y") as fechaentrega')) 
                                 ->where('idct_departamento',$elcct)->whereOfin(1)->whereNotIn('istatus',['B'])
                                 ->GroupBy('idct_departamento', 'oct_nivel', 'onivel_educativo','ofechafin','ourl','oarchivo','ofile','onotificado')
                                 ->OrderBy('ofechafin', 'DESC')
@@ -73,7 +73,7 @@ class _adgIntervencionesreportesController extends Controller
                                 ->count();
 
             $intervenciones = Intervencion::select('idct_departamento','oct_nivel','onivel_educativo','ofechafin','ourl','oarchivo','ofile','onotificado',
-                                DB::raw('date_format(ofechafin, "%d-%m-%Y") as fechaentrega')) 
+                                DB::raw('date_format(ofechafin, "%d/%m/%Y") as fechaentrega')) 
                                 ->whereOnivel('ELEMENTAL')
                                 ->whereOfin(1)
                                 ->whereNotIn('istatus',['B'])
@@ -96,14 +96,18 @@ class _adgIntervencionesreportesController extends Controller
         
         if($request->action=='99')
         {
+                    // Comentado: No se debe revertir el estado de la intervención
+                    // La intervención debe mantenerse finalizada hasta que se solicite una nueva
+                    /*
                     $ocomisionados = Intervencion::whereIdctDepartamento($id)->whereOfechafin($request->fecfin);
                     $ocomisionados->update([  
                                                 'ofin'      => 0 , 
                                                 'ofechafin' => null
                                             ]);
+                    */
 
                     return redirect(url('reportes-intervencion/'.$id.'/edit'))
-                                ->with("success", "Se realizo la accion correctamente");
+                                ->with("info", "La intervención se mantiene finalizada. Para iniciar un nuevo proceso, se debe solicitar una nueva intervención.");
 
             }
     }

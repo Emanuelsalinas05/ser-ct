@@ -41,7 +41,7 @@
                                         style="text-decoration: none; font-size:1.5rem;" 
                                         href="reportes/print-reportx.php?i1d3={{$solicitud->id}}&idr3p0rt=99&us={{$us}}&un1d={{ $datosacta->id_ct }}"
                                         target="_blank">
-                                            VER MI OFICIO DE SOLICITUD DE CERTIFICADO DE NO ADEUDO&nbsp;
+                                            Ver mi oficio de solicitud de certificado de no adeudo&nbsp;
                                             <i class="fa fa-file-alt"></i>
                                     </a>
                                 </p>

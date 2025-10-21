@@ -6,7 +6,8 @@
                     v-centered static-backdrop >
 
         <center style="font-size:16px;">
-                ¿DESEAS FINALIZAR ESTA ENTREGA-RECEPCIÓN? <br>           
+                ¿Desea finalizar esta entrega y recepción? <br>
+                <small class="text-muted">Una vez finalizada, no podrá realizar modificaciones.</small>           
             
             
             <form   name="FrmCartel" id="FrmCartel" method="post" 

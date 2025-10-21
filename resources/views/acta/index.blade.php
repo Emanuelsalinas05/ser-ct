@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'ACTO DE ENTREGA-RECEPCIÓN')
+@section('title', 'ACTO DE ENTREGA Y RECEPCIÓN')
 @section('subtitle', 'Welcome')
 @section('content_header_title', 'Home')
-@section('content_header_subtitle', 'ACTO DE ENTREGA - RECEPCIÓN')
+@section('content_header_subtitle', 'ACTO DE ENTREGA Y RECEPCIÓN')
 
 @section('content')
 <div class="col-12 card card-secondary card-outline shadow">
@@ -55,7 +55,7 @@
                         <form method="post" action="{{ route('entrega-recepcion.store') }}">
                             @csrf
                             <input type="hidden" name="tipoacta" value="{{ $acta->id }}">
-                            <button class="btn btn-outline-success btn-sm btn-block shadow" type="submit">
+                            <button class="btn btn-outline-success btn-sm btn-block shadow" type="submit" onclick="this.disabled=true; this.form.submit();">
                                 <b>{{ $acta->otipoacta }}</b>
                             </button>
                         </form>

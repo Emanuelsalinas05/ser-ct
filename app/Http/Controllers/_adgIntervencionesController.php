@@ -88,8 +88,8 @@ class _adgIntervencionesController extends Controller
             {
 
                     $intervenciones = Intervencion::select('*',
-                                        DB::raw('date_format(ofecha_realizacion, "%d-%m-%Y") as fechacreacion'),
-                                        DB::raw('date_format(ofecha_entrega, "%d-%m-%Y") as fechaentrega')) 
+                                        DB::raw('date_format(ofecha_realizacion, "%d/%m/%Y") as fechacreacion'),
+                                        DB::raw('date_format(ofecha_entrega, "%d/%m/%Y") as fechaentrega')) 
                                     ->whereNotIn('istatus',['B']) 
                                     ->whereIn('idct_departamento', [$orga->idct_direccion, $orga->idct_subdireccion, $orga->idct_departamento, $orga->idct_sector, $orga->idct_supervicion])
                                     ->whereOfin(0)->get();
@@ -104,8 +104,8 @@ class _adgIntervencionesController extends Controller
                     $elctt = $getct->idct_direccion;
 
                     $intervenciones = Intervencion::select('*',
-                                        DB::raw('date_format(ofecha_realizacion, "%d-%m-%Y") as fechacreacion'),
-                                        DB::raw('date_format(ofecha_entrega, "%d-%m-%Y") as fechaentrega')) 
+                                        DB::raw('date_format(ofecha_realizacion, "%d/%m/%Y") as fechacreacion'),
+                                        DB::raw('date_format(ofecha_entrega, "%d/%m/%Y") as fechaentrega')) 
                                     ->whereNotIn('istatus',['B'])
                                     ->whereOgenerada(1)
                                     ->whereOnivel(Auth::user()->onivel)

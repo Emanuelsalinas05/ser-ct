@@ -73,7 +73,7 @@ class SolicitudCernoadeudo extends Controller
                 ]);
         }
         
-        return redirect()->back()->with("success", "REGISTRA LOS DATOS PARA OBTENER TU OFICIO DE SOLICITUD DE CERTIFICADO DE NO ADEUDO");
+        return redirect()->back()->with("success", "Registra los datos para obtener tu oficio de solicitud de certificado de no adeudo");
 
     }
 

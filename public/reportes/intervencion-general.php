@@ -32,9 +32,9 @@ try {
     $reporte = $runmanager->runReportToPdf($dir.$rep, $param, $conexion);
     $pdf = java_cast($reporte, "string");
  
-    header("Content-disposition:  filename=REPORTE_INTERVENCIONES_SOLICITADAS-".$fecha.".pdf");
+    header("Content-Disposition: attachment; filename=\"REPORTE_INTERVENCIONES_SOLICITADAS-".$fecha.".pdf\"");
     header("Content-Length: " . strlen($pdf));
-    header("Content-type: application/pdf");
+    header("Content-Type: application/pdf");
     header('Pragma: no-cache');
     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
     header('Expires: 0');

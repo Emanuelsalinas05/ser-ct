@@ -18,7 +18,7 @@ try {
     $conexion = $Conn->getConnection();
 
     if (!$conexion || get_class($conexion) === 'java_ThrowExceptionProxy') {
-        echo "? No se pudo establecer la conexión con la base de datos. Revisa el usuario, la contraseña o el host.";
+        echo "? No se pudo establecer la conexiï¿½n con la base de datos. Revisa el usuario, la contraseï¿½a o el host.";
         exit;
     }
     
@@ -36,9 +36,9 @@ try {
     $reporte = $runmanager->runReportToPdf($dir.$rep, $param, $conexion);
     $pdf = java_cast($reporte, "string");
  
-    header("Content-disposition:  filename=ACTA DE ENTRREGA Y RECEPCION.pdf");
+    header("Content-Disposition: attachment; filename=\"ACTA_DE_ENTREGA_Y_RECEPCION.pdf\"");
     header("Content-Length: " . strlen($pdf));
-    header("Content-type: application/pdf");
+    header("Content-Type: application/pdf");
     header('Pragma: no-cache');
     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
     header('Expires: 0');

@@ -16,7 +16,7 @@
         <th colspan="8" class="bg-lightblue ">
             <i class="fa fa-file-alt"></i>
             CAPTURA DE DATOS PARA EL {{ $datosacta->tipoacta->otipoacta }}
-            <br>VERIFICA CUIDADOSAMENTE QUE CADA DATO A REGISTRAR. 
+            <br>VERIFICAR QUE LA INFORMACIÓN ESTÉ CORRECTA, YA QUE ÉSTA SERÁ PARA EL ACTA A REALIZAR. (DEBERÁ REGISTRAR CON MAYÚSCULAS Y ACENTOS).
             <span style="font-size: 12px;">* LOS DATOS SON OBLIGATORIOS</span>
         </th>
     </tr>
@@ -111,7 +111,7 @@
         <td>
             <select name="oidentificacion_entrega_a" 
                     class="form-control form-control-sm">
-                <option value="" disabled {{ old('oidentificacion_entrega_a', $datosacta->oidentificacion_entrega_a) ? '' : 'selected' }}>-----</option>
+                <option value="" disabled {{ old('oidentificacion_entrega_a', $datosacta->oidentificacion_entrega_a) ? '' : 'selected' }}>Selecciona una opción</option>
                 <option value="INE" {{ old('oidentificacion_entrega_a', $datosacta->oidentificacion_entrega_a)=='INE' ? 'selected' : '' }}>INE</option>
                 <option value="CEDULA" {{ old('oidentificacion_entrega_a', $datosacta->oidentificacion_entrega_a)=='CEDULA' ? 'selected' : '' }}>CEDULA</option>
                 <option value="PASAPORTE" {{ old('oidentificacion_entrega_a', $datosacta->oidentificacion_entrega_a)=='PASAPORTE' ? 'selected' : '' }}>PASAPORTE</option>
@@ -170,7 +170,7 @@
         <td>
             <select name="oidentificacion_recibe_a" 
                     class="form-control form-control-sm">
-                <option value="" disabled {{ old('oidentificacion_recibe_a', $datosacta->oidentificacion_recibe_a) ? '' : 'selected' }}>-----</option>
+                <option value="" disabled {{ old('oidentificacion_recibe_a', $datosacta->oidentificacion_recibe_a) ? '' : 'selected' }}>Selecciona una opción</option>
                 <option value="INE" {{ old('oidentificacion_recibe_a', $datosacta->oidentificacion_recibe_a)=='INE' ? 'selected' : '' }}>INE</option>
                 <option value="CEDULA" {{ old('oidentificacion_recibe_a', $datosacta->oidentificacion_recibe_a)=='CEDULA' ? 'selected' : '' }}>CEDULA</option>
                 <option value="PASAPORTE" {{ old('oidentificacion_recibe_a', $datosacta->oidentificacion_recibe_a)=='PASAPORTE' ? 'selected' : '' }}>PASAPORTE</option>
@@ -249,7 +249,7 @@
         <td>
             <select name="oidentificacion_testigo" 
                     class="form-control form-control-sm">
-                <option value="" disabled {{ old('oidentificacion_testigo', $datosacta->oidentificacion_testigo) ? '' : 'selected' }}>-----</option>
+                <option value="" disabled {{ old('oidentificacion_testigo', $datosacta->oidentificacion_testigo) ? '' : 'selected' }}>Selecciona una opción</option>
                 <option value="INE" {{ old('oidentificacion_testigo', $datosacta->oidentificacion_testigo)=='INE' ? 'selected' : '' }}>INE</option>
                 <option value="CEDULA" {{ old('oidentificacion_testigo', $datosacta->oidentificacion_testigo)=='CEDULA' ? 'selected' : '' }}>CEDULA</option>
                 <option value="PASAPORTE" {{ old('oidentificacion_testigo', $datosacta->oidentificacion_testigo)=='PASAPORTE' ? 'selected' : '' }}>PASAPORTE</option>
@@ -329,7 +329,7 @@
         <td>
             <select name="oidentificacion_testigo2" 
                     class="form-control form-control-sm">
-                <option value="" disabled {{ old('oidentificacion_testigo2', $datosacta->oidentificacion_testigo2) ? '' : 'selected' }}>-----</option>
+                <option value="" disabled {{ old('oidentificacion_testigo2', $datosacta->oidentificacion_testigo2) ? '' : 'selected' }}>Selecciona una opción</option>
                 <option value="INE" {{ old('oidentificacion_testigo2', $datosacta->oidentificacion_testigo2)=='INE' ? 'selected' : '' }}>INE</option>
                 <option value="CEDULA" {{ old('oidentificacion_testigo2', $datosacta->oidentificacion_testigo2)=='CEDULA' ? 'selected' : '' }}>CEDULA</option>
                 <option value="PASAPORTE" {{ old('oidentificacion_testigo2', $datosacta->oidentificacion_testigo2)=='PASAPORTE' ? 'selected' : '' }}>PASAPORTE</option>
@@ -521,7 +521,7 @@
 
     <tr>
         <td colspan="8" align="right">
-            <button class="btn btn-success btn-sm">
+            <button class="btn btn-success btn-sm" onclick="this.disabled=true; this.form.submit();">
                 GUARDAR DATOS DE {{$datosacta->tipoacta->otipoacta}}
             </button>
         </td>

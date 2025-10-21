@@ -34,7 +34,7 @@ class _adgIntervencionesgeneradasController extends Controller
 
         $intervenciones = Intervencion::select(
                 'idct_departamento','oct_nivel','onivel_educativo','ofechafin','ourl','oarchivo',
-                DB::raw('DATE_FORMAT(ofechafin, "%d-%m-%Y") as fechaentrega')
+                DB::raw('DATE_FORMAT(ofechafin, "%d/%m/%Y") as fechaentrega')
             )
             ->where('idct_departamento', $id)
             ->where('ofin', 1)
