@@ -1,4 +1,4 @@
-<x-adminlte-callout title="NIVEL DE CUMPLIENTO DEL ACTO DE ENTREGA-RECEPCIÓN"
+<x-adminlte-callout title="NIVEL DE CUMPLIMIENTO DEL ACTA DE ENTREGA-RECEPCIÓN"
                     icon="fas fa-file-export"
                     class="text-info" >
         <span style="font-size:13px; color: black; text-align: justify;">

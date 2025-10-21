@@ -23,7 +23,7 @@
             <a  href="{{ url('/entrega-recepcion') }}" 
                 class="btn btn-outline-secondary tn-sm" style="font-size: 12px;">
                 <i class="fas fa-backward"></i>&nbsp;
-                VOLVER A &nbsp; <b>ACTO DE ENTREGA-RECEPCIÓN</b>
+                VOLVER A &nbsp; <b>ACTA DE ENTREGA-RECEPCIÓN</b>
             </a>&nbsp;
         </li>
         

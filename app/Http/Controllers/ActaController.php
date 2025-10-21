@@ -281,11 +281,21 @@ class ActaController extends Controller
 
     // 4) Resultado y flags
     if ((int)$oky === 1) {
+        // Marcar acta como concluida y correo enviado
         \App\Models\DatosActa::whereId($acta->id)->update([
             'oenviocorreooic' => 1,
             'oconcluida'      => 1,
         ]);
-        return redirect('entrega-recepcion')->with('success', 'Correo enviado al OIC.');
+        
+        // Marcar avances como finalizados
+        \App\Models\Avanceanexos::whereIdActa($acta->id)->update(['ofinalizacion' => 1]);
+        
+        // Deshabilitar intervención para este centro de trabajo
+        \App\Models\Intervencion::where('idct_departamento', $acta->id_ct)
+            ->where('ofin', 0)
+            ->update(['ofin' => 1, 'istatus' => 'B']);
+        
+        return redirect('entrega-recepcion')->with('success', 'SE HA ENVIADO EL ACTA DE ENTREGA Y RECEPCIÓN Y SUS ANEXOS AL ÓRGANO INTERNO DE CONTROL. SE HA CONCLUIDO EXITOSAMENTE EL ACTA DE ENTREGA Y RECEPCIÓN.');
     } else {
         return redirect('entrega-recepcion')->with('error', 'No se pudo enviar el correo al OIC.');
     }

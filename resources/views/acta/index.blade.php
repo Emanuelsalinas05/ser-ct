@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'ACTO DE ENTREGA Y RECEPCIÓN')
+@section('title', 'ACTA DE ENTREGA Y RECEPCIÓN')
 @section('subtitle', 'Welcome')
 @section('content_header_title', 'Home')
-@section('content_header_subtitle', 'ACTO DE ENTREGA Y RECEPCIÓN')
+@section('content_header_subtitle', 'ACTA DE ENTREGA Y RECEPCIÓN')
 
 @section('content')
 <div class="col-12 card card-secondary card-outline shadow">

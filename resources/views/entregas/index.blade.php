@@ -24,7 +24,7 @@
         @if($getHistor==0)
 
             <center style="font-size: 25px;">
-                <b class="text-warning"><i>AÚN NO SE HA REALIZADO NINGÚN ACTO DE ENTREGA-RECEPCIÓN</i></b><br><br>
+                <b class="text-warning"><i>AÚN NO SE HA REALIZADO NINGÚN ACTA DE ENTREGA-RECEPCIÓN</i></b><br><br>
             </center>
                 
         @elseif($getHistor>0)
