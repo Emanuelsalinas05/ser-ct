@@ -23,7 +23,7 @@
                     value="{{ $datosacta->id }}">
             <i class="far fa-hand-point-right"></i>
             <i class="far fa-hand-point-right"></i>&nbsp;&nbsp;
-            <button class="btn btn-sm btn-warning">
+            <button type="submit" class="btn btn-sm btn-warning">
                 &nbsp; &nbsp; <B>CAMBIAR TIPO</B>&nbsp; &nbsp; 
             </button>
 
