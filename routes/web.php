@@ -153,7 +153,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('situacion-tics', [AnexosActoController::class, 'situaciontics'])->name('documentos.situacion-tics.index');
     Route::resource('inventario-equipo', SituacionTics::class);
-    Route::get('/inventario-equipo/{id}/edit', [SituacionTics::class, 'edit'])->name('inventario-equipo.edit');
     Route::patch('/inventario-equipo/{id}/actualizar', [SituacionTics::class, 'actualizar'])->name('inventario-equipo.actualizar');
 
     Route::get('archivos', [AnexosActoController::class, 'archivos'])->name('documentos.archivos.index');
