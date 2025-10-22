@@ -32,14 +32,16 @@ class EntregasRecepcionController extends Controller
     {
         $user = Auth::user();
 
-        //  si es entregador, necesita intervención generada
-        if ($user->orol == 3) {
-            $intervencionGenerada =Intervencion::where('idct_escuela', $user->id_ct)
+        //  si es entregador (orol == 1), necesita intervención generada y activa
+        if ($user->orol == 1) {
+            $intervencionActiva = Intervencion::where('idct_escuela', $user->id_ct)
                 ->where('ogenerada', 1)
+                ->where('ofin', 0)
+                ->where('istatus', '!=', 'B')
                 ->exists();
 
-            if (!$intervencionGenerada) {
-                return redirect()->route('home')->with('error', 'Para acceder a Entrega-Recepción, primero debe solicitarse y aprobarse una intervención.');
+            if (!$intervencionActiva) {
+                return redirect()->route('home')->with('error', 'Para acceder a Entrega-Recepción, primero debe solicitarse y aprobarse una intervención por el revisor.');
             }
         }
 
@@ -47,8 +49,8 @@ class EntregasRecepcionController extends Controller
         $us = ($user->onivel == 'ELEMENTAL') ? 76 : 89;
 
 
-        // Manejar usuarios con role_id == 1 (usuarios básicos)
-        if ($user->role_id == 1) {
+        // Manejar usuarios con orol == 1 (entregadores)
+        if ($user->orol == 1) {
             // Para usuarios con role_id 1, mostrar todas las entregas-recepción
             $datosacta = DatosActa::distinct()->select('g1acta.id', 'g1acta.id_user','g1acta.id_tipoacta','g1acta.id_ct',
                 'g1acta.oconcluida','g1acta.ocargacomprimido','g1acta.ocheckactaa','g1acta.owaitacta','g1acta.oestado',

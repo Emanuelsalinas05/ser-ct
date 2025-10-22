@@ -41,8 +41,8 @@ class FinalizadasController extends Controller
             return view('admin.er.finalizadas.index3', compact('datosacta3', 'us'));
         }
 
-        // Manejar usuarios con role_id == 1 (usuarios básicos)
-        if (Auth::user()->role_id == 1) {
+        // Manejar usuarios con orol == 1 (entregadores)
+        if (Auth::user()->orol == 1) {
             // Para usuarios con role_id 1, mostrar todas las entregas-recepción finalizadas
             $datosacta = DatosActa::distinct()->select('g1acta.id', 'g1acta.id_user','g1acta.id_tipoacta','g1acta.id_ct',
                 'g1acta.oconcluida','g1acta.ocargacomprimido','g1acta.ocheckactaa','g1acta.owaitacta','g1acta.oestado',
