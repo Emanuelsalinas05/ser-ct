@@ -17,6 +17,7 @@ use App\Models\Solicitudnoadeudo;
 use App\Models\DatosActa;
 use App\Models\Avanceanexos;
 use App\Models\User;
+use App\Rules\SoloMayusculas;
 
 class SolicitudCernoadeudo extends Controller
 {
@@ -24,7 +25,7 @@ class SolicitudCernoadeudo extends Controller
    public function index()
 {
     $tipocert   = Tiposnoadeudo::orderBy('oorden', 'DESC')->get();
-    $datosacta  = DatosActa::whereIdUser(Auth::id())->whereOconcluida(0)->first();
+    $datosacta  = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
 
     if (!$datosacta) {
         return redirect()->back()->withErrors("No se encontró un acta activa (no concluida) para este usuario.");
@@ -44,7 +45,8 @@ class SolicitudCernoadeudo extends Controller
         $us = 89;
     }
 
-    $check = $solicitudc > 0 ? 1 : 0;
+    // Verificar si existe solicitud Y si ya se seleccionó el tipo
+    $check = ($solicitudc > 0 && $solicitud && $solicitud->oselecttipo == 1) ? 1 : 0;
 
     return view('solicitudes.certificado-noadeudos.index', compact(
         'tipocert', 'datosacta', 'solicitudc', 'solicitud', 'check', 'us'
@@ -64,21 +66,13 @@ class SolicitudCernoadeudo extends Controller
                     ->orWhere('idct_supervicion', Auth::user()->id_ct)
                     ->orWhere('idct_sector', Auth::user()->id_ct)->first();
 
-        if(Auth::user()->id_ct==$decide->idct_escuela)
-        {
-            $id_super   = $decide->idct_supervicion;
-            $id_sector  = $decide->idct_sector;
-
-        }else if(Auth::user()->id_ct==$decide->idct_supervicion){
-
-            $id_super   = $decide->idct_supervicion;
-            $id_sector  = $decide->idct_sector;
-            
-        }else if(Auth::user()->id_ct==$decide->idct_sector){
-
-            $id_super   = $decide->idct_supervicion;
-            $id_sector  = $decide->idct_sector;
+        if (!$decide) {
+            return redirect()->back()->withErrors("No se encontró información organizacional para este centro de trabajo.");
         }
+
+        // Asignar valores de supervisión y sector
+        $id_super   = $decide->idct_supervicion;
+        $id_sector  = $decide->idct_sector;
 
 
         if($solicitud)
@@ -102,7 +96,7 @@ class SolicitudCernoadeudo extends Controller
                 ]);
         }
         
-        return redirect()->back()->with("success", "Registra los datos para obtener tu oficio de solicitud de certificado de no adeudo");
+        return redirect()->back()->with("success", "REGISTRA LOS DATOS PARA OBTENER TU OFICIO DE SOLICITUD DE CERTIFICADO DE NO ADEUDO");
 
     }
 
@@ -115,7 +109,7 @@ class SolicitudCernoadeudo extends Controller
         if($request->action==1)
         {
                     $validatedData = $request->validate([
-                        'omunicipio'    => 'required',
+                        'omunicipio'    => ['required', new SoloMayusculas],
                         'ofecha'        => 'required',
                         'ofechax'       => 'required',
                         'ohora'         => 'required',
@@ -130,7 +124,7 @@ class SolicitudCernoadeudo extends Controller
 
                     if($request->olocalidad)
                     {
-                        $nnnn= ucfirst($request->olocalidad);
+                        $nnnn= strtoupper($request->olocalidad);
                     }else{
                         $nnnn= NULL;
                     }
@@ -139,7 +133,7 @@ class SolicitudCernoadeudo extends Controller
                     $update_solicitud->update([ 
                                         'onumero_oficio'=> $request->onumero_oficio,
                                         'olocalidad'    => $nnnn, 
-                                        'omunicipio'    => ucfirst($request->omunicipio),
+                                        'omunicipio'    => strtoupper($request->omunicipio),
                                         'ofecha'        => $request->ofechax,
                                         'ofecha_acta'   => $request->ofecha,
                                         'ohora_acta'    => $request->ohora,
@@ -147,17 +141,17 @@ class SolicitudCernoadeudo extends Controller
                                     ]);
 
                     return redirect()->back()
-                            ->with("success", "Descarga tu oficio de solicitud, firma y entrega a tu autoridad inmedata superior; en el apartado 14.1. deberás adjuntar el acuse.");
+                            ->with("success", "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA A TU AUTORIDAD INMEDIATA SUPERIOR; EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.");
 
         }else if($request->action==2){
 
                      $validatedData = $request->validate([
-                        'omunicipio'                => 'required',
+                        'omunicipio'                => ['required', new SoloMayusculas],
                         'ofecha'                    => 'required',
                         'ofechax'                   => 'required',
                         'ohora'                     => 'required',
-                        'onombre_autoridadinmediata'=> 'required',
-                        'ocargo_autoridadinmediata' => 'required',
+                        'onombre_autoridadinmediata'=> ['required', new SoloMayusculas],
+                        'ocargo_autoridadinmediata' => ['required', new SoloMayusculas],
                         'onumero_oficio'            =>'required',
                     ],$message=[
                         'omunicipio.required'                => 'INGRESA EL MUNICIPIO',
@@ -171,7 +165,7 @@ class SolicitudCernoadeudo extends Controller
                     
                     if($request->olocalidad)
                     {
-                        $nnnn= ucfirst($request->olocalidad);
+                        $nnnn= strtoupper($request->olocalidad);
                     }else{
                         $nnnn= NULL;
                     }
@@ -179,11 +173,11 @@ class SolicitudCernoadeudo extends Controller
                     $update_solicitud = Solicitudnoadeudo::whereId($id);
                     $update_solicitud->update([ 
                                         'olocalidad'                => $nnnn, 
-                                        'omunicipio'                => ucfirst($request->omunicipio),
+                                        'omunicipio'                => strtoupper($request->omunicipio),
                                         'onumero_oficio'            => $request->onumero_oficio,
                                         'ofecha'                    => $request->ofechax,
-                                        'onombre_autoridadinmediata'=> ($request->onombre_autoridadinmediata),
-                                        'ocargo_autoridadinmediata' => ($request->ocargo_autoridadinmediata),
+                                        'onombre_autoridadinmediata'=> strtoupper($request->onombre_autoridadinmediata),
+                                        'ocargo_autoridadinmediata' => strtoupper($request->ocargo_autoridadinmediata),
                                         'ofecha_acta'               => $request->ofecha,
                                         'ohora_acta'                => $request->ohora,
                                         'ogenerado'                 => 1, 

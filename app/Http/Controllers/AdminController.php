@@ -129,7 +129,7 @@ class AdminController extends Controller
         $usuario->opwd      = $elfolio;
         $usuario->save();
 
-        return redirect()->back()->with("success", "Se ha actualizado la contraseña correctamente.");
+        return redirect()->back()->with("success", "SE HA ACTUALIZADO LA CONTRASEÑA CORRECTAMENTE.");
         // ->route('usuarios.index')
 
     }
@@ -180,7 +180,7 @@ class AdminController extends Controller
         }else{
 
             User::create([
-                'name'      => $getct->onombre_ct,
+                'name'      => strtoupper($getct->onombre_ct),
                 'orfc'      => NULL,
                 'ocurp'     => NULL,
                 'id_ct'     => $request->oct,
@@ -190,7 +190,7 @@ class AdminController extends Controller
                 'opwd'      => $elfolio,
                 'orol'      => 3,
                 'ocorreo'   => NULL,
-                'onivel'    => $getct->odireccion,
+                'onivel'    => strtoupper($getct->odireccion),
                 'id_ctorigen'=> Auth::user()->id_ct,
                 'octorigen' => Auth::user()->email,
             ]);

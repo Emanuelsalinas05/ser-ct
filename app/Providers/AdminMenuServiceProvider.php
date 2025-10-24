@@ -115,11 +115,17 @@ private function buildEntregadorMenu(BuildingMenu $event, $user): void
         'active'  => ['entrega-recepcion*'],
     ]);
 
-    // Intervención ACTIVA
-    $intervencionActiva = \App\Models\Intervencion::where('idct_escuela', $user->id_ct)
-        ->where('ogenerada', 1)->where('ofin', 0)->where('istatus', '!=', 'B')
+    // Verificar si hay intervención generada (concluida o no)
+    $intervencionExistente = \App\Models\Intervencion::where('idct_escuela', $user->id_ct)
+        ->where('ogenerada', 1)->where('istatus', '!=', 'B')
         ->exists();
-    if (!$intervencionActiva) { return; }
+    
+    // Verificar si ya tiene acta concluida
+    $actaConcluida = \App\Models\DatosActa::where('id_user', $user->id)
+        ->where('oconcluida', 1)->exists();
+    
+    // Solo ocultar menú si NO hay intervención O si ya tiene acta concluida
+    if (!$intervencionExistente || $actaConcluida) { return; }
 
     // Flags 14 y 15
     $idTipoActa = \App\Models\DatosActa::where('id_user', $user->id)

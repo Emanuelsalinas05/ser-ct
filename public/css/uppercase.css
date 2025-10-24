@@ -1,0 +1,32 @@
+/* Estilos para forzar mayúsculas en inputs de texto */
+.uppercase-input {
+    text-transform: uppercase;
+}
+
+/* Aplicar a todos los inputs de texto por defecto */
+input[type="text"], 
+input[type="email"], 
+textarea {
+    text-transform: uppercase;
+}
+
+/* Aplicar a campos específicos del sistema */
+input[name*="onombre"],
+input[name*="ocargo"],
+input[name*="omunicipio"],
+input[name*="olocalidad"],
+input[name*="odomicilio"],
+input[name*="olugar"],
+input[name*="ohechos"],
+input[name*="omanifiestan"],
+input[name*="orepresentante"],
+input[name*="otestigo"],
+input[name*="oautoridad"] {
+    text-transform: uppercase;
+}
+
+/* Placeholder también en mayúsculas */
+input::placeholder,
+textarea::placeholder {
+    text-transform: uppercase;
+}

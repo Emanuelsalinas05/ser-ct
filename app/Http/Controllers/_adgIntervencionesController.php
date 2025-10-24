@@ -86,16 +86,27 @@ class _adgIntervencionesController extends Controller
 
             if(Auth::user()->orol==2)
             {
+                    // Obtener las escuelas que están bajo la supervisión del usuario actual
+                    $escuelasPermitidas = Organitation::where('idct_direccion', Auth::user()->id_ct)
+                        ->orWhere('idct_subdireccion', Auth::user()->id_ct)
+                        ->orWhere('idct_departamento', Auth::user()->id_ct)
+                        ->orWhere('idct_sector', Auth::user()->id_ct)
+                        ->orWhere('idct_supervicion', Auth::user()->id_ct)
+                        ->whereNotNull('idct_escuela')
+                        ->where('idct_escuela', '>', 0)
+                        ->pluck('idct_escuela')
+                        ->unique()
+                        ->toArray();
 
                     $intervenciones = Intervencion::select('*',
                                         DB::raw('date_format(ofecha_realizacion, "%d/%m/%Y") as fechacreacion'),
                                         DB::raw('date_format(ofecha_entrega, "%d/%m/%Y") as fechaentrega')) 
                                     ->whereNotIn('istatus',['B']) 
-                                    ->whereIn('idct_departamento', [$orga->idct_direccion, $orga->idct_subdireccion, $orga->idct_departamento, $orga->idct_sector, $orga->idct_supervicion])
+                                    ->whereIn('idct_escuela', $escuelasPermitidas)
                                     ->whereOfin(0)->get();
 
                     $intervencionesc= Intervencion::whereOgenerada(1)
-                                    ->whereIn('idct_departamento', [$orga->idct_direccion, $orga->idct_subdireccion, $orga->idct_departamento, $orga->idct_sector, $orga->idct_supervicion])
+                                    ->whereIn('idct_escuela', $escuelasPermitidas)
                                     ->whereOfin(0)->count();
 
             }else if(Auth::user()->orol==1){
@@ -178,7 +189,7 @@ class _adgIntervencionesController extends Controller
                             ]);
                         
                             
-                        require_once 'send-mails/intervencion-elemental/index.php';
+                        require_once public_path('send-mails/intervencion-elemental/index.php');
 
                         return redirect(url('solicitud-intervencion'))
                                 ->with("success", "Se ha registrado la intervención");  

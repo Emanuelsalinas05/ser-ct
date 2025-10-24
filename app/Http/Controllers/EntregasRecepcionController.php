@@ -32,15 +32,14 @@ class EntregasRecepcionController extends Controller
     {
         $user = Auth::user();
 
-        //  si es entregador (orol == 1), necesita intervención generada y activa
+        //  si es entregador (orol == 1), necesita intervención generada (concluida o no)
         if ($user->orol == 1) {
-            $intervencionActiva = Intervencion::where('idct_escuela', $user->id_ct)
+            $intervencionExistente = Intervencion::where('idct_escuela', $user->id_ct)
                 ->where('ogenerada', 1)
-                ->where('ofin', 0)
                 ->where('istatus', '!=', 'B')
                 ->exists();
 
-            if (!$intervencionActiva) {
+            if (!$intervencionExistente) {
                 return redirect()->route('home')->with('error', 'Para acceder a Entrega-Recepción, primero debe solicitarse y aprobarse una intervención por el revisor.');
             }
         }

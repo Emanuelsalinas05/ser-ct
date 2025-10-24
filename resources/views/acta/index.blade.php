@@ -27,7 +27,8 @@
             </x-adminlte-callout>
         @endif
 
-        {{-- Si no se ha generado la intervención, advertencia --}}
+        @if($ban == 0)
+        {{-- Verificar si tiene permiso para iniciar --}}
         @if(isset($intervencionPermitida) && !$intervencionPermitida)
         <x-adminlte-callout theme="danger" title="ACCESO RESTRINGIDO" icon="fas fa-ban">
             <p class="mb-3">
@@ -41,8 +42,7 @@
             </p>
             
         </x-adminlte-callout>
-
-        @elseif($ban == 0)
+        @else
         <x-adminlte-callout theme="info"
                             title="SELECCIONA EL TIPO DE ENTREGA - RECEPCIÓN A REALIZAR"
                             class="text-info"
@@ -64,13 +64,26 @@
                 </div>
             </div>
         </x-adminlte-callout>
+        @endif
 
         @elseif($ban == 1)
 
             @if($datosacta->ock == 0)
-                <p class="text-info">
-                    INGRESA LOS SIGUIENTES DATOS PARA COMENZAR CON EL REGISTRO DEL {{ optional($datosacta->tipoacta)->otipoacta }}
-                </p>
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <p class="text-info">
+                            INGRESA LOS SIGUIENTES DATOS PARA COMENZAR CON EL REGISTRO DEL {{ optional($datosacta->tipoacta)->otipoacta }}
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <form method="post" action="{{ route('entrega-recepcion.cambiar-tipo') }}" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('¿Estás seguro de que quieres cambiar el tipo de acta? Se perderá la información ingresada.')">
+                                <i class="fas fa-exchange-alt"></i> CAMBIAR TIPO
+                            </button>
+                        </form>
+                    </div>
+                </div>
 
                 @if($datosacta->id_tipoacta == 1)
                     @include('acta.00-form-acta')

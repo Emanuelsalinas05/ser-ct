@@ -112,7 +112,7 @@
 	                }else if (clave1 != clave2) {
 	                    Swal.fire('aviso!', 'Los correos no coinciden', 'warning');
 	                }else if (clave1 == clave2 && clave1!='' && clave2!='' ){
-	                    Swal.fire('Correcto!', 'Los correos coinciden', 'info')
+	                    Swal.fire('CORRECTO!', 'LOS CORREOS COINCIDEN', 'info')
 	                }
 	            }
         </script>

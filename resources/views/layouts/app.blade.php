@@ -79,19 +79,19 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             @if (session('success'))
-            swal("Correcto", "{{ session('success') }}", "success");
+            swal("CORRECTO", "{{ session('success') }}", "success");
             @endif
 
             @if (session('info'))
-            swal("Aviso", "{{ session('info') }}", "info");
+            swal("AVISO", "{{ session('info') }}", "info");
             @endif
 
             @if (session('warning'))
-            swal("Atención", "{{ session('warning') }}", "warning");
+            swal("ATENCIÓN", "{{ session('warning') }}", "warning");
             @endif
 
             @if (session('danger'))
-            swal("Atención", "{{ session('danger') }}", "danger");
+            swal("ATENCIÓN", "{{ session('danger') }}", "danger");
             @endif
 
             @if (session('recursoshumanos'))
@@ -211,6 +211,7 @@
 {{-- Add common CSS customizations --}}
 @push('css')
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.3/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="{{ asset('css/uppercase.css') }}" rel="stylesheet">
     <style type="text/css">
         {{-- You can add AdminLTE customizations here --}}
 /*

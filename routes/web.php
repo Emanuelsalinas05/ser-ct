@@ -123,6 +123,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('entrega-recepcion/solicitar-intervencion',
         [ActaController::class, 'solicitarIntervencion']
     )->middleware('throttle:5,1')->name('entrega-recepcion.solicitar-intervencion');
+    Route::post('entrega-recepcion/cambiar-tipo',
+        [ActaController::class, 'cambiarTipo']
+    )->name('entrega-recepcion.cambiar-tipo');
 
     Route::prefix('history')->name('entregas-historico.history.')->group(function () {
         Route::get('marco-juridico/{id}', [ReviewOkx::class, 'marcjuridico'])->name('marco-juridico');

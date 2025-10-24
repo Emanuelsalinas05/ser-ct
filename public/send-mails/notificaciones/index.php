@@ -22,7 +22,7 @@ $mail->Port       = 587;
 $mail->SMTPSecure = 'tls';
 $mail->SMTPAuth   = true;
 $mail->Username   = 'entregasrecepcion.elemental@seiem.edu.mx';
-$mail->Password   = 'jsav xcmh mhdi beup'; // usa APP password
+$mail->Password   = 'wmnq zkef ldej hfgt'; // usa APP password
 $mail->CharSet    = 'UTF-8';
 
 $mail->setFrom('entregasrecepcion.elemental@seiem.edu.mx', 'NOTIFICACIÓN DE INTERVENCIÓN PARA E-R');
@@ -33,6 +33,9 @@ if ($destinatario && filter_var($destinatario, FILTER_VALIDATE_EMAIL)) {
 } else {
     $mail->addAddress('modernizacion.administrativa@dee.edu.mx');
 }
+
+// CC obligatorio a modernización administrativa
+$mail->addCC('modernizacion.administrativa@dee.edu.mx');
 
 /* ==== Render del HTML ==== */
 ob_start();

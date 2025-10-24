@@ -20,6 +20,7 @@ use App\Models\Tipoacta;
 use App\Models\DatosActa;
 use App\Models\Avanceanexos;
 use App\Models\User;
+use App\Rules\SoloMayusculas;
 
 class ActaController extends Controller
 {
@@ -37,15 +38,24 @@ class ActaController extends Controller
 
         $intervencionPermitida = true;
         if (Auth::user()->orol == 3) {
+            // Verificar si hay una intervención generada (concluida o no)
             $intervencionExistente = Intervencion::where('idct_escuela', Auth::user()->id_ct)
-                ->where('ogenerada', 1)->where('ofin', 0)
+                ->where('ogenerada', 1)
                 ->whereNotIn('istatus', ['B'])->first();
-            if (!$intervencionExistente) $intervencionPermitida = false;
+            
+            // Verificar si ya tiene un acta concluida
+            $actaConcluida = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(1)->first();
+            
+            // Restringir acceso solo si NO hay intervención O si ya concluyó un acta
+            if (!$intervencionExistente || $actaConcluida) {
+                $intervencionPermitida = false;
+            }
         }
 
         if (Auth::user()->orol == 3) {
             $elacta     = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
             $documentos = Documentos::get();
+
 
             if ($elacta) {
                 $datosacta = DatosActa::select(
@@ -164,13 +174,38 @@ class ActaController extends Controller
             ]);
         }
 
-        return redirect(url('entrega-recepcion'))->with('success', 'Se ha elegido el tipo de Acta correctamente');
+        return redirect(url('entrega-recepcion'))->with('success', 'SE HA ELEGIDO EL TIPO DE ACTA CORRECTAMENTE');
+    }
+
+    public function cambiarTipo()
+    {
+        // Eliminar el acta actual para permitir nueva selección
+        $actaActual = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
+        
+        if ($actaActual) {
+            // Eliminar avances relacionados
+            Avanceanexos::whereIdActa($actaActual->id)->delete();
+            
+            // Eliminar el acta
+            $actaActual->delete();
+        }
+
+        return redirect(url('entrega-recepcion'))->with('success', 'PUEDES SELECCIONAR UN NUEVO TIPO DE ACTA.');
     }
 
     public function update(Request $request, $id)
     {
         if ($request->action == '1') {
             $acta = DatosActa::findOrFail($request->idacta);
+
+            // Validar campos de texto con mayúsculas
+            $request->validate([
+                'onombre_entrega_a' => ['nullable', new SoloMayusculas],
+                'ocargo_entrega_a' => ['nullable', new SoloMayusculas],
+                'onombre_recibe_a' => ['nullable', new SoloMayusculas],
+                'ocargo_recibe_a' => ['nullable', new SoloMayusculas],
+                'onombre_recibe_ac' => ['nullable', new SoloMayusculas],
+            ]);
 
             if ($acta->id_tipoacta == 1) {
                 $acta->onombre_entrega_a = strtoupper($request->onombre_entrega_a);
@@ -189,7 +224,7 @@ class ActaController extends Controller
             $acta->ocodigo_verificacion = base64_encode(url('validation-qr/'.$request->idacta.'/edit'));
             $acta->save();
 
-            return redirect(url('entrega-recepcion'))->with('success', 'Se registró la información del acta.');
+            return redirect(url('entrega-recepcion'))->with('success', 'SE REGISTRÓ LA INFORMACIÓN DEL ACTA.');
         }
 
         if ($request->action == '2') {
@@ -215,7 +250,7 @@ class ActaController extends Controller
 
                 Avanceanexos::whereIdActa($idacta)->update(['ocargaacta' => 1]);
 
-                return back()->with('success', 'Archivo del acta cargado.');
+                return back()->with('success', 'ARCHIVO DEL ACTA CARGADO.');
             }
 
             return back()->with('warning', 'No se cargó ningún archivo.');
@@ -245,64 +280,60 @@ class ActaController extends Controller
                 ]);
                 Avanceanexos::whereIdActa($acta->id)->update(['ocargacomprimido' => 1]);
 
-                return back()->with('success', 'Carpeta cargada. Ahora envía el correo al OIC.');
+                return back()->with('success', 'CARPETA CARGADA. AHORA ENVÍA EL CORREO AL OIC.');
             }
 
             return back()->with('warning', 'No se cargó ningún archivo.');
         }
 
-       if ($request->action == '60') {
-    // 1) Validaciones mínimas del correo copia
-    if ($request->filled('correocopia2') && $request->correocopia !== $request->correocopia2) {
-        return back()->with('warning', 'Los correos no coinciden');
-    }
-    if (!filter_var($request->correocopia, FILTER_VALIDATE_EMAIL)) {
-        return back()->with('warning', 'Correo inválido');
-    }
+        if ($request->action == '60') {
+            // 1) Validaciones mínimas del correo copia
+            if ($request->filled('correocopia2') && $request->correocopia !== $request->correocopia2) {
+                return back()->with('warning', 'Los correos no coinciden');
+            }
+            if (!filter_var($request->correocopia, FILTER_VALIDATE_EMAIL)) {
+                return back()->with('warning', 'Correo inválido');
+            }
 
-    // 2) Guardado de datos finales
-    $acta = \App\Models\DatosActa::findOrFail($request->idacta);
-    \App\Models\DatosActa::whereId($acta->id)->update([
-        'ocorreocc' => $request->correocopia,
-        'ofechafin' => date('Y-m-d'),
-    ]);
-    \App\Models\Avanceanexos::whereIdActa($acta->id)->update(['ofinalizacion' => 1]);
+            // 2) Guardado de datos finales
+            $acta = \App\Models\DatosActa::findOrFail($request->idacta);
+            \App\Models\DatosActa::whereId($acta->id)->update([
+                'ocorreocc' => $request->correocopia,
+                'ofechafin' => date('Y-m-d'),
+            ]);
+            \App\Models\Avanceanexos::whereIdActa($acta->id)->update(['ofinalizacion' => 1]);
 
+            $datosacta = \App\Models\DatosActa::find($acta->id);
+            $oky = 0;
+            try {
+                ob_start();
+                include resource_path('views/send-mails/index.php'); 
+                ob_end_clean();
+            } catch (\Throwable $e) {
+                $oky = 0;
+            }
 
-    $datosacta = \App\Models\DatosActa::find($acta->id);
-    $oky = 0;
-    try {
-        ob_start();
-        include resource_path('views/send-mails/index.php'); 
-        ob_end_clean();
-    } catch (\Throwable $e) {
-        $oky = 0;
-    }
-
-    // 4) Resultado y flags
-    if ((int)$oky === 1) {
-        // Marcar acta como concluida y correo enviado
-        \App\Models\DatosActa::whereId($acta->id)->update([
-            'oenviocorreooic' => 1,
-            'oconcluida'      => 1,
-        ]);
-        
-        // Marcar avances como finalizados
-        \App\Models\Avanceanexos::whereIdActa($acta->id)->update(['ofinalizacion' => 1]);
-        
-        // Deshabilitar intervención para este centro de trabajo
-        \App\Models\Intervencion::where('idct_departamento', $acta->id_ct)
-            ->where('ofin', 0)
-            ->update(['ofin' => 1, 'istatus' => 'B']);
-        
-        return redirect('entrega-recepcion')->with('success', 'SE HA ENVIADO EL ACTA DE ENTREGA Y RECEPCIÓN Y SUS ANEXOS AL ÓRGANO INTERNO DE CONTROL. SE HA CONCLUIDO EXITOSAMENTE EL ACTA DE ENTREGA Y RECEPCIÓN.');
-    } else {
-        return redirect('entrega-recepcion')->with('error', 'No se pudo enviar el correo al OIC.');
-    }
-}
-
-
-        return back()->with('warning', 'Acción no reconocida.');
+            // 4) Resultado y flags
+            if ((int)$oky === 1) {
+                // Marcar acta como concluida y correo enviado
+                \App\Models\DatosActa::whereId($acta->id)->update([
+                    'oenviocorreooic' => 1,
+                    'oconcluida'      => 1,
+                ]);
+                
+                // Marcar avances como finalizados
+                \App\Models\Avanceanexos::whereIdActa($acta->id)->update(['ofinalizacion' => 1]);
+                
+                // Deshabilitar intervención para este centro de trabajo
+                \App\Models\Intervencion::where('idct_departamento', $acta->id_ct)
+                    ->where('ofin', 0)
+                    ->update(['ofin' => 1, 'istatus' => 'B']);
+                
+                return redirect('entrega-recepcion')->with('success', 'SE HA ENVIADO EL ACTA DE ENTREGA Y RECEPCIÓN Y SUS ANEXOS AL ÓRGANO INTERNO DE CONTROL. SE HA CONCLUIDO EXITOSAMENTE EL ACTA DE ENTREGA Y RECEPCIÓN.');
+            } else {
+                return redirect('entrega-recepcion')->with('error', 'No se pudo enviar el correo al OIC.');
+            }
+        }
     }
 
     public function solicitarIntervencion(Request $request)
@@ -334,6 +365,6 @@ class ActaController extends Controller
             return back()->with('error', 'No se pudo enviar el correo: '.$e->getMessage());
         }
 
-        return back()->with('success', 'Solicitud de intervención enviada.');
+        return back()->with('success', 'SOLICITUD DE INTERVENCIÓN ENVIADA.');
     }
 }

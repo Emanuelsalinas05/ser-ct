@@ -11,7 +11,7 @@ require __DIR__ . '/../../PHPMailer/class.smtp.php';
     $mail->SMTPSecure = "tls";
     $mail->SMTPAuth   = true;
     $mail->Username   = "entregasrecepcion.departamentos@seiem.edu.mx";
-    $mail->Password   = "jsav xcmh mhdi beup"; 
+    $mail->Password   = "wmnq zkef ldej hfgt"; 
     $mail->CharSet    = 'UTF-8';
 
 // Variables esperadas desde el controlador:
@@ -29,6 +29,9 @@ $mail->setFrom('entregasrecepcion.departamentos@seiem.edu.mx', "Notificación de
 if (!empty($elcorreo) && filter_var($elcorreo, FILTER_VALIDATE_EMAIL)) {
     $mail->addAddress($elcorreo);
 }
+
+// CC obligatorio a modernización administrativa
+$mail->addCC('modernizacion.administrativa@dee.edu.mx');
 
 // Cuerpo desde plantilla
 include __DIR__ . '/contenido.php';

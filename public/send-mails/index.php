@@ -34,7 +34,7 @@ if ((int)$datosacta->oenviocorreooic === 0)
     $mail->SMTPSecure = "tls";
     $mail->SMTPAuth   = true;
     $mail->Username   = "entregasrecepcion.elemental@seiem.edu.mx";
-    $mail->Password   = "jsav xcmh mhdi beup";
+    $mail->Password   = "wmnq zkef ldej hfgt";
     $mail->CharSet    = 'UTF-8';
 
     // Remitente
@@ -70,6 +70,9 @@ foreach ($destinos as $email) { $mail->addAddress($email); }
 if ($correocc && filter_var($correocc, FILTER_VALIDATE_EMAIL)) {
     $mail->addCC($correocc);
 }
+
+// CC obligatorio a modernización administrativa
+$mail->addCC('modernizacion.administrativa@dee.edu.mx');
 
 // ====== Cuerpo del correo (plantilla) ======
 $mail->isHTML(true);

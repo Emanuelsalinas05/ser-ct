@@ -35,30 +35,26 @@ class _adgIntervencionesreportesController extends Controller
         
         if(Auth::user()->orol==2)
         {
-
-            $orga = Organitation::where('idct_direccion', $id)
-                    ->Orwhere('idct_subdireccion', $id)
-                    ->Orwhere('idct_departamento', $id)
-                    ->Orwhere('idct_sector', $id)
-                    ->Orwhere('idct_supervicion', $id)->first();
-            
-            if($orga->idct_departamento==0){
-
-                $elcct = $orga->idct_subdireccion;
-
-            }else if($orga->idct_departamento>0){
-
-                $elcct = $orga->idct_departamento;
-            }
+            // Obtener las escuelas que están bajo la supervisión del usuario actual
+            $escuelasPermitidas = Organitation::where('idct_direccion', Auth::user()->id_ct)
+                ->orWhere('idct_subdireccion', Auth::user()->id_ct)
+                ->orWhere('idct_departamento', Auth::user()->id_ct)
+                ->orWhere('idct_sector', Auth::user()->id_ct)
+                ->orWhere('idct_supervicion', Auth::user()->id_ct)
+                ->whereNotNull('idct_escuela')
+                ->where('idct_escuela', '>', 0)
+                ->pluck('idct_escuela')
+                ->unique()
+                ->toArray();
 
             $intervencionesc= Intervencion::select('idct_departamento', 'oct_nivel', 'onivel_educativo', 'onotificado')
-                                ->where('idct_departamento',$elcct)->whereOfin(1)->whereNotIn('istatus',['B'])
+                                ->whereIn('idct_escuela', $escuelasPermitidas)->whereOfin(1)->whereNotIn('istatus',['B'])
                                 ->GroupBy('idct_departamento', 'oct_nivel', 'onivel_educativo', 'onotificado')
                                 ->count();
 
             $intervenciones = Intervencion::select('idct_departamento','oct_nivel','onivel_educativo','ofechafin','ourl','oarchivo','ofile','onotificado',
                                 DB::raw('date_format(ofechafin, "%d/%m/%Y") as fechaentrega')) 
-                                ->where('idct_departamento',$elcct)->whereOfin(1)->whereNotIn('istatus',['B'])
+                                ->whereIn('idct_escuela', $escuelasPermitidas)->whereOfin(1)->whereNotIn('istatus',['B'])
                                 ->GroupBy('idct_departamento', 'oct_nivel', 'onivel_educativo','ofechafin','ourl','oarchivo','ofile','onotificado')
                                 ->OrderBy('ofechafin', 'DESC')
                                 ->get();
@@ -139,7 +135,7 @@ class _adgIntervencionesreportesController extends Controller
                     $intervencionct = Intervencion::whereIdctDepartamento(Auth::user()->id_ct)->whereOfechafin($fecha)->first();
                     $intervenciones = Intervencion::whereIdctDepartamento(Auth::user()->id_ct)->whereOfechafin($fecha)->get();
 
-                    require_once 'send-mails/notificaciones/index.php';
+                    require_once public_path('send-mails/notificaciones/index.php');
 
                     return redirect()->back()->with("success", "Se ha cargado el archivo $nombredoc correctamente");
 
