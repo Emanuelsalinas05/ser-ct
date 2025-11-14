@@ -98,7 +98,7 @@
                         &nbsp;CARPETA FINAL DE ARCHIVOS&nbsp;&nbsp;</b>
                     </span>
 
-                        <a href="../storage/{{ $datosacta->ourlcarpeta }}/{{ $datosacta->onombrecarpeta }}"
+                        <a href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $datosacta->ourlcarpeta }}/{{ $datosacta->onombrecarpeta }}"
                            target="_blank"
                            download
                            style="text-decoration:none;"

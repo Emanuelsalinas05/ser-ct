@@ -101,7 +101,7 @@
                                 <input  type="text" 
                                         name="orecibe" required 
                                         class="form-control form-control-sm"
-                                        value="{{ $i->oentrega }}">
+                                        value="{{ $i->orecibe }}">
                             </td>
                         </tr>
                         <tr>

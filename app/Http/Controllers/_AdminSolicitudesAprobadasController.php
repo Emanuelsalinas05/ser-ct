@@ -39,6 +39,10 @@ class _AdminSolicitudesAprobadasController extends Controller
                 ->orWhere('idct_escuela',Auth::user()->id_ct)
                 ->first();
 
+            if (!$org) {
+                return redirect()->back()->withErrors("No se encontró información organizacional para este usuario.");
+            }
+
             if($org->idct_direccion==Auth::user()->id_ct){
                 $res = 'id_dir';
             }else if($org->idct_subdireccion==Auth::user()->id_ct){

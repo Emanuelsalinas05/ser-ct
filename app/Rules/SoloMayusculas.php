@@ -2,40 +2,21 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class SoloMayusculas implements Rule
+class SoloMayusculas implements ValidationRule
 {
     /**
-     * Create a new rule instance.
+     * Run the validation rule.
      *
-     * @return void
+     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
-    public function __construct()
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        //
-    }
-
-    /**
-     * Determine if the validation rule passes.
-     *
-     * @param  string  $attribute
-     * @param  mixed  $value
-     * @return bool
-     */
-    public function passes($attribute, $value)
-    {
-        // Permitir solo mayúsculas, espacios, acentos y caracteres especiales comunes
-        return preg_match('/^[A-ZÁÉÍÓÚÑÜ\s\.\-\(\)]+$/u', $value);
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return 'El campo :attribute solo permite mayúsculas con acentos.';
+        // Permitir cualquier texto, el sistema lo convertirá a mayúsculas
+        if (empty($value)) {
+            $fail('El campo :attribute es requerido.');
+        }
     }
 }

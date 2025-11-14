@@ -33,6 +33,12 @@ class PlantillaPersonalController extends Controller
 
         $datosacta  = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
 
+        // Validar existencia de acta activa
+        if (!$datosacta) {
+            return redirect()->route('documentos.recursos-humanos.index')
+                ->with('warning', 'No tienes un acta de entrega-recepción activa. Por favor, crea una nueva acta primero.');
+        }
+
         if(Auth::user()->onivel=='ELEMENTAL'){
                 $ofilee=0;
         }else if(Auth::user()->onivel=='SECUNDARIA'){

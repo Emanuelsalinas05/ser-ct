@@ -29,10 +29,16 @@ $mail->setFrom('entregasrecepcion.elemental@seiem.edu.mx', "Notificación de Int
 // Destinatarios
 if (!empty($elcorreo) && filter_var($elcorreo, FILTER_VALIDATE_EMAIL)) {
     $mail->addAddress($elcorreo);
+} else {
+    // Si no hay correo del titular, enviar a modernización administrativa como principal
+    $mail->addAddress('modernizacion.administrativa@dee.edu.mx');
 }
 
 // CC obligatorio a modernización administrativa
-$mail->addCC('modernizacion.administrativa@dee.edu.mx');
+// Solo agregar CC si ya no es el destinatario principal
+if (!empty($elcorreo) && filter_var($elcorreo, FILTER_VALIDATE_EMAIL)) {
+    $mail->addCC('modernizacion.administrativa@dee.edu.mx');
+}
 
 // Cuerpo desde plantilla
 include __DIR__ . '/contenido.php';

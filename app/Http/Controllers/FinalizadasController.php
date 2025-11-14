@@ -41,30 +41,19 @@ class FinalizadasController extends Controller
             return view('admin.er.finalizadas.index3', compact('datosacta3', 'us'));
         }
 
-        // Manejar usuarios con orol == 1 (entregadores)
+        // Manejar usuarios con orol == 1 (administradores)
         if (Auth::user()->orol == 1) {
-            // Para usuarios con role_id 1, mostrar todas las entregas-recepción finalizadas
-            $datosacta = DatosActa::distinct()->select('g1acta.id', 'g1acta.id_user','g1acta.id_tipoacta','g1acta.id_ct',
-                'g1acta.oconcluida','g1acta.ocargacomprimido','g1acta.ocheckactaa','g1acta.owaitacta','g1acta.oestado',
-                'g1acta.oopenanexo','g1acta.oenviocorreooic','g1acta.ourlcarpeta','g1acta.onombrecarpeta',
-                'g1acta.created_at','g1acta.updated_at',
-                'g1ct.oclave','g1ct.onombre_ct','g1ct.odomicilio','g1ct.otelefono','g1ct.ocorreo',
-                'g1tipoacta.otipoacta','g1tipoacta.odescripcion',
-                'g1user.name','g1user.email',
-                DB::raw('CASE 
-                    WHEN g1acta.oconcluida=1 AND g1acta.ocargacomprimido=1
-                    THEN "SE REVISO Y CONCLUYÓ EL PROCESO DE ENTREGA-RECEPCIÓN"
-                    WHEN g1acta.oopenanexo=1
-                    THEN "¡¡ATENCIÓN!! ANEXO ABIERTO, DEBE FINALIZARSE ESTE ANEXO PARA CONTINUAR"
-                    END AS estadoacta'))
-            ->join('g1ct', 'g1acta.id_ct', '=', 'g1ct.kcvect')
-            ->join('g1tipoacta', 'g1acta.id_tipoacta', '=', 'g1tipoacta.id')
-            ->join('g1user', 'g1acta.id_user', '=', 'g1user.id')
-            ->where('g1acta.oconcluida', 1)
-            ->orderBy('g1acta.created_at', 'DESC')
-            ->paginate(10);
+            // Para usuarios con orol 1, consulta optimizada para evitar timeouts
+            $datosacta = DatosActa::select('g1acta.id as idd', 'g1acta.*')
+                    ->whereOconcluida(1)
+                    ->orderBy('g1acta.created_at', 'DESC')
+                    ->get();
 
-            return view('admin.er.finalizadas.index', compact('datosacta', 'us'));
+            // Variables vacías para compatibilidad con la vista
+            $datosacta2 = collect();
+            $datosacta3 = collect();
+            
+            return view('admin.er.finalizadas.index-improved', compact('datosacta', 'datosacta2', 'datosacta3', 'us'));
         }
 
         switch (Auth::user()->ocargo)
@@ -143,6 +132,12 @@ class FinalizadasController extends Controller
 
             $documentos  = Documentos::get();
             $datosacta   = DatosActa::whereId($id)->first();
+            
+            // Validar que el acta existe
+            if (!$datosacta) {
+                return redirect()->back()->withErrors("Acta no encontrada.");
+            }
+
             $avanceanexos = Avanceanexos::whereIdActa($id)->get();
 
             if($datosacta->id_tipoacta==2)

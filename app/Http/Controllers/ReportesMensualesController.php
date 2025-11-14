@@ -14,10 +14,10 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportesMensualesController extends Controller
 {
-    // Método general para verificar rol 1 (Administrador)
+    // Método general para verificar rol 1 (Administrador) o rol 99 (Coordinación Académica)
     private function onlyAdmin()
     {
-        if (Auth::user()->orol != 1) {
+        if (Auth::user()->orol != 1 && Auth::user()->orol != 99) {
             abort(403, 'Acceso no autorizado.');
         }
     }

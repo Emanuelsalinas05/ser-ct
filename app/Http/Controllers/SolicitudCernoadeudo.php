@@ -79,9 +79,9 @@ class SolicitudCernoadeudo extends Controller
         {   
                 $update_solicitud = Solicitudnoadeudo::whereId($solicitud->id);
                 $update_solicitud->update([  'id_tipocert' => $tipocert, 'oselecttipo' => 1, ]);
-
+                $solicitudId = $solicitud->id;
         }else{
-                Solicitudnoadeudo::create([
+                $nuevaSolicitud = Solicitudnoadeudo::create([
                     'odir'          => Auth::user()->onivel,
                     'id_dir'        => Auth::user()->id_ctorigen,
                     'id_sub'        => $decide->idct_subdireccion,
@@ -94,8 +94,9 @@ class SolicitudCernoadeudo extends Controller
                     'id_acta'       => $idacta,
                     'oanio'         => date('Y'),     
                 ]);
+                $solicitudId = $nuevaSolicitud->id;
         }
-        
+
         return redirect()->back()->with("success", "REGISTRA LOS DATOS PARA OBTENER TU OFICIO DE SOLICITUD DE CERTIFICADO DE NO ADEUDO");
 
     }
@@ -105,6 +106,10 @@ class SolicitudCernoadeudo extends Controller
 
     public function update(Request $request, string $id)
     {
+        // Validar que action existe
+        if (!$request->has('action')) {
+            return redirect()->back()->withErrors("Acción no especificada.");
+        }
 
         if($request->action==1)
         {
@@ -201,8 +206,82 @@ Coordinación de Administración y Finanzas de SEIEM (adjunta copias de tu INE y
 
     }
 
- 
+    /**
+     * Envía correo de notificación para certificados de no adeudo
+     */
+    private function enviarCorreoCertificado($solicitudId, $request)
+    {
+        try {
+            \Log::info('Iniciando envío de correo certificado', ['solicitud_id' => $solicitudId]);
+            
+            // Obtener datos de la solicitud
+            $solicitud = Solicitudnoadeudo::find($solicitudId);
+            if (!$solicitud) {
+                \Log::error('Solicitud no encontrada', ['solicitud_id' => $solicitudId]);
+                return false;
+            }
 
+            // Obtener datos del centro de trabajo
+            $ct = CentrosTrabajo::whereKcvect($solicitud->id_ct)->first();
+            if (!$ct) {
+                \Log::error('Centro de trabajo no encontrado', ['id_ct' => $solicitud->id_ct]);
+                return false;
+            }
 
+            // Obtener datos del usuario
+            $usuario = Auth::user();
+
+            // Obtener datos organizacionales
+            $org = Organitation::where('idct_escuela', $solicitud->id_ct)
+                ->orWhere('idct_supervicion', $solicitud->id_ct)
+                ->orWhere('idct_sector', $solicitud->id_ct)
+                ->first();
+
+            if (!$org) {
+                return false;
+            }
+
+            // Obtener tipo de certificado
+            $tipoCert = Tiposnoadeudo::find($solicitud->id_tipocert);
+
+            // Preparar datos para el correo
+            $getct = $ct;
+            $getoficio = (object) [
+                'ocorreo' => $org->ocorreo ?? 'modernizacion.administrativa@dee.edu.mx'
+            ];
+
+            // Variables para el correo
+            $request->onombre_solicitante = $usuario->name ?? 'Usuario';
+            $request->tipo_certificado = $tipoCert->onombre ?? 'Certificado de No Adeudo';
+            $request->ofecha = $solicitud->ofecha ?? date('Y-m-d');
+            $request->onumero_oficio = $solicitud->onumero_oficio ?? '';
+            $request->solicitud_id = $solicitudId;
+            $request->id_ct = $solicitud->id_ct;
+
+            // Incluir el archivo de envío de correos
+            $path = base_path('public/send-mails/certificado-noadeudo/index.php');
+            \Log::info('Ruta del archivo de correo', ['path' => $path, 'exists' => file_exists($path)]);
+            
+            if (file_exists($path)) {
+                ob_start();
+                include $path;
+                $result = ob_get_clean();
+                
+                \Log::info('Resultado del envío de correo', [
+                    'MAIL_OK' => isset($MAIL_OK) ? $MAIL_OK : 'no definido',
+                    'result' => $result
+                ]);
+                
+                // Verificar si el correo se envió correctamente
+                return isset($MAIL_OK) && $MAIL_OK;
+            }
+
+            \Log::error('Archivo de correo no encontrado', ['path' => $path]);
+            return false;
+        } catch (\Exception $e) {
+            \Log::error('Error enviando correo certificado: ' . $e->getMessage());
+            return false;
+        }
+    }
 
 }

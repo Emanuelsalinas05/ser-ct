@@ -37,7 +37,7 @@
                     </td>
                       
                     <td width="40%">
-                        <a  href="../../storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
+                        <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
                             target="_blank"
                             download 
                             title="{{ $inventario->oarchivo_adjunto }}">
@@ -78,7 +78,7 @@
                     </td>
                       
                     <td width="40%">
-                        <a  href="../../storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
+                        <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
                             target="_blank"
                             download 
                             title="{{ $inventario->oarchivo_adjunto }}">
@@ -120,7 +120,7 @@
                     </td>
                       
                     <td width="40%">
-                        <a  href="../../storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
+                        <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
                             target="_blank"
                             download 
                             title="{{ $inventario->oarchivo_adjunto }}">

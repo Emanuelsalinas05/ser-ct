@@ -43,7 +43,9 @@
 		<td>
 			<input 	type="file" name="onombre_archivo" id="onombre_archivo"
 					accept=".zip, .rar,"
-					class="form-control form-control-sm">
+					class="form-control form-control-sm"
+					onchange="validarTamanioArchivo(this)">
+			<small class="text-muted">Tamaño máximo: 500 MB</small>
 		</td>
 	</tr>
 	<tr>
@@ -57,6 +59,58 @@
 		</td>
 	</tr>
 </form> 
+
+<script type="text/javascript">
+function validarTamanioArchivo(input) {
+    const maxSize = 500 * 1024 * 1024; // 500 MB en bytes
+    const file = input.files[0];
+    
+    if (file) {
+        if (file.size > maxSize) {
+            Swal.fire({
+                title: 'Error',
+                text: 'El archivo es demasiado grande. El tamaño máximo permitido es 500 MB. Tamaño del archivo: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            input.value = ''; // Limpiar el input
+            return false;
+        } else {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            Swal.fire({
+                title: 'Archivo seleccionado',
+                text: 'Tamaño del archivo: ' + sizeMB + ' MB',
+                icon: 'info',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    }
+    return true;
+}
+
+// Prevenir doble envío del formulario
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('FrmCartel');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = form.querySelector('button[type="submit"], button');
+            if (submitBtn && !submitBtn.disabled) {
+                submitBtn.disabled = true;
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> CARGANDO...';
+                
+                // Re-habilitar después de 30 segundos por si hay error
+                setTimeout(function() {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }, 30000);
+            }
+        });
+    }
+});
+</script>
+
 @elseif($datosacta->carpetacorreo==1) 
 <form   name="FrmCartel" id="FrmCartel" method="post" 
         action="{{ route('entrega-recepcion.update', $datosacta->id ) }}"  >

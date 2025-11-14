@@ -93,7 +93,7 @@
                     <b  class="text-info" > {{ $datosacta->tipoacta->otipoacta }}</b>
                 </span>
         
-                <a  href="../../storage/{{ $datosacta->ourl_acta }}"
+                <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $datosacta->ourl_acta }}"
                     target="_blank" 
                     class="btn btn-outline-success btn-sm "
                     title="{{ $datosacta->tipoacta->otipoacta }} FIRMADA Y ESCANEADA" 
@@ -104,7 +104,7 @@
             </li>                                
     @elseif($datosacta->ocargaacta==0)
         <div class="bg-warning">
-            <b><center style="font-size: 18px;">NO SE A REGISTRADO EL ACTA ESCANEADA Y FIRMADA </center></b>
+            <b><center style="font-size: 18px;">NO SE HA REGISTRADO EL ACTA ESCANEADA Y FIRMADA </center></b>
         </div>
     @endif
 @endif

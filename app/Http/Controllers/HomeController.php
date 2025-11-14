@@ -49,9 +49,9 @@ class HomeController extends Controller
         if (Auth::check())
         { 
             if( Auth::user()->orol<3 || Auth::user()->orol==99){
-
+                // Los administradores (orol < 3) pueden acceder directamente
                 $datosacta = DatosActa::get();
-                 return redirect(url('entregas-recepcion'));
+                return redirect(url('entregas-recepcion'));
 
             }else if ( Auth::user()->orol==3 ){
              

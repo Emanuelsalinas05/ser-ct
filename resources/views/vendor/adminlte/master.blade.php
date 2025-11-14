@@ -18,12 +18,6 @@
         @yield('title', config('adminlte.title', ''))
         @yield('title_postfix', config('adminlte.title_postfix', ''))
     </title>
-
-    <script>
-    $(document).ready(function() {
-        document.getElementsByClassName('admin').style.display= "none";
-        });
-    </script>
     {{-- Custom stylesheets (pre AdminLTE) --}}
     @yield('adminlte_css_pre')
 
@@ -78,18 +72,13 @@
         <meta name="msapplication-TileImage" content="{{ asset('favicon/ms-icon-144x144.png') }}">
     @endif
 
-<link rel="stylesheet" href="{{ asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
-<link rel="stylesheet" href="{{ asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
-<link rel="stylesheet" href="{{ asset('plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
-<link rel="stylesheet" href="{{ asset('js/buttons.bootstrap4.min.css') }}">
-<link rel="stylesheet" href="{{ asset('js/dataTables.bootstrap4.min.js') }}">
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="{{ asset('vendor/datatables/css/dataTables.bootstrap4.min.css') }}">
+<link rel="stylesheet" href="{{ asset('vendor/datatables-plugins/responsive/css/responsive.bootstrap4.min.css') }}">
+<link rel="stylesheet" href="{{ asset('vendor/datatables-plugins/buttons/css/buttons.bootstrap4.min.css') }}">
 
 <!-- DropZone -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
-<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
 </head>
 
 <body class="@yield('classes_body')" @yield('body_data')>
@@ -122,6 +111,8 @@
     {{-- Custom Scripts --}}
     @yield('adminlte_js')
 
+    {{-- Stack para scripts adicionales --}}
+    @stack('js')
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
     <!-- Latest compiled and minified JavaScript -->
@@ -129,7 +120,8 @@
     <!-- (Optional) Latest compiled and minified JavaScript translation files -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-*.min.js"></script>
 
-<script src="{{ asset('js/jquery.dataTables2.min.js') }}"></script>
+<!-- DataTables JS -->
+<script src="{{ asset('js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('js/dataTables.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('js/responsive.bootstrap4.min.js') }}"></script>
@@ -142,6 +134,24 @@
 <script src="{{ asset('js/buttons.print.min.js') }}"></script>
 <script src="{{ asset('js/buttons.colVis.min.js') }}"></script>
 <script src="{{ asset('js/pdfmake.min.js') }}"></script>
+
+    {{-- Script para ocultar elementos admin después de cargar jQuery --}}
+    <script>
+        (function() {
+            if (typeof jQuery !== 'undefined') {
+                jQuery(document).ready(function() {
+                    jQuery('.admin').hide();
+                });
+            } else {
+                document.addEventListener('DOMContentLoaded', function() {
+                    var adminElements = document.getElementsByClassName('admin');
+                    for (var i = 0; i < adminElements.length; i++) {
+                        adminElements[i].style.display = 'none';
+                    }
+                });
+            }
+        })();
+    </script>
 </body>
 
 </html>

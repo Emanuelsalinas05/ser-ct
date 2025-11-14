@@ -32,49 +32,35 @@ class EntregasRecepcionController extends Controller
     {
         $user = Auth::user();
 
-        //  si es entregador (orol == 1), necesita intervención generada (concluida o no)
-        if ($user->orol == 1) {
-            $intervencionExistente = Intervencion::where('idct_escuela', $user->id_ct)
-                ->where('ogenerada', 1)
-                ->where('istatus', '!=', 'B')
-                ->exists();
-
-            if (!$intervencionExistente) {
-                return redirect()->route('home')->with('error', 'Para acceder a Entrega-Recepción, primero debe solicitarse y aprobarse una intervención por el revisor.');
-            }
-        }
+        // Los administradores (orol == 1) pueden ver todas las entregas sin restricciones
+        // Solo aplicar restricciones a otros roles si es necesario
 
 
         $us = ($user->onivel == 'ELEMENTAL') ? 76 : 89;
 
 
-        // Manejar usuarios con orol == 1 (entregadores)
-        if ($user->orol == 1) {
-            // Para usuarios con role_id 1, mostrar todas las entregas-recepción
-            $datosacta = DatosActa::distinct()->select('g1acta.id', 'g1acta.id_user','g1acta.id_tipoacta','g1acta.id_ct',
-                'g1acta.oconcluida','g1acta.ocargacomprimido','g1acta.ocheckactaa','g1acta.owaitacta','g1acta.oestado',
-                'g1acta.oopenanexo','g1acta.oenviocorreooic','g1acta.ourlcarpeta','g1acta.onombrecarpeta',
-                'g1acta.created_at','g1acta.updated_at',
-                'g1ct.oclave','g1ct.onombre_ct','g1ct.odomicilio','g1ct.otelefono','g1ct.ocorreo',
-                'g1tipoacta.otipoacta','g1tipoacta.odescripcion',
-                'g1user.name','g1user.email',
-                DB::raw('CASE 
-                    WHEN g1acta.oconcluida=1 AND g1acta.ocargacomprimido=1
-                    THEN "SE REVISO Y CONCLUYÓ EL PROCESO DE ENTREGA-RECEPCIÓN"
-                    WHEN g1acta.oopenanexo=1
-                    THEN "¡¡ATENCIÓN!! ANEXO ABIERTO, DEBE FINALIZARSE ESTE ANEXO PARA CONTINUAR"
-                    END AS estadoacta'))
-            ->join('g1ct', 'g1acta.id_ct', '=', 'g1ct.kcvect')
-            ->join('g1tipoacta', 'g1acta.id_tipoacta', '=', 'g1tipoacta.id')
-            ->join('g1user', 'g1acta.id_user', '=', 'g1user.id')
-            ->orderBy('g1acta.created_at', 'DESC')
-            ->paginate(10);
+        // Manejar usuarios con orol == 1 (administradores) o orol == 99 (Coordinación Académica) - PRIORIDAD MÁXIMA
+        if ($user->orol == 1 || $user->orol == 99) {
+            \Log::info('Usuario con orol=' . $user->orol . ' accediendo a entregas-recepcion: ' . $user->name . ' - ocargo: ' . $user->ocargo);
+            
+            // Para usuarios con orol 1 o 99, consulta optimizada para evitar timeouts
+            $datosacta = DatosActa::select('g1acta.*')
+                    ->orderBy('g1acta.created_at', 'DESC')
+                    ->get();
 
-            return view('admin.er.index', compact('datosacta', 'us'));
+            // Variables vacías para compatibilidad con la vista
+            $datosacta2 = collect();
+            $datosacta3 = collect();
+
+            \Log::info('Usuario con orol=' . $user->orol . ' - Total de entregas encontradas: ' . $datosacta->count());
+            
+            return view('admin.er.index-improved', compact('datosacta', 'datosacta2', 'datosacta3', 'us'));
         }
 
+        \Log::info('Usuario entrando al switch statement - orol: ' . $user->orol . ' - ocargo: ' . $user->ocargo);
         switch ($user->ocargo) {
             case 'DIRECCIÓN':
+                \Log::info('Entrando a caso DIRECCIÓN');
                 require_once 'controllers/entregas/iniciadas/01direccion.php';
                 return view('admin.er.index', compact('datosacta', 'datosacta2', 'datosacta3', 'us'));
 
@@ -134,6 +120,12 @@ class EntregasRecepcionController extends Controller
 
         $documentos     = Documentos::get();
         $datosacta      = DatosActa::whereId($id)->first();
+        
+        // Validar que el acta existe
+        if (!$datosacta) {
+            return redirect()->back()->withErrors("Acta no encontrada.");
+        }
+
         $avanceanexos   = Avanceanexos::whereIdActa($id)->get();
 
         if($datosacta->id_tipoacta==2){
@@ -300,6 +292,11 @@ class EntregasRecepcionController extends Controller
 
     public function update(Request $request, string $id)
     {
+        // Validar que action existe
+        if (!$request->has('action')) {
+            return redirect()->back()->withErrors("Acción no especificada.");
+        }
+
         if($request->action=='1')
         {
             $avances_acta = DatosActa::whereId($request->idacta);
@@ -313,10 +310,16 @@ class EntregasRecepcionController extends Controller
 
         }else if($request->action=='2'){
 
-            $doc = Anexos::whereOnumAnexo($request->idane)->first();
-            $openanex = $doc->oavance_anexo;
+            $anexo = Anexos::whereOnumAnexo($request->idane)->first();
+            if (!$anexo) {
+                return redirect()->back()->withErrors("Anexo no encontrado.");
+            }
+            $openanex = $anexo->oavance_anexo;
 
             $doc = Documentos::whereId($request->idoc)->first();
+            if (!$doc) {
+                return redirect()->back()->withErrors("Documento no encontrado.");
+            }
             $opendoc = $doc->oopendoc;
 
             if($request->idoc=='2')
@@ -342,7 +345,14 @@ class EntregasRecepcionController extends Controller
         }else if($request->action=='3'){
 
             $acta = DatosActa::whereId($request->idacta)->first();
+            if (!$acta) {
+                return redirect()->back()->withErrors("Acta no encontrada.");
+            }
+
             $ct = CentrosTrabajo::whereKcvect($acta->id_ct)->first();
+            if (!$ct) {
+                return redirect()->back()->withErrors("Centro de trabajo no encontrado.");
+            }
 
             $update_acta = DatosActa::whereId($request->idacta);
             $update_acta->update(['oconcluida' => 1,]);
@@ -350,13 +360,23 @@ class EntregasRecepcionController extends Controller
             $update_avances = Avanceanexos::whereIdActa($request->idacta);
             $update_avances->update(['ofinalizacion' => 1,]);
 
+            // Enviar correo cuando se finaliza la entrega-recepción
+            $this->enviarCorreoFinalizacion($request->idacta, $request);
+
             return redirect()->back()
                 ->with('success', 'Se finalizó esta entrega-recepción de: '.$ct->oclave.' - '.$ct->onombre_ct);
 
         }else if($request->action=='9'){
 
             $acta = DatosActa::whereId($request->idacta)->first();
+            if (!$acta) {
+                return redirect()->back()->withErrors("Acta no encontrada.");
+            }
+
             $ct = CentrosTrabajo::whereKcvect($acta->id_ct)->first();
+            if (!$ct) {
+                return redirect()->back()->withErrors("Centro de trabajo no encontrado.");
+            }
 
             $avances_acta = DatosActa::whereId($request->idacta);
             $avances_acta->update([ 'ocheckactaa'=> 0,
@@ -374,6 +394,87 @@ class EntregasRecepcionController extends Controller
                 ->with('success', 'Se habilitó la modificación del acta para: '.$ct->oclave.' - '.$ct->onombre_ct);
         }
 
+        // Si action no es válido, retornar error
+        return redirect()->back()->withErrors("Acción no válida.");
+    }
+
+    /**
+     * Envía correo de notificación cuando se finaliza una entrega-recepción
+     */
+    private function enviarCorreoFinalizacion($actaId, $request)
+    {
+        try {
+            \Log::info('Iniciando envío de correo finalización entrega-recepción', ['acta_id' => $actaId]);
+            
+            // Obtener datos del acta
+            $acta = DatosActa::find($actaId);
+            if (!$acta) {
+                \Log::error('Acta no encontrada', ['acta_id' => $actaId]);
+                return false;
+            }
+
+            // Obtener datos del centro de trabajo
+            $ct = CentrosTrabajo::whereKcvect($acta->id_ct)->first();
+            if (!$ct) {
+                \Log::error('Centro de trabajo no encontrado', ['id_ct' => $acta->id_ct]);
+                return false;
+            }
+
+            // Obtener datos del usuario
+            $usuario = User::where('id_ct', $acta->id_ct)->first();
+            if (!$usuario) {
+                \Log::error('Usuario no encontrado', ['id_ct' => $acta->id_ct]);
+                return false;
+            }
+
+            // Obtener datos organizacionales
+            $org = Organitation::where('idct_escuela', $acta->id_ct)
+                ->orWhere('idct_supervicion', $acta->id_ct)
+                ->orWhere('idct_sector', $acta->id_ct)
+                ->first();
+
+            if (!$org) {
+                \Log::error('Organización no encontrada', ['id_ct' => $acta->id_ct]);
+                return false;
+            }
+
+            // Preparar datos para el correo
+            $getct = $ct;
+            $getoficio = (object) [
+                'ocorreo' => $org->ocorreo ?? 'modernizacion.administrativa@dee.edu.mx'
+            ];
+
+            // Variables para el correo
+            $request->onombre_solicitante = $usuario->name ?? 'Usuario';
+            $request->tipo_proceso = 'FINALIZACIÓN ENTREGA-RECEPCIÓN';
+            $request->fecha_finalizacion = date('Y-m-d');
+            $request->id_ct = $acta->id_ct;
+            $request->acta_id = $actaId;
+
+            // Incluir el archivo de envío de correos
+            $path = base_path('public/send-mails/notificaciones/index.php');
+            \Log::info('Ruta del archivo de correo finalización', ['path' => $path, 'exists' => file_exists($path)]);
+            
+            if (file_exists($path)) {
+                ob_start();
+                include $path;
+                $result = ob_get_clean();
+                
+                \Log::info('Resultado del envío de correo finalización', [
+                    'MAIL_OK' => isset($MAIL_OK) ? $MAIL_OK : 'no definido',
+                    'result' => $result
+                ]);
+                
+                // Verificar si el correo se envió correctamente
+                return isset($MAIL_OK) && $MAIL_OK;
+            }
+
+            \Log::error('Archivo de correo no encontrado', ['path' => $path]);
+            return false;
+        } catch (\Exception $e) {
+            \Log::error('Error enviando correo finalización: ' . $e->getMessage());
+            return false;
+        }
     }
 
 

@@ -61,21 +61,64 @@ class _adgIntervencionesreportesController extends Controller
 
         }else if(Auth::user()->orol==1){
 
-            $intervencionesc= Intervencion::select('idct_departamento', 'oct_nivel', 'onivel_educativo', 'onotificado')
-                                ->whereOnivel('ELEMENTAL')
+            // Optimización: Consulta más eficiente con orden optimizado de condiciones WHERE
+            // Usar índices: onivel, ofin, istatus
+            $intervenciones = Intervencion::select([
+                                'idct_departamento',
+                                'oct_nivel',
+                                'onivel_educativo',
+                                'ofechafin',
+                                'ourl',
+                                'oarchivo',
+                                'ofile',
+                                'onotificado',
+                                DB::raw('date_format(ofechafin, "%d/%m/%Y") as fechaentrega')
+                            ])
+                            ->whereOnivel('ELEMENTAL')  // Primero por índice
+                            ->whereOfin(1)
+                            ->whereNotIn('istatus', ['B'])
+                            ->groupBy('idct_departamento', 'oct_nivel', 'onivel_educativo', 'ofechafin', 'ourl', 'oarchivo', 'ofile', 'onotificado')
+                            ->orderBy('ofechafin', 'DESC')
+                            ->get();
+
+            // Optimización: Usar la misma consulta base para contar
+            $intervencionesc = Intervencion::whereOnivel('ELEMENTAL')
                                 ->whereOfin(1)
-                                ->whereNotIn('istatus',['B'])
-                                ->GroupBy('idct_departamento', 'oct_nivel', 'onivel_educativo', 'onotificado')
+                                ->whereNotIn('istatus', ['B'])
+                                ->select('idct_departamento', 'oct_nivel', 'onivel_educativo', 'onotificado')
+                                ->groupBy('idct_departamento', 'oct_nivel', 'onivel_educativo', 'onotificado')
                                 ->count();
 
-            $intervenciones = Intervencion::select('idct_departamento','oct_nivel','onivel_educativo','ofechafin','ourl','oarchivo','ofile','onotificado',
-                                DB::raw('date_format(ofechafin, "%d/%m/%Y") as fechaentrega')) 
-                                ->whereOnivel('ELEMENTAL')
+        }else if(Auth::user()->orol==99){
+
+            // Coordinación Académica y de Operación Educativa (rol 99)
+            // Ve TODAS las intervenciones del nivel ELEMENTAL de TODOS los departamentos
+            // Optimización: Consulta más eficiente con orden optimizado de condiciones WHERE
+            $intervenciones = Intervencion::select([
+                                'idct_departamento',
+                                'oct_nivel',
+                                'onivel_educativo',
+                                'ofechafin',
+                                'ourl',
+                                'oarchivo',
+                                'ofile',
+                                'onotificado',
+                                DB::raw('date_format(ofechafin, "%d/%m/%Y") as fechaentrega')
+                            ])
+                            ->whereOnivel('ELEMENTAL')  // Primero por índice
+                            ->whereOfin(1)
+                            ->whereNotIn('istatus', ['B'])
+                            ->groupBy('idct_departamento', 'oct_nivel', 'onivel_educativo', 'ofechafin', 'ourl', 'oarchivo', 'ofile', 'onotificado')
+                            ->orderBy('ofechafin', 'DESC')
+                            ->get();
+
+            // Optimización: Usar la misma consulta base para contar
+            $intervencionesc = Intervencion::whereOnivel('ELEMENTAL')
                                 ->whereOfin(1)
-                                ->whereNotIn('istatus',['B'])
-                                ->GroupBy('idct_departamento', 'oct_nivel', 'onivel_educativo','ofechafin','ourl','oarchivo','ofile','onotificado')
-                                ->OrderBy('ofechafin', 'DESC')
-                                ->get();
+                                ->whereNotIn('istatus', ['B'])
+                                ->select('idct_departamento', 'oct_nivel', 'onivel_educativo', 'onotificado')
+                                ->groupBy('idct_departamento', 'oct_nivel', 'onivel_educativo', 'onotificado')
+                                ->count();
         }
 
 

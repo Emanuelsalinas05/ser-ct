@@ -93,7 +93,22 @@ class AdminMenuServiceProvider extends ServiceProvider
                 ['text' => 'Finalizadas', 'url' => 'entregas-finalizadas', 'icon' => 'fas fa-check-circle', 'active' => ['entregas-finalizadas*']],
             ],
         ]);
-        $this->addCertificadosMenu($event, $user);
+
+        // Menú específico para subdirecciones (rol 2)
+        if ($user->orol == 2) {
+            $event->menu->add([
+                'text' => 'Certificados No Adeudo',
+                'icon' => 'fas fa-certificate',
+                'classes' => self::MENU_INFO,
+                'submenu' => [
+                    ['text' => 'Ver Solicitudes CNA', 'url' => 'ver-solicitudes-noadeudos', 'icon' => 'fas fa-envelope-open-text', 'active' => ['ver-solicitudes-noadeudos*']],
+                    ['text' => 'Gestión CNA', 'url' => 'gestion-noadeudos', 'icon' => 'fas fa-tasks', 'active' => ['gestion-noadeudos*']],
+                    ['text' => 'Solicitudes Aprobadas', 'url' => 'solicitudes-noadeudos', 'icon' => 'fas fa-thumbs-up', 'active' => ['solicitudes-noadeudos*']],
+                ]
+            ]);
+        } else {
+            $this->addCertificadosMenu($event, $user);
+        }
 
         $event->menu->add([
             'text' => 'Intervención', 'icon' => 'fas fa-toolbox', 'classes' => self::MENU_WARNING,
@@ -171,39 +186,70 @@ private function buildCoordinadorMenu(BuildingMenu $event)
 {
     $user = auth()->user();
 
-    if ($user->orol == 2) {
-        $event->menu->add(
-            [
-                'text' => 'Solicitudes CNA (Mi Nivel)',
-                'url' => 'ver-solicitudes-noadeudos',
-                'icon' => 'fas fa-envelope-open-text',
-                'classes' => self::MENU_INFO,
-                'active' => ['ver-solicitudes-noadeudos*']
-            ]
-        );
+    if ($user->orol == 99) {
+        // Menú para super administradores (rol 99) - Coordinación Académica y de Operación Educativa
+        $event->menu->add([
+            'text' => 'Entregas Recepción', 'icon' => 'fas fa-clipboard-check', 'classes' => self::MENU_PRIMARY,
+            'submenu' => [
+                ['text' => 'En Curso', 'url' => 'entregas-recepcion', 'icon' => 'fas fa-folder-open', 'active' => ['entregas-recepcion*']],
+                ['text' => 'Finalizadas', 'url' => 'entregas-finalizadas', 'icon' => 'fas fa-check-circle', 'active' => ['entregas-finalizadas*']],
+            ],
+        ]);
+
+        $event->menu->add([
+            'text' => 'Intervención', 'icon' => 'fas fa-toolbox', 'classes' => self::MENU_WARNING,
+            'submenu' => [
+                ['text' => 'Solicitud de intervención', 'url' => 'solicitud-intervencion', 'icon' => 'fas fa-file-signature', 'active' => ['solicitud-intervencion*']],
+                ['text' => 'Reportes de intervención', 'url' => 'reportes-intervencion', 'icon' => 'fas fa-file-export', 'active' => ['reportes-intervencion*']],
+            ],
+        ]);
+
+        $event->menu->add([
+            'text' => 'Reportes', 'icon' => 'fas fa-chart-line', 'classes' => self::MENU_DANGER,
+            'submenu' => [
+                ['text' => 'Reportes mensuales', 'url' => 'reportes-mensuales', 'icon' => 'fas fa-calendar-alt', 'active' => ['reportes-mensuales*']],
+            ],
+        ]);
+
+        $this->addCertificadosMenu($event, $user);
+        $this->addUsuariosMenu($event);
     }
 }
 
 
     private function addCertificadosMenu(BuildingMenu $event, $user)
     {
-        $submenu = [
-            ['text' => 'Solicitudes Aprobadas', 'url' => 'solicitudes-noadeudos', 'icon' => 'fas fa-thumbs-up', 'active' => ['solicitudes-noadeudos*']],
-             ['text' => 'Ver solicitudes CNA', 'url' => 'ver-solicitudes-noadeudos', 'icon' => 'fas fa-envelope-open-text', 'classes' => self::MENU_INFO, 'active' => ['ver-solicitudes-noadeudos*']],
-        ];
+        $submenu = [];
 
-        if (in_array($user->orol, [1, 99])) {
-            $submenu[] = ['text' => 'Gestión CNA', 'url' => 'gestion-noadeudos', 'icon' => 'fas fa-tasks', 'active' => ['gestion-noadeudos*']];
-            $submenu[] = ['text' => 'CNA Emitidos', 'url' => 'certificados-emitidos', 'icon' => 'fas fa-paper-plane', 'active' => ['certificados-emitidos*']];
-            $submenu[] = ['text' => 'CNA Liberados', 'url' => 'certificados-liberados', 'icon' => 'fas fa-unlock-alt', 'active' => ['certificados-liberados*']];
+        // Configuración específica por rol
+        if ($user->orol == 1) {
+            // ADG (rol 1) - Ve todo el proceso
+            $submenu = [
+                ['text' => 'Ver Solicitudes CNA', 'url' => 'ver-solicitudes-noadeudos', 'icon' => 'fas fa-envelope-open-text', 'active' => ['ver-solicitudes-noadeudos*']],
+                ['text' => 'Solicitudes Aprobadas', 'url' => 'solicitudes-noadeudos', 'icon' => 'fas fa-thumbs-up', 'active' => ['solicitudes-noadeudos*']],
+                ['text' => 'Gestión CNA', 'url' => 'gestion-noadeudos', 'icon' => 'fas fa-tasks', 'active' => ['gestion-noadeudos*']],
+                ['text' => 'CNA Emitidos', 'url' => 'certificados-emitidos', 'icon' => 'fas fa-paper-plane', 'active' => ['certificados-emitidos*']],
+                ['text' => 'CNA Liberados', 'url' => 'certificados-liberados', 'icon' => 'fas fa-unlock-alt', 'active' => ['certificados-liberados*']],
+            ];
+        } elseif ($user->orol == 99) {
+            // Super Admin (rol 99) - Ve todo + puede aprobar
+            $submenu = [
+                ['text' => 'Ver Solicitudes CNA', 'url' => 'ver-solicitudes-noadeudos', 'icon' => 'fas fa-envelope-open-text', 'active' => ['ver-solicitudes-noadeudos*']],
+                ['text' => 'Solicitudes Aprobadas', 'url' => 'solicitudes-noadeudos', 'icon' => 'fas fa-thumbs-up', 'active' => ['solicitudes-noadeudos*']],
+                ['text' => 'Gestión CNA', 'url' => 'gestion-noadeudos', 'icon' => 'fas fa-tasks', 'active' => ['gestion-noadeudos*']],
+                ['text' => 'CNA Emitidos', 'url' => 'certificados-emitidos', 'icon' => 'fas fa-paper-plane', 'active' => ['certificados-emitidos*']],
+                ['text' => 'CNA Liberados', 'url' => 'certificados-liberados', 'icon' => 'fas fa-unlock-alt', 'active' => ['certificados-liberados*']],
+            ];
         }
 
-        $event->menu->add([
-            'text' => 'Certificados No Adeudo',
-            'icon' => 'fas fa-certificate',
-            'classes' => self::MENU_INFO,
-            'submenu' => $submenu,
-        ]);
+        if (!empty($submenu)) {
+            $event->menu->add([
+                'text' => 'Certificados No Adeudo',
+                'icon' => 'fas fa-certificate',
+                'classes' => self::MENU_INFO,
+                'submenu' => $submenu,
+            ]);
+        }
     }
 
     private function addUsuariosMenu(BuildingMenu $event)

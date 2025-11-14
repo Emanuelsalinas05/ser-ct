@@ -137,7 +137,7 @@
             @if (session('informegestion'))
             Swal.fire({
                 title: 'Informe de Gestión',
-                text:  'Se guardaró correctamente el informe de gestión',
+                text:  'Se guardó correctamente el informe de gestión',
                 icon:  'success'
             });
             @endif
@@ -145,7 +145,7 @@
             @if (session('otroshechos'))
             Swal.fire({
                 title: 'Otros hechos (Generales)',
-                text:  'Se guardaró la información de otros hechos',
+                text:  'Se guardó la información de otros hechos',
                 icon:  'success'
             });
             @endif
@@ -155,49 +155,53 @@
         });
 
         $(function () {
-            $("#example13").DataTable({
-                "select": true,
-                "paging": true,
-                "lengthMenu": true,
-                "lengthChange": true,
-                "searching": true,
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
-                },
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-                "responsive": true,
-                "buttons": ["copy", "excel", "pdf", "print", "pageLength"],
-                lengthMenu: [
-                    [25, 50, 100, 150, -1],
-                    ['25', '50', '100', '150', 'Ver todos']
-                ],
+            // Inicializar #example13 solo si existe y no ha sido inicializado previamente
+            if ($("#example13").length && !$.fn.DataTable.isDataTable("#example13")) {
+                $("#example13").DataTable({
+                    "select": true,
+                    "paging": true,
+                    "lengthMenu": true,
+                    "lengthChange": true,
+                    "searching": true,
+                    "language": {
+                        "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
+                    },
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                    "buttons": ["copy", "excel", "pdf", "print", "pageLength"],
+                    lengthMenu: [
+                        [25, 50, 100, 150, -1],
+                        ['25', '50', '100', '150', 'Ver todos']
+                    ],
 
-            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            }
 
+            // Inicializar #example130 solo si existe y no ha sido inicializado previamente
+            if ($("#example130").length && !$.fn.DataTable.isDataTable("#example130")) {
+                $("#example130").DataTable({
+                    "select": false,
+                    "paging": false,
+                    "lengthMenu": false,
+                    "lengthChange": false,
+                    "searching": true,
+                    "language": {
+                        "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
+                    },
+                    "ordering": false,
+                    "info": false,
+                    "autoWidth": false,
+                    "responsive": true,
+                    "buttons": ["copy", "excel", "pdf", "print", "pageLength"],
+                    lengthMenu: [
+                        [25, 50, 100, 150, -1],
+                        ['25', '50', '100', '150', 'Ver todos']
+                    ],
 
-
-            $("#example130").DataTable({
-                "select": false,
-                "paging": false,
-                "lengthMenu": false,
-                "lengthChange": false,
-                "searching": true,
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
-                },
-                "ordering": false,
-                "info": false,
-                "autoWidth": false,
-                "responsive": true,
-                "buttons": ["copy", "excel", "pdf", "print", "pageLength"],
-                lengthMenu: [
-                    [25, 50, 100, 150, -1],
-                    ['25', '50', '100', '150', 'Ver todos']
-                ],
-
-            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            }
 
         });
 

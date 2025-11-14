@@ -1,13 +1,13 @@
 <?php
-// Sanitiza
-$elct_h     = htmlspecialchars($elct ?? '', ENT_QUOTES, 'UTF-8');
-$solicitante_h = htmlspecialchars($solicitante ?? '', ENT_QUOTES, 'UTF-8');
-$tipo_cert_h = htmlspecialchars($tipo_cert ?? '', ENT_QUOTES, 'UTF-8');
-$fecha_sol_h = htmlspecialchars($fecha_sol ?? '', ENT_QUOTES, 'UTF-8');
-$numero_oficio_h = htmlspecialchars($numero_oficio ?? '', ENT_QUOTES, 'UTF-8');
+// Sanitiza variables para certificados de no adeudo
+$elct_h           = htmlspecialchars($elct ?? '', ENT_QUOTES, 'UTF-8');
+$solicitante_h    = htmlspecialchars($solicitante ?? '', ENT_QUOTES, 'UTF-8');
+$tipo_cert_h      = htmlspecialchars($tipo_cert ?? '', ENT_QUOTES, 'UTF-8');
+$fecha_sol_h      = htmlspecialchars($fecha_sol ?? '', ENT_QUOTES, 'UTF-8');
+$numero_oficio_h  = htmlspecialchars($numero_oficio ?? '', ENT_QUOTES, 'UTF-8');
 
-// URL del botón (fija a solicitudes-noadeudos, o usa $action_url si lo envías)
-$base_url   = 'https://entregasrecepcion.seiem.gob.mx/solicitudes-noadeudos';
+// URL del botón para certificados de no adeudo
+$base_url   = 'https://entregasrecepcion.seiem.gob.mx/gestion-noadeudos';
 $btn_url    = isset($action_url) && $action_url ? $action_url : $base_url;
 $btn_h      = htmlspecialchars($btn_url, ENT_QUOTES, 'UTF-8');
 $year_h     = htmlspecialchars(date('Y'), ENT_QUOTES, 'UTF-8');
@@ -18,7 +18,7 @@ $message = <<<HTML
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Notificación SER-CT</title>
+  <title>Notificación Certificado No Adeudo</title>
 </head>
 <body style="margin:0;background:#f5f6f8;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f6f8;">
@@ -39,7 +39,12 @@ $message = <<<HTML
         <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;margin:24px 12px;background:#fff;border-radius:10px;">
           <tr>
             <td style="padding:28px 24px 12px 24px;font:700 18px 'Segoe UI',Arial,Helvetica,sans-serif;color:#111;">
-              Certificado de No Adeudo Aprobado
+              <?php 
+              $estado_cert = isset($request->estado) && $request->estado === 'LIBERADO' 
+                  ? 'Certificado de No Adeudo Liberado - Listo para Recoger' 
+                  : 'Notificación de certificado de no adeudo';
+              echo htmlspecialchars($estado_cert, ENT_QUOTES, 'UTF-8');
+              ?>
             </td>
           </tr>
 
@@ -55,19 +60,16 @@ $message = <<<HTML
                     <div><strong style="color:#5c0f28;">Tipo de Certificado:</strong> {$tipo_cert_h}</div>
                     <div><strong style="color:#5c0f28;">Fecha de Solicitud:</strong> {$fecha_sol_h}</div>
                     <div><strong style="color:#5c0f28;">Número de Oficio:</strong> {$numero_oficio_h}</div>
+                    <?php 
+                    if (isset($request->estado) && $request->estado === 'LIBERADO' && isset($request->oficio_liberado) && !empty($request->oficio_liberado)) {
+                        $oficio_liberado_h = htmlspecialchars($request->oficio_liberado ?? '', ENT_QUOTES, 'UTF-8');
+                        echo "<div><strong style=\"color:#0d6efd;\">Oficio de Liberación:</strong> {$oficio_liberado_h}</div>";
+                        echo "<div style=\"margin-top:8px;padding:8px;background:#d1e7dd;border-left:4px solid #198754;color:#0f5132;font-weight:600;\">✓ Certificado LIBERADO - Listo para recoger</div>";
+                    }
+                    ?>
                   </td>
                 </tr>
               </table>
-            </td>
-          </tr>
-
-          <!-- Mensaje de aprobación -->
-          <tr>
-            <td style="padding:0 24px 16px 24px;font:14px 'Segoe UI',Arial,Helvetica,sans-serif;color:#333;">
-              <div style="background:#e8f5e8;border:1px solid #4caf50;border-radius:8px;padding:16px;">
-                <div style="font-weight:700;color:#2e7d32;margin-bottom:8px;">✅ APROBADO POR SUBDIRECCIÓN</div>
-                <div>El certificado de no adeudo ha sido aprobado por la Subdirección correspondiente y está listo para continuar con el proceso de escalamiento jerárquico hacia la Dirección.</div>
-              </div>
             </td>
           </tr>
 
@@ -76,7 +78,7 @@ $message = <<<HTML
             <td align="center" style="padding:6px 24px 26px 24px;">
               <a href="{$btn_h}" target="_blank"
                  style="display:inline-block;text-decoration:none;font:600 14px 'Segoe UI',Arial,Helvetica,sans-serif;background:#8a1538;color:#ffffff;padding:11px 18px;border-radius:8px;">
-                Ver Solicitudes
+                Gestionar Certificado
               </a>
             </td>
           </tr>
@@ -107,3 +109,4 @@ $message = <<<HTML
 </body>
 </html>
 HTML;
+?>

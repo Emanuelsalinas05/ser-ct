@@ -66,7 +66,7 @@
         
         <td colspan="2" align="right"><b>* ARCHIVO DE IDENTIFICACIÓN</b>:</td>
         <td colspan="3">
-            <a  href="../../storage/{{$datosacta->oidentificacion_url_entrega_a}}"
+            <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{$datosacta->oidentificacion_url_entrega_a}}"
                 class="btn btn-outline-secondary btn-xs"
                 target="_blank"
                 style="text-decoration:none;">
@@ -101,7 +101,7 @@
         
         <td colspan="2" align="right"><b>* ARCHIVO DE IDENTIFICACIÓN</b>:</td>
         <td colspan="3">
-            <a  href="../../storage/{{$datosacta->oidentificacion_url_recibe_a}}"
+            <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{$datosacta->oidentificacion_url_recibe_a}}"
                 class="btn btn-outline-secondary btn-xs"
                 target="_blank"
                 style="text-decoration:none;">
@@ -134,7 +134,7 @@
         
         <td colspan="2" align="right"><b>* ARCHIVO DE IDENTIFICACIÓN</b>:</td>
         <td colspan="3">
-            <a  href="../../storage/{{$datosacta->oidentificacion_url_testigo}}"
+            <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{$datosacta->oidentificacion_url_testigo}}"
                 class="btn btn-outline-secondary btn-xs"
                 target="_blank"
                 style="text-decoration:none;">
@@ -175,7 +175,7 @@
         
         <td colspan="2" align="right"><b>* ARCHIVO DE IDENTIFICACIÓN</b>:</td>
         <td colspan="3">
-            <a  href="../../storage/{{$datosacta->oidentificacion_url_testigo2}}"
+            <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{$datosacta->oidentificacion_url_testigo2}}"
                 class="btn btn-outline-secondary btn-xs"
                 target="_blank"
                 style="text-decoration:none;">

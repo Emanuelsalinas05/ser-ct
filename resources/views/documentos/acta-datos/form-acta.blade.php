@@ -458,13 +458,24 @@
             <script type="text/javascript">
                 function ohechos(id){
                     if(id=='1'){
-                        $('#ohechos_a').show();
-                        $('#ohechos_az').show();
-                        $('#ohechos_azx').show();
+                        // SI: Redirigir inmediatamente a la vista de otros hechos
+                        window.location.href = "{{ route('documentos.otros-hechos.index') }}";
                     }else if(id=='2'){
-                        $('#ohechos_a').hide();
-                        $('#ohechos_az').hide();
-                        $('#ohechos_azx').hide();
+                        // NO: Ocultar campos del formulario
+                        // Asegurar que jQuery esté disponible
+                        if (typeof jQuery !== 'undefined') {
+                            jQuery('#ohechos_a').hide();
+                            jQuery('#ohechos_az').hide();
+                            jQuery('#ohechos_azx').hide();
+                        } else {
+                            // Fallback sin jQuery
+                            var elem1 = document.getElementById('ohechos_a');
+                            var elem2 = document.getElementById('ohechos_az');
+                            var elem3 = document.getElementById('ohechos_azx');
+                            if (elem1) elem1.style.display = 'none';
+                            if (elem2) elem2.style.display = 'none';
+                            if (elem3) elem3.style.display = 'none';
+                        }
                     }
                 }
             </script>
