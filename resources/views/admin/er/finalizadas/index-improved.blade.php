@@ -125,7 +125,8 @@
                         <td colspan="{{ Auth::user()->ocargo=='DIRECCIÓN' ? '6' : '5' }}" class="text-center py-4">
                             <div class="text-muted">
                                 <i class="fas fa-inbox fa-2x mb-2"></i><br>
-                                No se encontraron registros
+                                <strong>No hay entregas realizadas</strong><br>
+                                <small>Este centro de trabajo no tiene entregas previas registradas.</small>
                             </div>
                         </td>
                     </tr>

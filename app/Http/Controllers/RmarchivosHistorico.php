@@ -50,7 +50,10 @@ class RmarchivosHistorico extends Controller
         $elct           = $centrotrabajo->oclave;
         $iddoc          = $request->iddoc;
         $idacta         = $request->idacta;
+        // Nombre sin espacios para el archivo físico
         $nombredoc      = str_replace(' ', '',$request->onombre_documento);
+        // Nombre con espacios para mostrar en la BD
+        $nombreMostrar  = trim($request->onombre_documento);
         $file           = $request->file('onombre_archivo');
 
         if($request->action==2)
@@ -61,7 +64,7 @@ class RmarchivosHistorico extends Controller
                 Archivoshistorico::create([
                     'id_acta'           => $idacta,
                     'id_ct'             => Auth::user()->id_ct,
-                    'onombre_documento' => $nombredoc,
+                    'onombre_documento' => $nombreMostrar,
                     'ourl'              => 'archivos/13-2/'.$elct.'/'.$idacta.'/',
                     'oarchivo_adjunto'  => $nombredoc.'.'.$file->extension(),
                     'ofile'             => 1, 
@@ -118,7 +121,7 @@ class RmarchivosHistorico extends Controller
                 $avances_plantilla->update(['orelacion_archivos_historico_a' => 1]);  
       
                 return redirect()->route('documentos.archivos.index')
-                        ->with("success", "Se ha finalizado el inventario de existencias en almacenes");  
+                        ->with("success", "Se ha finalizado el archivo de concentración o histórico");  
             
          }else if($request->actionarchivos==3){
 

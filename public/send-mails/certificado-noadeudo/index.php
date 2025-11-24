@@ -15,12 +15,12 @@ $mail->Password   = "wmnq zkef ldej hfgt";
 $mail->CharSet    = 'UTF-8';
 
 // Variables esperadas desde el controlador:
-$elct        = isset($getct) ? ($getct->oclave . ' - ' . $getct->onombre_ct) : '';
-$solicitante = $request->onombre_solicitante ?? '';
-$tipo_cert   = $request->tipo_certificado ?? '';
-$fecha_sol   = $request->ofecha ?? '';
-$numero_oficio = $request->onumero_oficio ?? '';
-$elcorreo    = $getoficio->ocorreo ?? '';
+$elct        = (isset($getct) && is_object($getct)) ? ($getct->oclave . ' - ' . $getct->onombre_ct) : '';
+$solicitante = (isset($request) && is_object($request)) ? ($request->onombre_solicitante ?? '') : '';
+$tipo_cert   = (isset($request) && is_object($request)) ? ($request->tipo_certificado ?? '') : '';
+$fecha_sol   = (isset($request) && is_object($request)) ? ($request->ofecha ?? '') : '';
+$numero_oficio = (isset($request) && is_object($request)) ? ($request->onumero_oficio ?? '') : '';
+$elcorreo    = (isset($getoficio) && is_object($getoficio)) ? ($getoficio->ocorreo ?? '') : '';
 
 // Remitente = mismo usuario SMTP
 $mail->setFrom('entregasrecepcion.elemental@seiem.edu.mx', "Notificación de Certificado No Adeudo | {$elct}");
@@ -45,7 +45,7 @@ include __DIR__ . '/contenido.php';
 
 $mail->isHTML(true);
 // Determinar asunto según estado
-$estado_cert = isset($request->estado) && $request->estado === 'LIBERADO' ? 'LIBERADO' : 'APROBADO';
+$estado_cert = (isset($request) && is_object($request) && isset($request->estado) && $request->estado === 'LIBERADO') ? 'LIBERADO' : 'APROBADO';
 if ($estado_cert === 'LIBERADO') {
     $mail->Subject = 'Certificado de No Adeudo Liberado - Listo para Recoger';
 } else {
@@ -62,8 +62,8 @@ try {
         $MAIL_OK = true;
 
         // Actualiza la base de datos si hay IDs válidos
-        $idSolicitud = (int)($request->solicitud_id ?? 0);
-        $idCt = (int)($request->id_ct ?? 0);
+        $idSolicitud = (isset($request) && is_object($request)) ? (int)($request->solicitud_id ?? 0) : 0;
+        $idCt = (isset($request) && is_object($request)) ? (int)($request->id_ct ?? 0) : 0;
 
         if ($idSolicitud > 0 && $idCt > 0) {
             $mysqli = new mysqli(

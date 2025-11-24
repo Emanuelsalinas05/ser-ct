@@ -1,5 +1,5 @@
 <x-adminlte-modal   id="modalCustomHist" 
-                    title="INSTRUCCIONES PARA REGISTRO DE ARCHIVOS DE HISTÓRICO" 
+                    title="INSTRUCCIONES PARA REGISTRO DE ARCHIVO DE CONCENTRACIÓN O HISTÓRICO" 
                     size="lg" 
                     theme="teal"
                     icon="fa fa-copy" 

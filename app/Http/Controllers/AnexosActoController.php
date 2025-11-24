@@ -55,6 +55,13 @@ class AnexosActoController extends Controller
         $anexo        = Anexos::whereOnumAnexo(8)->first();
         $documentos   = Documentos::whereIdAnexo($anexo->id)->get();
         $datosacta    = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
+        
+        // Validar existencia de acta activa
+        if (!$datosacta) {
+            return redirect()->route('entrega-recepcion.index')
+                ->with('warning', 'No tienes un acta de entrega-recepción activa. Por favor, crea una nueva acta primero.');
+        }
+        
         $avanceanexos = Avanceanexos::whereIdActa($datosacta->id)->get();
 
         return view('documentos.situacion-recursos-materiales.index', 

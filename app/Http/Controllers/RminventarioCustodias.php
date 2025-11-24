@@ -47,7 +47,10 @@ class RminventarioCustodias extends Controller
         $elct           = $centrotrabajo->oclave;
         $iddoc          = $request->iddoc;
         $idacta         = $request->idacta;
+        // Nombre sin espacios para el archivo físico
         $nombredoc      = str_replace(' ', '',$request->onombre_documento);
+        // Nombre con espacios para mostrar en la BD
+        $nombreMostrar  = trim($request->onombre_documento);
         $file           = $request->file('onombre_archivo');
 
         if($request->hasFile('onombre_archivo') )
@@ -56,7 +59,7 @@ class RminventarioCustodias extends Controller
             Relacioncustodias::create([
                 'id_acta'           => $idacta,
                 'id_ct'             => Auth::user()->id_ct,
-                'onombre_documento' => $nombredoc,
+                'onombre_documento' => $nombreMostrar,
                 'ourl'              => 'recursos-materiales/8-5/'.$elct.'/'.$idacta.'/',
                 'oarchivo_adjunto'  => $nombredoc.'.'.$file->extension(),
                 'oanio'             => date('Y-m-d'),     

@@ -132,15 +132,33 @@ private function buildEntregadorMenu(BuildingMenu $event, $user): void
 
     // Verificar si hay intervención generada (concluida o no)
     $intervencionExistente = \App\Models\Intervencion::where('idct_escuela', $user->id_ct)
-        ->where('ogenerada', 1)->where('istatus', '!=', 'B')
-        ->exists();
+        ->where('ogenerada', 1)
+        ->where('istatus', '!=', 'B')
+        ->first();
     
-    // Verificar si ya tiene acta concluida
-    $actaConcluida = \App\Models\DatosActa::where('id_user', $user->id)
-        ->where('oconcluida', 1)->exists();
+    // Si no hay intervención, ocultar menú
+    if (!$intervencionExistente) { return; }
     
-    // Solo ocultar menú si NO hay intervención O si ya tiene acta concluida
-    if (!$intervencionExistente || $actaConcluida) { return; }
+    // Verificar si tiene un acta NO concluida (en curso) asociada a esta intervención
+    // Solo las actas NO concluidas indican un proceso en curso
+    // Cada solicitud y entrega es independiente, así que verificamos por intervención específica
+    $actaEnCurso = \App\Models\DatosActa::where('id_user', $user->id)
+        ->where('id_ct', $user->id_ct)
+        ->where('oconcluida', 0) // Solo actas en curso
+        ->first();
+    
+    // Si hay acta en curso, verificar si el proceso está completamente finalizado
+    // El proceso está finalizado cuando: ZIP cargado (ocargacomprimido=1) Y correo enviado (oenviocorreooic=1)
+    if ($actaEnCurso) {
+        $procesoFinalizado = ($actaEnCurso->ocargacomprimido == 1 && 
+                             $actaEnCurso->oenviocorreooic == 1);
+        
+        // Solo ocultar menú si el proceso está completamente finalizado
+        // En ese caso, el registro vuelve a "Solicitud de intervención" y se necesita una nueva intervención
+        if ($procesoFinalizado) { return; }
+        // Si hay acta en curso y el proceso NO está finalizado, mostrar menú (continuar trabajo)
+    }
+    // Si NO hay acta en curso, mostrar menú (iniciar nueva entrega-recepción)
 
     // Flags 14 y 15
     $idTipoActa = \App\Models\DatosActa::where('id_user', $user->id)
@@ -160,18 +178,18 @@ private function buildEntregadorMenu(BuildingMenu $event, $user): void
         ['text'=>'1. MARCO JURÍDICO','url'=>'marco-juridico','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['marco-juridico*']],
         ['text'=>'5. RECURSOS HUMANOS','url'=>'recursos-humanos','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['recursos-humanos*','plantilla-personal*','plantilla-comisionados*']],
         ['text'=>'8. SITUACIÓN DE LOS RECURSOS MATERIALES','url'=>'recursos-materiales','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['recursos-materiales*','inventario-bienes*','inventario-almacen*','relacion-bienes-custodia*']],
-        ['text'=>'9. SITUACIÓN DE LAS TIC´S','url'=>'inventario-equipo','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['inventario-equipo*']],
-        ['text'=>'13. ARCHIVOS','url'=>'relacion-archivos','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['relacion-archivos*','relacion-archivos-historico*','documentos-noconvencionales*']],
+        ['text'=>'9. SITUACIÓN DE LAS TIC´S','url'=>'situacion-tics','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['situacion-tics*','inventario-equipo*']],
+        ['text'=>'13. ARCHIVOS','url'=>'archivos','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['archivos*','relacion-archivos*','relacion-archivos-historico*','documentos-noconvencionales*']],
     ];
 
     if ($mostrar14) {
-        $items[] = ['text'=>'14. CERTIFICADO DE NO ADEUDO','url'=>'solicitud-certificado','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['solicitud-certificado*']];
+        $items[] = ['text'=>'14. CERTIFICADO DE NO ADEUDO','url'=>'certificados-no-adeudos','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['certificados-no-adeudos*','certificados-no-adeudo*']];
     }
     if ($mostrar15) {
         $items[] = ['text'=>'15. INFORME DE GESTIÓN','url'=>'informe-gestion','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['informe-gestion*']];
     }
 
-    $items[] = ['text'=>'18. OTROS HECHOS (GENERALES)','url'=>'otros-hechos','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['otros-hechos*']];
+    $items[] = ['text'=>'18. OTROS HECHOS (GENERALES)','url'=>'otroshechos','icon'=>'far fa-file-alt','classes'=>self::MENU_WARNING,'active'=>['otroshechos*','otros-hechos*']];
     $items[] = ['text'=>'Entregas Realizadas','url'=>'entregas-finalizadas','icon'=>'fas fa-check-circle','classes'=>self::MENU_SUCCESS,'active'=>['entregas-finalizadas*']];
 
     $event->menu->add(...$items);

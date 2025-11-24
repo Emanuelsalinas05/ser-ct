@@ -1,3 +1,7 @@
+@php
+use Illuminate\Support\Facades\Storage;
+@endphp
+
 <li class=" d-flex justify-content-between align-items-center"
     style="border:none;">
     &nbsp;
@@ -36,12 +40,16 @@
                     </td>
                       
                     <td width="40%">
-                        <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
-                            target="_blank"
-                            download 
-                            title="{{ $inventario->oarchivo_adjunto }}">
-                            {{ $inventario->oarchivo_adjunto }}
-                        </a>
+                        @if($inventario->ourl && $inventario->oarchivo_adjunto && $inventario->ourl != 'N/A' && $inventario->oarchivo_adjunto != 'N/A')
+                            <a  href="{{ Storage::url($inventario->ourl.$inventario->oarchivo_adjunto) }}"
+                                target="_blank"
+                                download 
+                                title="{{ $inventario->oarchivo_adjunto }}">
+                                <i class="fa fa-file-pdf text-danger"></i> {{ $inventario->oarchivo_adjunto }}
+                            </a>
+                        @else
+                            <span class="text-muted">Sin archivo</span>
+                        @endif
                     </td>
                 </tr>
                 @endforeach
@@ -79,12 +87,16 @@
                     </td>
                       
                     <td width="40%">
-                        <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
-                            target="_blank"
-                            download 
-                            title="{{ $inventario->oarchivo_adjunto }}">
-                            {{ $inventario->oarchivo_adjunto }}
-                        </a>
+                        @if($inventario->ourl && $inventario->oarchivo_adjunto && $inventario->ourl != 'N/A' && $inventario->oarchivo_adjunto != 'N/A')
+                            <a  href="{{ Storage::url($inventario->ourl.$inventario->oarchivo_adjunto) }}"
+                                target="_blank"
+                                download 
+                                title="{{ $inventario->oarchivo_adjunto }}">
+                                <i class="fa fa-file-pdf text-danger"></i> {{ $inventario->oarchivo_adjunto }}
+                            </a>
+                        @else
+                            <span class="text-muted">Sin archivo</span>
+                        @endif
                     </td>
                 </tr>
                 @endforeach
@@ -123,12 +135,16 @@
                     </td>
                       
                     <td width="40%">
-                        <a  href="https://entregasrecepcion.seiem.gob.mx/storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
-                            target="_blank"
-                            download 
-                            title="{{ $inventario->oarchivo_adjunto }}">
-                            {{ $inventario->oarchivo_adjunto }}
-                        </a>
+                        @if($inventario->ourl && $inventario->oarchivo_adjunto && $inventario->ourl != 'N/A' && $inventario->oarchivo_adjunto != 'N/A')
+                            <a  href="{{ Storage::url($inventario->ourl.$inventario->oarchivo_adjunto) }}"
+                                target="_blank"
+                                download 
+                                title="{{ $inventario->oarchivo_adjunto }}">
+                                <i class="fa fa-file-pdf text-danger"></i> {{ $inventario->oarchivo_adjunto }}
+                            </a>
+                        @else
+                            <span class="text-muted">Sin archivo</span>
+                        @endif
                     </td>
                 </tr>
                 @endforeach

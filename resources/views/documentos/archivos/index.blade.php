@@ -87,11 +87,14 @@
                         </li>
                     @endforeach
                             
-                    @if($datosacta->avances->orelacion_archivos_a==1 && $datosacta->avances->orelacion_archivos_historico_a==1 && $datosacta->avances->orelacion_documentos_noconvencionles_a==1 )
+                    @php
+                        $avance = $avanceanexos->first();
+                    @endphp
+                    @if($avance && $avance->orelacion_archivos_a==1 && $avance->orelacion_archivos_historico_a==1 && $avance->orelacion_documentos_noconvencionles_a==1)
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         &nbsp;
 
-                        @if($datosacta->avances->oarchivos_d==1)
+                        @if($avance->oarchivos_d==1)
                             <a  href="{{ url('entrega-recepcion') }}" 
                                 class="btn btn-outline-success btn-sm"
                                 style="font-size:14px; text-decoration: none;">

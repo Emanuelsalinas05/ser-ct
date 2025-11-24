@@ -38,7 +38,7 @@
             </thead>
             <tbody>
 
-
+                @if((isset($datosacta) && $datosacta->count() > 0) || (isset($datosacta2) && $datosacta2->count() > 0) || (isset($datosacta3) && $datosacta3->count() > 0))
                 @foreach($datosacta as $key=> $acta)
                 <tr>
                     @if(Auth::user()->ocargo=='DIRECCIÓN')
@@ -173,6 +173,17 @@
                     </td>
                 </tr>
                 @endforeach
+                @else
+                <tr>
+                    <td colspan="{{ Auth::user()->ocargo=='DIRECCIÓN' ? '6' : '5' }}" class="text-center py-4">
+                        <div class="text-muted">
+                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                            <strong>No hay entregas realizadas</strong><br>
+                            <small>Este centro de trabajo no tiene entregas previas registradas.</small>
+                        </div>
+                    </td>
+                </tr>
+                @endif
 
             </tbody>
             </table>

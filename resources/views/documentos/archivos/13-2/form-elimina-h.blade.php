@@ -1,5 +1,5 @@
 <x-adminlte-modal   id="modaldeleteh{{ $inventario->id }}" 
-                    title="ELIMINAR REGISTRO DE COMISIONADO REGISTRADO"
+                    title="ELIMINAR REGISTRO DE ARCHIVOS DE CONCENTRACIÓN O HISTÓRICO"
                     size="lg" 
                     theme="danger"
                     icon="fa fa-users" 

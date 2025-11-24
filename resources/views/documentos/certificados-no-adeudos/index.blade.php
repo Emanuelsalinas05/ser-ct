@@ -60,11 +60,14 @@
                     @endforeach
                         
 
-                    @if($datosacta->avances->ocertificados_no_adeudo_a==01 )
+                    @php
+                        $avance = $avanceanexos->first();
+                    @endphp
+                    @if($avance && $avance->ocertificados_no_adeudo_a==1)
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         &nbsp;
 
-                        @if($datosacta->avances->ocertificados_no_adeudos_d==1)
+                        @if($avance->ocertificados_no_adeudos_d==1)
                             <a  href="{{ url('entrega-recepcion') }}" 
                                 class="btn btn-outline-success btn-sm"
                                 style="font-size:14px; text-decoration: none;">

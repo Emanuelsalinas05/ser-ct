@@ -64,8 +64,8 @@ class OrdenJuridico extends Controller
 
             Ordenamientojuridico::create([
                 'id_ct'                     => Auth::user()->id_ct,
-                'odenominacion_juridica'    => $request->oordenamiento,
-                'omedio_oficial_publicacion'=> $request->omediooficial,
+                'odenominacion_juridica'    => mb_strtoupper($request->oordenamiento, 'UTF-8'),
+                'omedio_oficial_publicacion'=> mb_strtoupper($request->omediooficial, 'UTF-8'),
                 'ofecha_publicacion'        => $request->ofechapublicacion,
                 'ourl_publicacion'          => $request->olocalizador,
             ]);
@@ -84,8 +84,8 @@ class OrdenJuridico extends Controller
 
             $update_mj = Ordenamientojuridico::whereId($id);
             $update_mj->update([ 
-                                'odenominacion_juridica'    => $request->oordenamiento,
-                                'omedio_oficial_publicacion'=> $request->omediooficial,
+                                'odenominacion_juridica'    => mb_strtoupper($request->oordenamiento, 'UTF-8'),
+                                'omedio_oficial_publicacion'=> mb_strtoupper($request->omediooficial, 'UTF-8'),
                                 'ofecha_publicacion'        => $request->ofechapublicacion,
                                 'ourl_publicacion'          => $request->olocalizador,
                             ]);

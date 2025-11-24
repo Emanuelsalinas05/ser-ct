@@ -145,8 +145,21 @@ class SolicitudCernoadeudo extends Controller
                                         'ogenerado'     => 1,  
                                     ]);
 
-                    return redirect()->back()
-                            ->with("success", "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA A TU AUTORIDAD INMEDIATA SUPERIOR; EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.");
+                    // Obtener el tipo de certificado para determinar el mensaje
+                    $solicitud = Solicitudnoadeudo::find($id);
+                    $tipoCert = Tiposnoadeudo::find($solicitud->id_tipocert);
+                    $nombreTipo = $tipoCert ? strtoupper($tipoCert->onombre) : '';
+                    
+                    // Determinar el mensaje según el tipo de certificado
+                    if (stripos($nombreTipo, 'JUBILACIÓN') !== false) {
+                        // Mensaje para JUBILACIÓN
+                        $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA EN LA COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS DE SEIEM, EN LAS OFICINAS CENTRALES DEL ORGANISMO. EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
+                    } else {
+                        // Mensaje para CAMBIO DE CENTRO DE TRABAJO (por defecto)
+                        $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA A TU AUTORIDAD INMEDIATA SUPERIOR; EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
+                    }
+
+                    return redirect()->back()->with("success", $mensaje);
 
         }else if($request->action==2){
 

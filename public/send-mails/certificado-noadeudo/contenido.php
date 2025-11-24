@@ -40,7 +40,7 @@ $message = <<<HTML
           <tr>
             <td style="padding:28px 24px 12px 24px;font:700 18px 'Segoe UI',Arial,Helvetica,sans-serif;color:#111;">
               <?php 
-              $estado_cert = isset($request->estado) && $request->estado === 'LIBERADO' 
+              $estado_cert = (isset($request) && is_object($request) && isset($request->estado) && $request->estado === 'LIBERADO') 
                   ? 'Certificado de No Adeudo Liberado - Listo para Recoger' 
                   : 'Notificación de certificado de no adeudo';
               echo htmlspecialchars($estado_cert, ENT_QUOTES, 'UTF-8');
@@ -61,7 +61,7 @@ $message = <<<HTML
                     <div><strong style="color:#5c0f28;">Fecha de Solicitud:</strong> {$fecha_sol_h}</div>
                     <div><strong style="color:#5c0f28;">Número de Oficio:</strong> {$numero_oficio_h}</div>
                     <?php 
-                    if (isset($request->estado) && $request->estado === 'LIBERADO' && isset($request->oficio_liberado) && !empty($request->oficio_liberado)) {
+                    if (isset($request) && is_object($request) && isset($request->estado) && $request->estado === 'LIBERADO' && isset($request->oficio_liberado) && !empty($request->oficio_liberado)) {
                         $oficio_liberado_h = htmlspecialchars($request->oficio_liberado ?? '', ENT_QUOTES, 'UTF-8');
                         echo "<div><strong style=\"color:#0d6efd;\">Oficio de Liberación:</strong> {$oficio_liberado_h}</div>";
                         echo "<div style=\"margin-top:8px;padding:8px;background:#d1e7dd;border-left:4px solid #198754;color:#0f5132;font-weight:600;\">✓ Certificado LIBERADO - Listo para recoger</div>";

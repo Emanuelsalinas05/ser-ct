@@ -127,42 +127,72 @@ class _adgIntervencionesController extends Controller
 
                     // Optimización: Consulta más eficiente con campos específicos y orden optimizado
                     // Usar índices: idct_escuela, ogenerada, ofin, istatus
+                    // Incluir intervenciones no finalizadas (ofin=0) O intervenciones finalizadas (ofin=1) 
+                    // pero con proceso de entrega-recepción no completamente finalizado (ZIP no cargado O correo no enviado)
                     $intervenciones = Intervencion::select([
-                                        'id',
-                                        'idct_departamento',
-                                        'oct_nivel',
-                                        'onivel_educativo',
-                                        'otitular_nivel',
-                                        'idct_escuela',
-                                        'oclave',
-                                        'onombrect',
-                                        'odomicilio',
-                                        'oentrega',
-                                        'orecibe',
-                                        'omotivo',
-                                        'ofecha_realizacion',
-                                        'ofecha_entrega',
-                                        'ohora_entrega',
-                                        'ooficio',
-                                        'ogenerada',
-                                        'oanio',
-                                        'onivel',
-                                        DB::raw('date_format(ofecha_realizacion, "%d/%m/%Y") as fechacreacion'),
-                                        DB::raw('date_format(ofecha_entrega, "%d/%m/%Y") as fechaentrega')
+                                        'b3adg_intervenciones.id',
+                                        'b3adg_intervenciones.idct_departamento',
+                                        'b3adg_intervenciones.oct_nivel',
+                                        'b3adg_intervenciones.onivel_educativo',
+                                        'b3adg_intervenciones.otitular_nivel',
+                                        'b3adg_intervenciones.idct_escuela',
+                                        'b3adg_intervenciones.oclave',
+                                        'b3adg_intervenciones.onombrect',
+                                        'b3adg_intervenciones.odomicilio',
+                                        'b3adg_intervenciones.oentrega',
+                                        'b3adg_intervenciones.orecibe',
+                                        'b3adg_intervenciones.omotivo',
+                                        'b3adg_intervenciones.ofecha_realizacion',
+                                        'b3adg_intervenciones.ofecha_entrega',
+                                        'b3adg_intervenciones.ohora_entrega',
+                                        'b3adg_intervenciones.ooficio',
+                                        'b3adg_intervenciones.ogenerada',
+                                        'b3adg_intervenciones.oanio',
+                                        'b3adg_intervenciones.onivel',
+                                        DB::raw('date_format(b3adg_intervenciones.ofecha_realizacion, "%d/%m/%Y") as fechacreacion'),
+                                        DB::raw('date_format(b3adg_intervenciones.ofecha_entrega, "%d/%m/%Y") as fechaentrega')
                                     ])
-                                    ->whereIn('idct_escuela', $escuelasPermitidas)  // Primero por índice
-                                    ->whereOgenerada(1)
-                                    ->whereOfin(0)
-                                    ->whereNotIn('istatus', ['B'])
-                                    ->orderBy('ofecha_realizacion', 'DESC')
+                                    ->leftJoin('g1acta', 'g1acta.id_ct', '=', 'b3adg_intervenciones.idct_escuela')
+                                    ->whereIn('b3adg_intervenciones.idct_escuela', $escuelasPermitidas)
+                                    ->where('b3adg_intervenciones.ogenerada', 1)
+                                    ->whereNotIn('b3adg_intervenciones.istatus', ['B'])
+                                    ->where(function($query) {
+                                        $query->where('b3adg_intervenciones.ofin', 0)
+                                              ->orWhere(function($q) {
+                                                  // Intervención concluida pero proceso no finalizado
+                                                  $q->where('b3adg_intervenciones.ofin', 1)
+                                                    ->where(function($subq) {
+                                                        $subq->whereNull('g1acta.id')
+                                                             ->orWhere('g1acta.ocargacomprimido', '!=', 1)
+                                                             ->orWhere('g1acta.oenviocorreooic', '!=', 1);
+                                                    });
+                                              });
+                                    })
+                                    ->orderBy('b3adg_intervenciones.ofecha_realizacion', 'DESC')
+                                    ->groupBy('b3adg_intervenciones.id')
                                     ->get();
 
                     // Optimización: Usar la misma consulta base para contar
-                    $intervencionesc = Intervencion::whereIn('idct_escuela', $escuelasPermitidas)
-                                    ->whereOgenerada(1)
-                                    ->whereOfin(0)
-                                    ->whereNotIn('istatus', ['B'])
-                                    ->count();
+                    $intervencionesc = Intervencion::leftJoin('g1acta', function($join) {
+                                        $join->on('g1acta.id_ct', '=', 'b3adg_intervenciones.idct_escuela')
+                                             ->where('g1acta.oconcluida', '=', 0);
+                                    })
+                                    ->whereIn('b3adg_intervenciones.idct_escuela', $escuelasPermitidas)
+                                    ->where('b3adg_intervenciones.ogenerada', 1)
+                                    ->whereNotIn('b3adg_intervenciones.istatus', ['B'])
+                                    ->where(function($query) {
+                                        $query->where('b3adg_intervenciones.ofin', 0)
+                                              ->orWhere(function($q) {
+                                                  $q->where('b3adg_intervenciones.ofin', 1)
+                                                    ->where(function($subq) {
+                                                        $subq->whereNull('g1acta.id')
+                                                             ->orWhere('g1acta.ocargacomprimido', '!=', 1)
+                                                             ->orWhere('g1acta.oenviocorreooic', '!=', 1);
+                                                    });
+                                              });
+                                    })
+                                    ->distinct('b3adg_intervenciones.id')
+                                    ->count('b3adg_intervenciones.id');
 
             }else if(Auth::user()->orol==1){
 
@@ -176,84 +206,144 @@ class _adgIntervencionesController extends Controller
 
                     // Optimización: Consulta más eficiente con campos específicos y orden optimizado
                     // Usar índices: onivel, ogenerada, ofin, istatus
+                    // Incluir intervenciones no finalizadas (ofin=0) O intervenciones finalizadas (ofin=1) 
+                    // pero con proceso de entrega-recepción no completamente finalizado
                     $intervenciones = Intervencion::select([
-                                        'id',
-                                        'idct_departamento',
-                                        'oct_nivel',
-                                        'onivel_educativo',
-                                        'otitular_nivel',
-                                        'idct_escuela',
-                                        'oclave',
-                                        'onombrect',
-                                        'odomicilio',
-                                        'oentrega',
-                                        'orecibe',
-                                        'omotivo',
-                                        'ofecha_realizacion',
-                                        'ofecha_entrega',
-                                        'ohora_entrega',
-                                        'ooficio',
-                                        'ogenerada',
-                                        'oanio',
-                                        'onivel',
-                                        DB::raw('date_format(ofecha_realizacion, "%d/%m/%Y") as fechacreacion'),
-                                        DB::raw('date_format(ofecha_entrega, "%d/%m/%Y") as fechaentrega')
+                                        'b3adg_intervenciones.id',
+                                        'b3adg_intervenciones.idct_departamento',
+                                        'b3adg_intervenciones.oct_nivel',
+                                        'b3adg_intervenciones.onivel_educativo',
+                                        'b3adg_intervenciones.otitular_nivel',
+                                        'b3adg_intervenciones.idct_escuela',
+                                        'b3adg_intervenciones.oclave',
+                                        'b3adg_intervenciones.onombrect',
+                                        'b3adg_intervenciones.odomicilio',
+                                        'b3adg_intervenciones.oentrega',
+                                        'b3adg_intervenciones.orecibe',
+                                        'b3adg_intervenciones.omotivo',
+                                        'b3adg_intervenciones.ofecha_realizacion',
+                                        'b3adg_intervenciones.ofecha_entrega',
+                                        'b3adg_intervenciones.ohora_entrega',
+                                        'b3adg_intervenciones.ooficio',
+                                        'b3adg_intervenciones.ogenerada',
+                                        'b3adg_intervenciones.oanio',
+                                        'b3adg_intervenciones.onivel',
+                                        DB::raw('date_format(b3adg_intervenciones.ofecha_realizacion, "%d/%m/%Y") as fechacreacion'),
+                                        DB::raw('date_format(b3adg_intervenciones.ofecha_entrega, "%d/%m/%Y") as fechaentrega')
                                     ])
-                                    ->whereOnivel(Auth::user()->onivel)  // Primero por índice
-                                    ->whereOgenerada(1)
-                                    ->whereOfin(0)
-                                    ->whereNotIn('istatus', ['B'])
-                                    ->orderBy('ofecha_realizacion', 'DESC')
+                                    ->leftJoin('g1acta', 'g1acta.id_ct', '=', 'b3adg_intervenciones.idct_escuela')
+                                    ->where('b3adg_intervenciones.onivel', Auth::user()->onivel)
+                                    ->where('b3adg_intervenciones.ogenerada', 1)
+                                    ->whereNotIn('b3adg_intervenciones.istatus', ['B'])
+                                    ->where(function($query) {
+                                        $query->where('b3adg_intervenciones.ofin', 0)
+                                              ->orWhere(function($q) {
+                                                  // Intervención concluida pero proceso no finalizado
+                                                  $q->where('b3adg_intervenciones.ofin', 1)
+                                                    ->where(function($subq) {
+                                                        $subq->whereNull('g1acta.id')
+                                                             ->orWhere('g1acta.ocargacomprimido', '!=', 1)
+                                                             ->orWhere('g1acta.oenviocorreooic', '!=', 1);
+                                                    });
+                                              });
+                                    })
+                                    ->orderBy('b3adg_intervenciones.ofecha_realizacion', 'DESC')
+                                    ->groupBy('b3adg_intervenciones.id')
                                     ->get();
 
                     // Optimización: Usar la misma consulta base para contar
-                    $intervencionesc = Intervencion::whereOnivel(Auth::user()->onivel)
-                                    ->whereOgenerada(1)
-                                    ->whereOfin(0)
-                                    ->whereNotIn('istatus', ['B'])
-                                    ->count();
+                    $intervencionesc = Intervencion::leftJoin('g1acta', function($join) {
+                                        $join->on('g1acta.id_ct', '=', 'b3adg_intervenciones.idct_escuela')
+                                             ->where('g1acta.oconcluida', '=', 0);
+                                    })
+                                    ->where('b3adg_intervenciones.onivel', Auth::user()->onivel)
+                                    ->where('b3adg_intervenciones.ogenerada', 1)
+                                    ->whereNotIn('b3adg_intervenciones.istatus', ['B'])
+                                    ->where(function($query) {
+                                        $query->where('b3adg_intervenciones.ofin', 0)
+                                              ->orWhere(function($q) {
+                                                  $q->where('b3adg_intervenciones.ofin', 1)
+                                                    ->where(function($subq) {
+                                                        $subq->whereNull('g1acta.id')
+                                                             ->orWhere('g1acta.ocargacomprimido', '!=', 1)
+                                                             ->orWhere('g1acta.oenviocorreooic', '!=', 1);
+                                                    });
+                                              });
+                                    })
+                                    ->distinct('b3adg_intervenciones.id')
+                                    ->count('b3adg_intervenciones.id');
 
             }else if(Auth::user()->orol==99){
 
                     // Coordinación Académica y de Operación Educativa (rol 99)
                     // Ve TODAS las intervenciones del nivel ELEMENTAL de TODOS los departamentos
                     // Optimización: Consulta más eficiente con campos específicos
+                    // Incluir intervenciones no finalizadas (ofin=0) O intervenciones finalizadas (ofin=1) 
+                    // pero con proceso de entrega-recepción no completamente finalizado
                     $intervenciones = Intervencion::select([
-                                        'id',
-                                        'idct_departamento',
-                                        'oct_nivel',
-                                        'onivel_educativo',
-                                        'otitular_nivel',
-                                        'idct_escuela',
-                                        'oclave',
-                                        'onombrect',
-                                        'odomicilio',
-                                        'oentrega',
-                                        'orecibe',
-                                        'omotivo',
-                                        'ofecha_realizacion',
-                                        'ofecha_entrega',
-                                        'ohora_entrega',
-                                        'ooficio',
-                                        'ogenerada',
-                                        'oanio',
-                                        'onivel',
-                                        DB::raw('date_format(ofecha_realizacion, "%d/%m/%Y") as fechacreacion'),
-                                        DB::raw('date_format(ofecha_entrega, "%d/%m/%Y") as fechaentrega')
+                                        'b3adg_intervenciones.id',
+                                        'b3adg_intervenciones.idct_departamento',
+                                        'b3adg_intervenciones.oct_nivel',
+                                        'b3adg_intervenciones.onivel_educativo',
+                                        'b3adg_intervenciones.otitular_nivel',
+                                        'b3adg_intervenciones.idct_escuela',
+                                        'b3adg_intervenciones.oclave',
+                                        'b3adg_intervenciones.onombrect',
+                                        'b3adg_intervenciones.odomicilio',
+                                        'b3adg_intervenciones.oentrega',
+                                        'b3adg_intervenciones.orecibe',
+                                        'b3adg_intervenciones.omotivo',
+                                        'b3adg_intervenciones.ofecha_realizacion',
+                                        'b3adg_intervenciones.ofecha_entrega',
+                                        'b3adg_intervenciones.ohora_entrega',
+                                        'b3adg_intervenciones.ooficio',
+                                        'b3adg_intervenciones.ogenerada',
+                                        'b3adg_intervenciones.oanio',
+                                        'b3adg_intervenciones.onivel',
+                                        DB::raw('date_format(b3adg_intervenciones.ofecha_realizacion, "%d/%m/%Y") as fechacreacion'),
+                                        DB::raw('date_format(b3adg_intervenciones.ofecha_entrega, "%d/%m/%Y") as fechaentrega')
                                     ])
-                                    ->whereOnivel('ELEMENTAL')  // Primero por índice
-                                    ->whereOgenerada(1)
-                                    ->whereOfin(0)
-                                    ->whereNotIn('istatus', ['B'])
-                                    ->orderBy('ofecha_realizacion', 'DESC')
+                                    ->leftJoin('g1acta', 'g1acta.id_ct', '=', 'b3adg_intervenciones.idct_escuela')
+                                    ->where('b3adg_intervenciones.onivel', 'ELEMENTAL')
+                                    ->where('b3adg_intervenciones.ogenerada', 1)
+                                    ->whereNotIn('b3adg_intervenciones.istatus', ['B'])
+                                    ->where(function($query) {
+                                        $query->where('b3adg_intervenciones.ofin', 0)
+                                              ->orWhere(function($q) {
+                                                  // Intervención concluida pero proceso no finalizado
+                                                  $q->where('b3adg_intervenciones.ofin', 1)
+                                                    ->where(function($subq) {
+                                                        $subq->whereNull('g1acta.id')
+                                                             ->orWhere('g1acta.ocargacomprimido', '!=', 1)
+                                                             ->orWhere('g1acta.oenviocorreooic', '!=', 1);
+                                                    });
+                                              });
+                                    })
+                                    ->orderBy('b3adg_intervenciones.ofecha_realizacion', 'DESC')
+                                    ->groupBy('b3adg_intervenciones.id')
                                     ->get();
 
                     // Optimización: Usar la misma consulta base para contar
-                    $intervencionesc = Intervencion::whereOnivel('ELEMENTAL')
-                                    ->whereOgenerada(1)
-                                    ->whereOfin(0)
-                                    ->whereNotIn('istatus', ['B'])
-                                    ->count();
+                    $intervencionesc = Intervencion::leftJoin('g1acta', function($join) {
+                                        $join->on('g1acta.id_ct', '=', 'b3adg_intervenciones.idct_escuela')
+                                             ->where('g1acta.oconcluida', '=', 0);
+                                    })
+                                    ->where('b3adg_intervenciones.onivel', 'ELEMENTAL')
+                                    ->where('b3adg_intervenciones.ogenerada', 1)
+                                    ->whereNotIn('b3adg_intervenciones.istatus', ['B'])
+                                    ->where(function($query) {
+                                        $query->where('b3adg_intervenciones.ofin', 0)
+                                              ->orWhere(function($q) {
+                                                  $q->where('b3adg_intervenciones.ofin', 1)
+                                                    ->where(function($subq) {
+                                                        $subq->whereNull('g1acta.id')
+                                                             ->orWhere('g1acta.ocargacomprimido', '!=', 1)
+                                                             ->orWhere('g1acta.oenviocorreooic', '!=', 1);
+                                                    });
+                                              });
+                                    })
+                                    ->distinct('b3adg_intervenciones.id')
+                                    ->count('b3adg_intervenciones.id');
             }
             
             return view('adg.intervenciones.index',

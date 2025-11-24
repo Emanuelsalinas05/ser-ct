@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+use Illuminate\Support\Facades\Storage;
+@endphp
+
 {{-- Customize layout sections --}}
 @section('title', '8.5 RELACIÓN DE LOS BIENES BAJO CUSTODIA DEL TITULAR')
 @section('content_header_title', 'Home')
@@ -57,12 +61,16 @@
                     </td>
                       
                     <td width="40%">
-                        <a  href="storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
-                            target="_blank"
-                            download 
-                            title="{{ $inventario->oarchivo_adjunto }}">
-                            {{ $inventario->oarchivo_adjunto }}
-                        </a>
+                        @if($inventario->ourl && $inventario->oarchivo_adjunto && $inventario->ourl != 'N/A' && $inventario->oarchivo_adjunto != 'N/A')
+                            <a  href="{{ Storage::url($inventario->ourl.$inventario->oarchivo_adjunto) }}"
+                                target="_blank"
+                                download 
+                                title="{{ $inventario->oarchivo_adjunto }}">
+                                <i class="fa fa-file-pdf text-danger"></i> {{ $inventario->oarchivo_adjunto }}
+                            </a>
+                        @else
+                            <span class="text-muted">Sin archivo</span>
+                        @endif
                     </td>
                       
                     <td width="5%">

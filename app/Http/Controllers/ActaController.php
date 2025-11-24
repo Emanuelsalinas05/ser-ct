@@ -38,17 +38,40 @@ class ActaController extends Controller
 
         $intervencionPermitida = true;
         if (Auth::user()->orol == 3) {
-            // Verificar si hay una intervención generada (concluida o no)
+            // Verificar si hay una intervención registrada por el superior inmediato
+            // La intervención puede estar concluida (ofin=1) pero el proceso no finalizado
+            // Cada solicitud y entrega es independiente, así que verificamos por intervención específica
             $intervencionExistente = Intervencion::where('idct_escuela', Auth::user()->id_ct)
                 ->where('ogenerada', 1)
-                ->whereNotIn('istatus', ['B'])->first();
+                ->whereNotIn('istatus', ['B'])
+                ->orderBy('ofecha_realizacion', 'DESC') // Obtener la más reciente
+                ->first();
             
-            // Verificar si ya tiene un acta concluida
-            $actaConcluida = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(1)->first();
-            
-            // Restringir acceso solo si NO hay intervención O si ya concluyó un acta
-            if (!$intervencionExistente || $actaConcluida) {
+            // Si no hay intervención, restringir acceso
+            if (!$intervencionExistente) {
                 $intervencionPermitida = false;
+            } else {
+                // Verificar si tiene un acta NO concluida (en curso) asociada a esta intervención
+                // Solo las actas NO concluidas indican un proceso en curso
+                $actaEnCurso = DatosActa::whereIdUser(Auth::user()->id)
+                    ->where('id_ct', Auth::user()->id_ct)
+                    ->where('oconcluida', 0) // Solo actas en curso
+                    ->first();
+                
+                // Si hay acta en curso, verificar si el proceso está completamente finalizado
+                // El proceso está finalizado cuando: ZIP cargado (ocargacomprimido=1) Y correo enviado (oenviocorreooic=1)
+                if ($actaEnCurso) {
+                    $procesoFinalizado = ($actaEnCurso->ocargacomprimido == 1 && 
+                                         $actaEnCurso->oenviocorreooic == 1);
+                    
+                    // Restringir acceso solo si el proceso está completamente finalizado
+                    // En ese caso, el registro vuelve a "Solicitud de intervención" y se necesita una nueva intervención
+                    if ($procesoFinalizado) {
+                        $intervencionPermitida = false;
+                    }
+                    // Si hay acta en curso y el proceso NO está finalizado, permitir acceso (continuar trabajo)
+                }
+                // Si NO hay acta en curso, permitir acceso (iniciar nueva entrega-recepción)
             }
         }
 
@@ -127,6 +150,40 @@ class ActaController extends Controller
 
     public function store(Request $request)
     {
+        // Validar que el usuario tenga una intervención generada (solo para rol 3)
+        if (Auth::user()->orol == 3) {
+            $intervencionExistente = Intervencion::where('idct_escuela', Auth::user()->id_ct)
+                ->where('ogenerada', 1)
+                ->whereNotIn('istatus', ['B'])
+                ->orderBy('ofecha_realizacion', 'DESC')
+                ->first();
+            
+            // Si no hay intervención, no permitir crear acta
+            if (!$intervencionExistente) {
+                return redirect()->route('entrega-recepcion.index')
+                    ->with('error', 'No puedes iniciar el acto de entrega-recepción. Debes tener una solicitud de intervención generada por tu autoridad inmediata superior.');
+            }
+            
+            // Verificar si tiene un acta NO concluida (en curso) asociada a esta intervención
+            $actaEnCurso = DatosActa::whereIdUser(Auth::user()->id)
+                ->where('id_ct', Auth::user()->id_ct)
+                ->where('oconcluida', 0)
+                ->first();
+            
+            // Si hay acta en curso, verificar si el proceso está completamente finalizado
+            if ($actaEnCurso) {
+                $procesoFinalizado = ($actaEnCurso->ocargacomprimido == 1 && 
+                                     $actaEnCurso->oenviocorreooic == 1);
+                
+                // Si el proceso está completamente finalizado, no permitir crear nueva acta
+                // Se necesita una nueva intervención
+                if ($procesoFinalizado) {
+                    return redirect()->route('entrega-recepcion.index')
+                        ->with('error', 'El proceso de entrega-recepción anterior ha sido finalizado. Se requiere una nueva solicitud de intervención para iniciar un nuevo proceso.');
+                }
+            }
+        }
+
         $datosacta = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
         $datosCT   = CentrosTrabajo::whereKcvect(Auth::user()->id_ct)->first();
 
@@ -208,14 +265,14 @@ class ActaController extends Controller
             ]);
 
             if ($acta->id_tipoacta == 1) {
-                $acta->onombre_entrega_a = strtoupper($request->onombre_entrega_a);
+                $acta->onombre_entrega_a = mb_strtoupper($request->onombre_entrega_a, 'UTF-8');
                 $acta->orfc_entrega_a    = $request->orfc_entrega_a;
-                $acta->ocargo_entrega_a  = strtoupper($request->ocargo_entrega_a);
-                $acta->onombre_recibe_a  = strtoupper($request->onombre_recibe_a);
+                $acta->ocargo_entrega_a  = mb_strtoupper($request->ocargo_entrega_a, 'UTF-8');
+                $acta->onombre_recibe_a  = mb_strtoupper($request->onombre_recibe_a, 'UTF-8');
                 $acta->orfc_recibe_a     = $request->orfc_recibe_a;
-                $acta->ocargo_recibe_a   = strtoupper($request->ocargo_recibe_a);
+                $acta->ocargo_recibe_a   = mb_strtoupper($request->ocargo_recibe_a, 'UTF-8');
             } elseif ($acta->id_tipoacta == 2) {
-                $acta->onombre_recibe_ac = strtoupper($request->onombre_recibe_ac);
+                $acta->onombre_recibe_ac = mb_strtoupper($request->onombre_recibe_ac, 'UTF-8');
                 $acta->orfc_recibe_ac    = $request->orfc_recibe_ac;
             }
 
@@ -315,21 +372,34 @@ class ActaController extends Controller
 
             // 4) Resultado y flags
             if ((int)$oky === 1) {
-                // Marcar acta como concluida y correo enviado
-                \App\Models\DatosActa::whereId($acta->id)->update([
-                    'oenviocorreooic' => 1,
-                    'oconcluida'      => 1,
-                ]);
+                // Verificar que el ZIP esté cargado antes de marcar como finalizado
+                // El proceso solo se considera finalizado cuando: ZIP cargado (ocargacomprimido=1) Y correo enviado (oenviocorreooic=1)
+                $actaActualizada = \App\Models\DatosActa::find($acta->id);
                 
-                // Marcar avances como finalizados
-                \App\Models\Avanceanexos::whereIdActa($acta->id)->update(['ofinalizacion' => 1]);
-                
-                // Deshabilitar intervención para este centro de trabajo
-                \App\Models\Intervencion::where('idct_departamento', $acta->id_ct)
-                    ->where('ofin', 0)
-                    ->update(['ofin' => 1, 'istatus' => 'B']);
-                
-                return redirect('entrega-recepcion')->with('success', 'SE HA ENVIADO EL ACTA DE ENTREGA Y RECEPCIÓN Y SUS ANEXOS AL ÓRGANO INTERNO DE CONTROL. SE HA CONCLUIDO EXITOSAMENTE EL ACTA DE ENTREGA Y RECEPCIÓN.');
+                if ($actaActualizada && $actaActualizada->ocargacomprimido == 1) {
+                    // Marcar acta como concluida y correo enviado (proceso completamente finalizado)
+                    \App\Models\DatosActa::whereId($acta->id)->update([
+                        'oenviocorreooic' => 1,
+                        'oconcluida'      => 1,
+                    ]);
+                    
+                    // Marcar avances como finalizados
+                    \App\Models\Avanceanexos::whereIdActa($acta->id)->update(['ofinalizacion' => 1]);
+                    
+                    // Cerrar intervención para este centro de trabajo
+                    // Solo cuando el proceso está completamente finalizado (ZIP + correo enviado)
+                    // El registro vuelve al estado "Solicitud de intervención" (ofin=1)
+                    // para permitir iniciar un nuevo ciclo si se requiere
+                    \App\Models\Intervencion::where('idct_escuela', $acta->id_ct)
+                        ->where('ogenerada', 1)
+                        ->whereNotIn('istatus', ['B'])
+                        ->update(['ofin' => 1]);
+                    
+                    return redirect('entrega-recepcion')->with('success', 'SE HA ENVIADO EL ACTA DE ENTREGA Y RECEPCIÓN Y SUS ANEXOS AL ÓRGANO INTERNO DE CONTROL. SE HA CONCLUIDO EXITOSAMENTE EL ACTA DE ENTREGA Y RECEPCIÓN.');
+                } else {
+                    // El ZIP no está cargado, no se puede finalizar el proceso
+                    return redirect('entrega-recepcion')->with('error', 'Debes cargar primero el archivo ZIP antes de enviar el correo.');
+                }
             } else {
                 return redirect('entrega-recepcion')->with('error', 'No se pudo enviar el correo al OIC.');
             }

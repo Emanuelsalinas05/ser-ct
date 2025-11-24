@@ -152,7 +152,11 @@ class ReviewAvanceacta extends Controller
                                     "IV. TEMAS PRIORITARIOS, PRINCIPALES PROBLEMÁTICAS Y ESTADO QUE GUARDAN LOS ASUNTOS (SE DEBERÁ IDENTIFICAR LAS PRINCIPALES PROBLEMÁTICAS Y TEMAS PRIORITARIOS, SEÑALANDO EL GRADO DE ATENCIÓN DE LOS MISMOS, LOS PLAZOS O FECHAS DE VENCIMIENTO, EL PRESUPUESTO AUTORIZADO, LA ÚLTIMA ACTIVIDAD REALIZADA SOBRE LOS MISMOS, INDICANDO LA FECHA Y LAS RECOMENDACIONES A SEGUIR. SE DEBERÁ REPORTAR EL ESTADO DE LOS ASUNTOS A CARGO SEÑALANDO LOS QUE SE ENCUENTRAN CONCLUIDOS, EN PROCESO Y AQUELLOS QUE OCURREN CON CIERTA PERIODICIDAD, ASÍ COMO LOS QUE REQUIEREN DE ATENCIÓN ESPECIAL E INMEDIATA EN EL MOMENTO DE LA ENTREGA):"
                                 END AS roiv'))->whereIdActa($datosacta->id)
                         ->whereNotIn('status',['B'])->first();
-        $icompromisos     = Compromisos90dias::whereIdActa($datosacta->id)->whereNotIn('status', ['B'])->get();     
+        $icompromisos     = Compromisos90dias::whereIdActa($datosacta->id)
+            ->whereNotIn('status', ['B'])
+            ->orderBy('ofecha', 'ASC')
+            ->orderBy('ohora', 'ASC')
+            ->get();     
         $juridicos      = Ordenamientojuridico::whereIdCt($datosacta->id_ct)->whereNotIn('status', ['B'])->OrderBy('id', 'ASC')->get();
 
         return view('admin.er.acta-content.anexos.index', 

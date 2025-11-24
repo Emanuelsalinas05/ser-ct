@@ -1,9 +1,13 @@
 @extends('layouts.app')
 
+@php
+use Illuminate\Support\Facades\Storage;
+@endphp
+
 {{-- Customize layout sections --}}
-@section('title', '13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES BIBLO-HEMEROGRÁFICOS')
+@section('title', '13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLO-HEMEROGRÁFICOS')
 @section('content_header_title', 'Home')
-@section('content_header_subtitle', ' 13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES BIBLO-HEMEROGRÁFICOS')
+@section('content_header_subtitle', ' 13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLO-HEMEROGRÁFICOS')
 
 {{-- Content body: main page content --}}
 
@@ -34,8 +38,8 @@
                 <i class="fa fa-info-circle"></i>&nbsp;
                 <b class="text-info">INDICACIONES PARA EL REGISTRO:</b><br>
                 {{ $documento->odescripcion }}.
-                <br>DEBERÁS SUBIR UN ARCHIVO EN FORMATO EXCEL CON LA INFORMACIÓN DE TODO EL ACERVO BIBLIO-HEMEROGRÁFICO.<br>
-                <x-adminlte-button  label="(CLIC PARA CONSULTAR EL FORMATO DE LLENADO) " 
+                <br><b>DEBERÁS SUBIR UN ARCHIVO EN FORMATO EXCEL</b> CON LA INFORMACIÓN DE TODO EL ACERVO BIBLIO-HEMEROGRÁFICO.<br>
+                <x-adminlte-button  label="(CLIC PARA CONSULTAR EL INSTRUCTIVO DE LLENADO) " 
                                     data-toggle="modal" 
                                     data-target="#modalCustomHelp" 
                                     class="btn btn-outline-secondary btn-sm"/>
@@ -45,9 +49,9 @@
                     class="btn btn-info btn-sm" 
                     download 
                     style="color:white; font-size: 14px;" 
-                    title="DESCARGAR ARCHIVO DE LLENADO DE ACERVO BIBLIO-HEMEROGRÁFICO">
+                    title="DESCARGAR ARCHIVO DE EXCEL PARA CAPTURAR LA RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLO-HEMEROGRÁFICOS">
                     <i class="far fa-hand-point-right"></i>&nbsp;
-                    <b>DESCARGA AQUÍ EL ARCHIVO EJEMPLO PARA EL LLENADO DE ACERVO BIBLIO-HEMEROGRÁFICO</b>
+                    <b>DESCARGA AQUÍ EL ARCHIVO DE EXCEL PARA CAPTURAR LA RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLO-HEMEROGRÁFICOS</b>
                     &nbsp;<i class="far fa-hand-point-left"></i>
                 </a>
 
@@ -82,12 +86,16 @@
                     </td>
                       
                     <td width="40%">
-                        <a  href="storage/{{ $inventario->ourl.$inventario->oarchivo_adjunto }}"
-                            target="_blank"
-                            download 
-                            title="{{ $inventario->oarchivo_adjunto }}">
-                            {{ $inventario->oarchivo_adjunto }}
-                        </a>
+                        @if($inventario->ourl && $inventario->oarchivo_adjunto && $inventario->ourl != 'N/A' && $inventario->oarchivo_adjunto != 'N/A')
+                            <a  href="{{ Storage::url($inventario->ourl.$inventario->oarchivo_adjunto) }}"
+                                target="_blank"
+                                download 
+                                title="{{ $inventario->oarchivo_adjunto }}">
+                                <i class="fa fa-file-pdf text-danger"></i> {{ $inventario->oarchivo_adjunto }}
+                            </a>
+                        @else
+                            <span class="text-muted">Sin archivo</span>
+                        @endif
                     </td>
                       
                     <td width="5%">

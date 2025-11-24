@@ -65,7 +65,7 @@
                         <th>DENOMINACIÓN DEL ORDENAMIENTO JURÍDICO-ADMINISTRATIVO</th>
                         <th>MEDIO OFICIAL <br>DE PUBLICACIÓN</th>
                         <th>FECHA <br>DE PUBLICACIÓN </th>
-                        <th>URL ORDENBAMIENTO</th>
+                        <th>URL ORDENAMIENTO</th>
                         @if($avances->omarco_juridico_a==0)
                         <th colspan="2"></th>
                         @endif

@@ -60,11 +60,14 @@
                         </li>
                         @endforeach
                         
-                        @if($datosacta->avances->ootros_hechos_a==1)
+                        @php
+                            $avance = $avanceanexos->first();
+                        @endphp
+                        @if($avance && $avance->ootros_hechos_a==1)
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         &nbsp;
 
-                        @if($datosacta->avances->ootros_hechos_d==1)
+                        @if($avance->ootros_hechos_d==1)
                             <a  href="{{ url('entrega-recepcion') }}" 
                                 class="btn btn-outline-success btn-sm"
                                 style="font-size:14px; text-decoration: none;">

@@ -93,6 +93,21 @@ class FinalizadasController extends Controller
                                 );
                 break;
 
+                default:
+                    // Caso por defecto: usuarios sin cargo específico o con otros cargos
+                    // Obtener entregas finalizadas del centro de trabajo del usuario
+                    $datosacta = DatosActa::where('id_ct', Auth::user()->id_ct)
+                        ->whereOconcluida(1)
+                        ->orderBy('created_at', 'DESC')
+                        ->get();
+                    
+                    $datosacta2 = collect();
+                    $datosacta3 = collect();
+                    
+                    return view('admin.er.finalizadas.index-improved', 
+                                compact('datosacta', 'datosacta2', 'datosacta3', 'us')
+                                );
+                break;
             }
 
 

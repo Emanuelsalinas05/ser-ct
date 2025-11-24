@@ -38,7 +38,11 @@ class Rmcompromisos90dias extends Controller
         $documento  = Documentos::whereIdAnexo($anexo->id)->whereId(13)->first();
         $datosacta  = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
         $avances    = Avanceanexos::whereIdActa($datosacta->id)->first();
-        $icompromisos  = Compromisos90dias::whereIdActa($datosacta->id)->whereNotIn('status', ['B'])->get();
+        $icompromisos  = Compromisos90dias::whereIdActa($datosacta->id)
+            ->whereNotIn('status', ['B'])
+            ->orderBy('ofecha', 'ASC')
+            ->orderBy('ohora', 'ASC')
+            ->get();
         $icompromisosc = Compromisos90dias::whereIdActa($datosacta->id)->whereNotIn('status', ['B'])->count();
 
         return view('documentos.informe-gestion.15-2.index', 

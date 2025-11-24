@@ -51,7 +51,10 @@ class SituacionTics extends Controller
         $elct           = $centrotrabajo->oclave;
         $iddoc          = $request->iddoc;
         $idacta         = $request->idacta;
+        // Nombre sin espacios para el archivo físico
         $nombredoc      = str_replace(' ', '',$request->onombre_documento);
+        // Nombre con espacios para mostrar en la BD
+        $nombreMostrar  = trim($request->onombre_documento);
         $file           = $request->file('onombre_archivo');
 
         if($request->actiontic=='1')
@@ -62,7 +65,7 @@ class SituacionTics extends Controller
                 Inventariocomputo::create([
                     'id_acta'           => $idacta,
                     'id_ct'             => Auth::user()->id_ct,
-                    'onombre_documento' => $nombredoc,
+                    'onombre_documento' => $nombreMostrar,
                     'ourl'              => 'inventario-equipo/9-1/'.$elct.'/',
                     'oarchivo_adjunto'  => $nombredoc.'.'.$file->extension(),
                     'oanio'             => date('Y-m-d'),
@@ -130,8 +133,8 @@ class SituacionTics extends Controller
             'onombre_archivo' => 'nullable|file|max:10240' // máximo 10MB
         ]);
 
-        // Actualiza nombre del documento
-        $inventario->onombre_documento = str_replace(' ', '', $request->onombre_documento);
+        // Actualiza nombre del documento (conservar espacios para mostrar)
+        $inventario->onombre_documento = trim($request->onombre_documento);
 
         // Si hay nuevo archivo, lo guarda y reemplaza
         if ($request->hasFile('onombre_archivo')) {

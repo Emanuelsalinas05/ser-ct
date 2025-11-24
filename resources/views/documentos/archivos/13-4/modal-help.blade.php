@@ -1,5 +1,5 @@
 <x-adminlte-modal   id="modalCustomHelp" 
-                    title="COMO REALIZAR EL ARCHIVO DEL ACERVO BIBLIO-HEMEROGRÁFICO" 
+                    title="CÓMO ELABORAR LA RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLO-HEMEROGRÁFICOS" 
                     size="lg" 
                     theme="teal"
                     icon="fa fa-copy" 
