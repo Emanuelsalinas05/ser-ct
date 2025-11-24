@@ -74,7 +74,7 @@ class PlantillaComisionadosController extends Controller
             return DB::transaction(function () use ($request) {
                 // Validar duplicidad con bloqueo de fila para prevenir inserción simultánea
                 $duplicado = Plantillacomisionados::where('id_acta', $request->acta)
-                                                ->where('onombre_servidor', strtoupper($request->onombre_servidor))
+                                                ->where('onombre_servidor', mb_strtoupper(trim($request->onombre_servidor), 'UTF-8'))
                                                 ->where('operiodoinicio', $request->operiodoinicio)
                                                 ->where('ounidad_adscripcion', $request->ounidad_adscripcion)
                                                 ->where('ocomisionado_act', $request->ocomisionado_act)
@@ -89,7 +89,7 @@ class PlantillaComisionadosController extends Controller
                 // Verificar duplicado reciente (prevención adicional contra doble clic)
                 // Verificar si se creó un registro idéntico en los últimos 3 segundos
                 $duplicadoReciente = Plantillacomisionados::where('id_acta', $request->acta)
-                                                        ->where('onombre_servidor', strtoupper($request->onombre_servidor))
+                                                        ->where('onombre_servidor', mb_strtoupper(trim($request->onombre_servidor), 'UTF-8'))
                                                         ->where('operiodoinicio', $request->operiodoinicio)
                                                         ->where('ounidad_adscripcion', $request->ounidad_adscripcion)
                                                         ->where('ocomisionado_act', $request->ocomisionado_act)
@@ -105,13 +105,13 @@ class PlantillaComisionadosController extends Controller
                 Plantillacomisionados::create([
                     'id_acta'             => $request->acta,
                     'id_ct'               => Auth::user()->id_ct,
-                    'onombre_servidor'    => strtoupper($request->onombre_servidor),
+                    'onombre_servidor'    => mb_strtoupper(trim($request->onombre_servidor), 'UTF-8'),
                     'ounidad_adscripcion' => $request->ounidad_adscripcion,
                     'ocomisionado_act'    => $request->ocomisionado_act,
                     'operiodoinicio'      => $request->operiodoinicio,
                     'operiodofinal'       => $request->operiodofinal,
                     'ooficio_autorizacion'=> $request->ooficio_autorizacion,
-                    'oobservaciones'      => strtoupper($request->oobservaciones),
+                    'oobservaciones'      => mb_strtoupper(trim($request->oobservaciones), 'UTF-8'),
                     'status'              => 'A',
                     'oactual'             => 1,
                     'oanio'               => date('Y-m-d'),
