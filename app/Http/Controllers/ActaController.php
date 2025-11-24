@@ -79,6 +79,12 @@ class ActaController extends Controller
             $elacta     = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
             $documentos = Documentos::get();
 
+            // VALIDACIÓN CRÍTICA: Antes de mostrar cualquier contenido del acta
+            // Si no hay intervención permitida, mostrar restricción incluso si hay acta en curso
+            if (!$intervencionPermitida) {
+                $ban = 0;
+                return view('acta.index', compact('tipoacta','documentos','ban','us','ctts','intervencionPermitida'));
+            }
 
             if ($elacta) {
                 $datosacta = DatosActa::select(
