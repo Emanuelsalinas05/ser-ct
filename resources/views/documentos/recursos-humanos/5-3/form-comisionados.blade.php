@@ -15,10 +15,6 @@
                             name="action" 
                             id="action"
                             value="1">
-                    <input  type="hidden" 
-                            name="submit_token" 
-                            id="submit_token"
-                            value="{{ md5(uniqid(rand(), true)) }}">
 
                     <input  type="hidden" 
                             name="acta" 
@@ -69,7 +65,7 @@
                                     <option value="{{$ct->oclave.' - '.$ct->onombre_ct}}">{{$ct->oclave.' - '.$ct->onombre_ct}}</option>
                                     @endforeach
                                 </select>
-                                @error('ounidad_adscripcion') <span style="color:red;">{{ $message }}</span> @enderror
+                                @error('ocomisionado_act') <span style="color:red;">{{ $message }}</span> @enderror
                             </td>
                         </tr>
                         <tr>
@@ -116,9 +112,7 @@
                     <tfoot>
                         <tr>
                             <td colspan="4" align="right">
-                                <button type="submit" 
-                                        id="btnSubmitComisionado" 
-                                        class="btn btn-success btn-sm">
+                                <button type="submit" class="btn btn-success btn-sm">
                                     AGREGAR SERVIDOR COMISIONADO
                                     <i class="fas fa-check"></i>
                                 </button>
@@ -129,49 +123,6 @@
                 </form>
 
     </div>
-
-    <script>
-    // Protección contra doble clic en formulario de comisionados
-    (function() {
-        const form = document.getElementById('FrmCartel');
-        const btnSubmit = document.getElementById('btnSubmitComisionado');
-        let isSubmitting = false;
-
-        if (form && btnSubmit) {
-            // Prevenir múltiples envíos del formulario
-            form.addEventListener('submit', function(e) {
-                if (isSubmitting) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return false;
-                }
-
-                isSubmitting = true;
-                btnSubmit.disabled = true;
-                btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-                
-                // Deshabilitar todos los campos del formulario
-                const formElements = form.querySelectorAll('input, select, textarea, button');
-                formElements.forEach(function(element) {
-                    if (element !== btnSubmit) {
-                        element.disabled = true;
-                    }
-                });
-
-                return true;
-            });
-
-            // Prevenir doble clic en el botón
-            btnSubmit.addEventListener('click', function(e) {
-                if (isSubmitting) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return false;
-                }
-            });
-        }
-    })();
-    </script>
     
     <x-slot name="footerSlot">
         <x-adminlte-button  theme="secondary" 
