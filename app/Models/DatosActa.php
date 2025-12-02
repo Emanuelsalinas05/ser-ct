@@ -5,6 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modelo para la tabla de actas de entrega-recepción
+ * 
+ * Representa tanto actas normales (tipo 1) como actas circunstanciadas (tipo 2).
+ * Contiene toda la información del proceso de entrega-recepción incluyendo:
+ * - Datos de las personas involucradas (entrega, recibe, testigos)
+ * - Información del centro de trabajo
+ * - Estados del proceso (oconcluida, ocargacomprimido, oenviocorreooic)
+ * - Archivos asociados (identificaciones, acta escaneada, carpeta comprimida)
+ */
 class DatosActa extends Model
 {
     use HasFactory;
@@ -127,18 +137,30 @@ class DatosActa extends Model
                             'ocorreocc',
                         ];
 
+    /**
+     * Relación con el usuario que creó el acta
+     */
     public function eluser() {
         return $this->belongsTo(User::class, 'id_user', 'id');
     }
 
+    /**
+     * Relación con el tipo de acta (1=Normal, 2=Circunstanciada)
+     */
     public function tipoacta() {
         return $this->belongsTo(Tipoacta::class, 'id_tipoacta', 'id');
     }
 
+    /**
+     * Relación con el centro de trabajo
+     */
     public function elct() {
         return $this->belongsTo(CentrosTrabajo::class, 'id_ct', 'kcvect');
     }
 
+    /**
+     * Relación con el registro de avance de anexos
+     */
     public function avances() {
         return $this->belongsTo(Avanceanexos::class, 'id', 'id_acta');
     }

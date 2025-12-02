@@ -41,11 +41,10 @@ use Illuminate\Support\Facades\Storage;
                       
                     <td width="40%">
                         @if($inventario->ourl && $inventario->oarchivo_adjunto && $inventario->ourl != 'N/A' && $inventario->oarchivo_adjunto != 'N/A')
-                            <a  href="{{ Storage::url($inventario->ourl.$inventario->oarchivo_adjunto) }}"
+                            <a  href="{{ url(Storage::url($inventario->ourl.$inventario->oarchivo_adjunto)) }}"
                                 target="_blank"
-                                download 
                                 title="{{ $inventario->oarchivo_adjunto }}">
-                                <i class="fa fa-file-pdf text-danger"></i> {{ $inventario->oarchivo_adjunto }}
+                                {{ url(Storage::url($inventario->ourl.$inventario->oarchivo_adjunto)) }}
                             </a>
                         @else
                             <span class="text-muted">Sin archivo</span>
@@ -88,11 +87,10 @@ use Illuminate\Support\Facades\Storage;
                       
                     <td width="40%">
                         @if($inventario->ourl && $inventario->oarchivo_adjunto && $inventario->ourl != 'N/A' && $inventario->oarchivo_adjunto != 'N/A')
-                            <a  href="{{ Storage::url($inventario->ourl.$inventario->oarchivo_adjunto) }}"
+                            <a  href="{{ url(Storage::url($inventario->ourl.$inventario->oarchivo_adjunto)) }}"
                                 target="_blank"
-                                download 
                                 title="{{ $inventario->oarchivo_adjunto }}">
-                                <i class="fa fa-file-pdf text-danger"></i> {{ $inventario->oarchivo_adjunto }}
+                                {{ url(Storage::url($inventario->ourl.$inventario->oarchivo_adjunto)) }}
                             </a>
                         @else
                             <span class="text-muted">Sin archivo</span>
@@ -136,11 +134,10 @@ use Illuminate\Support\Facades\Storage;
                       
                     <td width="40%">
                         @if($inventario->ourl && $inventario->oarchivo_adjunto && $inventario->ourl != 'N/A' && $inventario->oarchivo_adjunto != 'N/A')
-                            <a  href="{{ Storage::url($inventario->ourl.$inventario->oarchivo_adjunto) }}"
+                            <a  href="{{ url(Storage::url($inventario->ourl.$inventario->oarchivo_adjunto)) }}"
                                 target="_blank"
-                                download 
                                 title="{{ $inventario->oarchivo_adjunto }}">
-                                <i class="fa fa-file-pdf text-danger"></i> {{ $inventario->oarchivo_adjunto }}
+                                {{ url(Storage::url($inventario->ourl.$inventario->oarchivo_adjunto)) }}
                             </a>
                         @else
                             <span class="text-muted">Sin archivo</span>

@@ -98,7 +98,15 @@ class RminventarioAlmacen extends Controller
             $almacen = Inventarioalmacen::whereId($id)->first();
             $update_almacen = Inventarioalmacen::whereId($id);
             $update_almacen->update([ 'status' => 'B' ]);
-            unlink(storage_path('app/public/'.$almacen->ourl.$almacen->oarchivo_adjunto));
+            
+            // Solo intentar eliminar el archivo físico si no es "N/A"
+            if($almacen->ourl != 'N/A' && $almacen->oarchivo_adjunto != 'N/A' && 
+               $almacen->ourl && $almacen->oarchivo_adjunto) {
+                $filePath = storage_path('app/public/'.$almacen->ourl.$almacen->oarchivo_adjunto);
+                if(file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
 
             return redirect()->back()->with("success", "Se ha removido el archivo correctamente");
   

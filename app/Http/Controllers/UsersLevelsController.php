@@ -155,19 +155,26 @@ class UsersLevelsController extends Controller
 
     public function store(Request $request)
     {
-        $us = User::whereIdCt($request->oct)->first();
+        // Validar si ya existe un usuario para este CCT con el mismo rol
+        // Esto previene duplicados de usuarios de supervisión (orol=2) para el mismo CCT
+        $getct = CentrosTrabajo::whereId($request->oct)->first();
+        
+        // Verificar si ya existe un usuario con el mismo id_ct y orol=2 (SUPERVISIÓN)
+        $us = User::whereIdCt($request->oct)
+                  ->where('orol', 2)
+                  ->where('status', 'A')
+                  ->first();
 
             function generateRandomString($length = 10){ 
                 return substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length); 
             }
             $elfolio = generateRandomString();
-            $getct = CentrosTrabajo::whereId($request->oct)->first();
 
             if($us){
 
                 return redirect()
-                        ->route('usuarios.index')
-                        ->with("warning", "ESTE USUARIO YA SE HA REGISTRADO");
+                        ->route('usuarios-niveles.index')
+                        ->with("warning", "YA EXISTE UN USUARIO DE SUPERVISIÓN REGISTRADO PARA ESTE CENTRO DE TRABAJO (CCT: {$getct->oclave}). NO SE PUEDEN CREAR USUARIOS DUPLICADOS.");
             }else{
                 
                     User::create([

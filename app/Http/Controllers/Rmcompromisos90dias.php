@@ -42,6 +42,7 @@ class Rmcompromisos90dias extends Controller
             ->whereNotIn('status', ['B'])
             ->orderBy('ofecha', 'ASC')
             ->orderBy('ohora', 'ASC')
+            ->orderBy('id', 'ASC')
             ->get();
         $icompromisosc = Compromisos90dias::whereIdActa($datosacta->id)->whereNotIn('status', ['B'])->count();
 

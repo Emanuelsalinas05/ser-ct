@@ -15,6 +15,7 @@ class Ordenamientojuridico extends Model
     protected $fillable=[
                             'id',
                             'id_ct',
+                            'id_acta',
                             'id_anexo',
                             'onprogresivo',
                             'odenominacion_juridica',

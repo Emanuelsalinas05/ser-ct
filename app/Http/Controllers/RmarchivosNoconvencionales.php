@@ -47,6 +47,27 @@ class RmarchivosNoconvencionales extends Controller
     }
 
  
+    private function normalizarNombreArchivo($nombre)
+    {
+        // Convertir a mayúsculas y eliminar espacios
+        $nombre = strtoupper(trim($nombre));
+        $nombre = str_replace(' ', '', $nombre);
+        
+        // Reemplazar acentos y caracteres especiales
+        $acentos = [
+            'Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U',
+            'Ñ' => 'N',
+            'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u',
+            'ñ' => 'n'
+        ];
+        $nombre = strtr($nombre, $acentos);
+        
+        // Eliminar caracteres especiales que no sean alfanuméricos, guiones o puntos
+        $nombre = preg_replace('/[^A-Z0-9._-]/', '', $nombre);
+        
+        return $nombre;
+    }
+
     public function store(Request $request)
     {
         $user           = User::whereId(Auth::user()->id)->first();
@@ -54,8 +75,8 @@ class RmarchivosNoconvencionales extends Controller
         $elct           = $centrotrabajo->oclave;
         $iddoc          = $request->iddoc;
         $idacta         = $request->idacta;
-        // Nombre sin espacios para el archivo físico
-        $nombredoc      = str_replace(' ', '',$request->onombre_documento);
+        // Nombre normalizado sin espacios ni acentos para el archivo físico
+        $nombredoc      = $this->normalizarNombreArchivo($request->onombre_documento);
         // Nombre con espacios para mostrar en la BD
         $nombreMostrar  = trim($request->onombre_documento);
         $file           = $request->file('onombre_archivo');

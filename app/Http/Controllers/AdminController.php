@@ -23,8 +23,26 @@ use App\Models\Avanceanexos;
 use App\Models\User;
 use App\Models\Rolesusers;
 
+/**
+ * Controlador para la administración de usuarios del sistema
+ * 
+ * Gestiona usuarios según jerarquía organizacional:
+ * - DIRECCIÓN: Acceso a todos los niveles inferiores
+ * - SUBDIRECCIÓN: Acceso a departamentos, sectores y supervisiones
+ * - DEPARTAMENTO: Acceso a sectores y supervisiones
+ * - SECTOR: Acceso a supervisiones
+ * - SUPERVISIÓN: Acceso a escuelas
+ */
 class AdminController extends Controller
 {
+    /**
+     * Lista usuarios según la jerarquía del administrador
+     * 
+     * Filtra usuarios finales (rol 3) basado en la estructura organizacional.
+     * Solo muestra usuarios que están bajo la jurisdicción del administrador.
+     * 
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function index()
     {
         if (!Auth::check()) return redirect('/');
@@ -46,7 +64,6 @@ class AdminController extends Controller
 
         $orgQuery = Organitation::query();
 
-        // Filtro jerárquico según cargo
         match($usuario->ocargo) {
             'DIRECCIÓN' => $orgQuery->where('cct_direccion', $usuario->oct),
             'SUBDIRECCIÓN' => $orgQuery->where('cct_subdireccion', $usuario->oct),
@@ -56,14 +73,12 @@ class AdminController extends Controller
             default => null,
         };
 
-        // Obtener IDs de centros de trabajo subordinados
         $idsCT = $orgQuery->pluck('idct_escuela')
             ->merge($orgQuery->pluck('idct_supervicion'))
             ->merge($orgQuery->pluck('idct_sector'))
             ->unique()
             ->filter(fn($id) => $id > 0);
 
-        // Obtener usuarios finales
         $usuariosFinales = User::where('orol', 3)
             ->whereIn('id_ct', $idsCT)
             ->get();
@@ -73,28 +88,30 @@ class AdminController extends Controller
 
 
 
+    /**
+     * Muestra detalles de un usuario específico
+     * 
+     * Verifica si el usuario pertenece a la estructura organizacional
+     * y muestra información detallada del mismo.
+     * 
+     * @param Request $request
+     * @param int $id ID del usuario
+     * @return \Illuminate\View\View
+     */
     public function show(Request $request,$id)
     {
-
         $userx  = User::whereOct($request->elct)->whereOrol(3)->first();
 
         $user  = Organitation::where('cct_escuela',$userx->email)
             ->orWhere('cct_supervision',$userx->email)
             ->orWhere('cct_sector',$userx->email)->first();
 
-
-        if($user)
-        {
-            $ban = 1;
-        }else{
-            $ban = 0;
-        }
+        $ban = $user ? 1 : 0;
         $requeste = $request->elct;
 
         return view('admin.users.show',
             compact('userx', 'user', 'ban', 'requeste')
         );
-
     }
 
 

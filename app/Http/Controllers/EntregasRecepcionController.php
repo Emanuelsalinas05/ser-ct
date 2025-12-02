@@ -306,7 +306,7 @@ class EntregasRecepcionController extends Controller
             $avances_plantilla->update(['ocheckacta'=> 1,]);
 
             return redirect()->back()
-                ->with('success', 'Se aprobó al C.T para poder cargar el acta escaneada y firmadaa');
+                ->with('success', 'Se aprobó al C.T para poder cargar el acta escaneada y firmada');
 
         }else if($request->action=='2'){
 

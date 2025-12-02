@@ -10,10 +10,17 @@
 @section('content')
 <div class="col-12 card card-secondary card-outline shadow" >
     <div class="card-header bg-light shadow-sm d-flex mb-2">
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between w-100">
             <b><i class="nav-icon fa fa-book"></i>&nbsp;
                 ENTREGAS-RECEPCIÓN FINALIZADAS
-            </b> 
+            </b>
+            <div>
+                <a href="{{ url('entrega-recepcion') }}" 
+                   class="btn btn-primary btn-sm"
+                   title="Regresar a Entrega-Recepción">
+                    <i class="fas fa-arrow-left"></i> REGRESAR A ENTREGA-RECEPCIÓN
+                </a>
+            </div>
         </div>
     </div>
     <div class="card-body table-responsive" >

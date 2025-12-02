@@ -69,6 +69,11 @@ class PlantillaPersonalController extends Controller
             ]);
 
             $selectplantilla    = Plantilla::whereId($request->ocategoria)->whereOcm(0)->first();
+            
+            if (!$selectplantilla) {
+                return redirect()->back()->with("error", "No se encontró la plantilla seleccionada.");
+            }
+            
             $validatorplantilla = Plantillapersonal::whereIdActa($request->idacta)
                                     ->whereOclavePuesto($selectplantilla->oclave)
                                     ->whereNotIn('status', ['B'])->get();
@@ -77,6 +82,40 @@ class PlantillaPersonalController extends Controller
             {
                     return redirect()->back()->with("warning", "Ya se registro esta información");
             }else{
+                // ============================================================
+                // CÁLCULO DE SUELDO SEGÚN TIPO DE JORNADA
+                // ============================================================
+                // IMPORTANTE: Para ocm=0 (jornada semanal), omonto_mensual 
+                // DEBE ser el sueldo mensual completo en la tabla de origen.
+                // El sistema NO hace conversiones, usa el valor tal cual está.
+                
+                // Obtener el monto mensual de la plantilla
+                $omontoMensual = $selectplantilla->omonto_mensual ?? 0;
+                
+                // Verificar que el monto sea válido
+                if ($omontoMensual <= 0) {
+                    return redirect()->back()
+                        ->with("error", "El sueldo mensual en la plantilla no es válido. Verifique los datos en la tabla g1claves_plantilla.");
+                }
+                
+                // CÁLCULO CORRECTO:
+                // Para jornada semanal (ocm=0): omonto_mensual ya es el sueldo mensual completo
+                // Sueldo Individual = omonto_mensual (directo, sin conversiones)
+                // Sueldo Total = Total de Plazas × Sueldo Individual
+                
+                $sueldoIndividual = $omontoMensual;
+                $sueldoTotal = $request->ototalplazas * $sueldoIndividual;
+                
+                // Validación adicional: Verificar coherencia del cálculo
+                // Si el sueldo individual es muy bajo (< 500) para jornada semanal, 
+                // podría indicar un problema en la tabla de origen
+                if ($sueldoIndividual < 500 && $selectplantilla->ocm == 0) {
+                    \Log::warning('Sueldo individual muy bajo para jornada semanal', [
+                        'oclave' => $selectplantilla->oclave,
+                        'omonto_mensual' => $omontoMensual,
+                        'ocm' => $selectplantilla->ocm
+                    ]);
+                }
 
                 Plantillapersonal::create([
                     'id_acta'       => $request->idacta,
@@ -87,8 +126,8 @@ class PlantillaPersonalController extends Controller
                     'ototalplazas'  => $request->ototalplazas,
                     'ototalocupadas'=> $request->ototalocupadas,
                     'ototalvacantes'=> $request->ototalvacantes,
-                    'osueldo_ind'   => $selectplantilla->omonto_mensual,
-                    'osueldo_total' => ($request->ototalplazas*$selectplantilla->omonto_mensual),
+                    'osueldo_ind'   => round($sueldoIndividual, 2),
+                    'osueldo_total' => round($sueldoTotal, 2),
                     'oactual'       => 1,
                     'oanio'         => date('Y-m-d'),
                 ]);

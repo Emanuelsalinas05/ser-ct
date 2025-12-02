@@ -236,12 +236,26 @@ class CentrosTrabajo01Controller extends Controller
             break;
          }  
 
+         // Obtener usuarios de supervisión, pero solo el más reciente por cada CCT para evitar duplicados
+         // Primero obtenemos los IDs de los usuarios más recientes por cada idct_supervicion
+         $usuariosRecientes = DB::table('users')
+             ->select('id_ct', DB::raw('MAX(id) as max_id'))
+             ->where('orol', 2)
+             ->where('status', 'A')
+             ->groupBy('id_ct')
+             ->pluck('max_id', 'id_ct');
+         
          $cts = Organitation::select(DB::raw('users.id as idus'),'idct_supervicion','cct_supervision', 'users.id_ct', 'users.oct', 'users.name', 'users.email','users.opwd','users.ovalle')
-                  ->leftJoin('users', 'users.id_ct', 'idct_supervicion')
+                  ->leftJoin('users', function($join) use ($usuariosRecientes) {
+                      $join->on('users.id_ct', '=', 'idct_supervicion')
+                           ->where('users.orol', '=', 2)
+                           ->where('users.status', '=', 'A')
+                           ->whereIn('users.id', $usuariosRecientes->values());
+                  })
                   ->whereNotIn($param, [0])
                   ->where($param, Auth::user()->id_ct)
-                  ->where('users.orol', 2)
-                  ->GroupBy(DB::raw('users.id'),'idct_supervicion','cct_supervision', 'users.id_ct', 'users.oct', 'users.name', 'users.email','users.opwd','users.ovalle')
+                  ->whereNotNull('users.id') // Solo incluir si existe un usuario
+                  ->GroupBy('idct_supervicion','cct_supervision', 'users.id', 'users.id_ct', 'users.oct', 'users.name', 'users.email','users.opwd','users.ovalle')
                   ->get();
 
 

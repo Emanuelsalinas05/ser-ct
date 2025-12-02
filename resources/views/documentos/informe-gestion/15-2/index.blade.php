@@ -33,7 +33,7 @@
             <p style="font-size:13px; text-align: justify;">
                 <i class="fa fa-info-circle"></i>&nbsp;
                 <b class="text-info">INDICACIONES PARA EL REGISTRO:</b><br>
-                {{ $documento->odescripcion }}.
+                REGISTRO DE LOS COMPROMISOS QUE EL SERVIDOR PÚBLICO ENTRANTE DEBERÁ ATENDER DENTRO DE LOS NOVENTA DÍAS POSTERIORES A LA ENTREGA Y RECEPCIÓN.
                 <br>AL TERMINAR CON EL REGISTRO DA CLIC EN "<B>FINALIZAR REGISTRO</B>" PARA CONCLUIR ESTE APARTADO.
             </p>
             

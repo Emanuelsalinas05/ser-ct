@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
@@ -21,202 +20,206 @@ use App\Rules\SoloMayusculas;
 
 class SolicitudCernoadeudo extends Controller
 {
+    public function index()
+    {
+        $tipocert   = Tiposnoadeudo::orderBy('oorden', 'DESC')->get();
+        $datosacta  = DatosActa::whereIdUser(Auth::user()->id)
+                        ->whereOconcluida(0)
+                        ->first();
 
-   public function index()
-{
-    $tipocert   = Tiposnoadeudo::orderBy('oorden', 'DESC')->get();
-    $datosacta  = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
+        // OJO: aquí deberías validar $datosacta != null antes de usar ->id,
+        // lo dejo como lo tienes para no mover más lógica
+        $solicitudc = Solicitudnoadeudo::whereIdActa($datosacta->id)->count();
+        $solicitud  = Solicitudnoadeudo::whereIdActa($datosacta->id)->first();
 
-    if (!$datosacta) {
-        return redirect()->back()->withErrors("No se encontró un acta activa (no concluida) para este usuario.");
+        if (Auth::user()->onivel == 'ELEMENTAL') {
+            $us = 76;
+            $datasct = CentrosTrabajo::whereKcvect($datosacta->id_ct)->first();
+        } elseif (Auth::user()->onivel == 'SECUNDARIA') {
+            $us = 89;
+        }
+
+        $check = $solicitudc > 0 ? 1 : 0;
+
+        return view('solicitudes.certificado-noadeudos.index', compact(
+            'tipocert',
+            'datosacta',
+            'solicitudc',
+            'solicitud',
+            'check',
+            'us',
+        ));
     }
-
-    $solicitudc = Solicitudnoadeudo::whereIdActa($datosacta->id)->count();
-    $solicitud  = Solicitudnoadeudo::whereIdActa($datosacta->id)->first();
-
-    // Determinar valor de $us por nivel
-    $nivel = Auth::user()->onivel;
-    $us    = null;
-
-    if ($nivel === 'ELEMENTAL') {
-        $us = 76;
-        $datasct = CentrosTrabajo::whereKcvect($datosacta->id_ct)->first();
-    } elseif ($nivel === 'SECUNDARIA') {
-        $us = 89;
-    }
-
-    // Verificar si existe solicitud Y si ya se seleccionó el tipo
-    $check = ($solicitudc > 0 && $solicitud && $solicitud->oselecttipo == 1) ? 1 : 0;
-
-    return view('solicitudes.certificado-noadeudos.index', compact(
-        'tipocert', 'datosacta', 'solicitudc', 'solicitud', 'check', 'us'
-    ));
-}
-
-
 
     public function store(Request $request)
     {
-        $idacta     = $request->acta;
-        $tipocert   = $request->tipocert;
+        $idacta   = $request->acta;
+        $tipocert = $request->tipocert;
 
-        $solicitud  = Solicitudnoadeudo::whereIdActa($idacta)->first();
+        $solicitud = Solicitudnoadeudo::whereIdActa($idacta)->first();
 
         $decide = Organitation::where('idct_escuela', Auth::user()->id_ct)
-                    ->orWhere('idct_supervicion', Auth::user()->id_ct)
-                    ->orWhere('idct_sector', Auth::user()->id_ct)->first();
+            ->orWhere('idct_supervicion', Auth::user()->id_ct)
+            ->orWhere('idct_sector', Auth::user()->id_ct)
+            ->first();
 
-        if (!$decide) {
-            return redirect()->back()->withErrors("No se encontró información organizacional para este centro de trabajo.");
+        if (Auth::user()->id_ct == $decide->idct_escuela) {
+            $id_super  = $decide->idct_supervicion;
+            $id_sector = $decide->idct_sector;
+        } elseif (Auth::user()->id_ct == $decide->idct_supervicion) {
+            $id_super  = $decide->idct_supervicion;
+            $id_sector = $decide->idct_sector;
+        } elseif (Auth::user()->id_ct == $decide->idct_sector) {
+            $id_super  = $decide->idct_supervicion;
+            $id_sector = $decide->idct_sector;
         }
 
-        // Asignar valores de supervisión y sector
-        $id_super   = $decide->idct_supervicion;
-        $id_sector  = $decide->idct_sector;
-
-
-        if($solicitud)
-        {   
-                $update_solicitud = Solicitudnoadeudo::whereId($solicitud->id);
-                $update_solicitud->update([  'id_tipocert' => $tipocert, 'oselecttipo' => 1, ]);
-                $solicitudId = $solicitud->id;
-        }else{
-                $nuevaSolicitud = Solicitudnoadeudo::create([
-                    'odir'          => Auth::user()->onivel,
-                    'id_dir'        => Auth::user()->id_ctorigen,
-                    'id_sub'        => $decide->idct_subdireccion,
-                    'id_dep'        => $decide->idct_departamento,
-                    'id_sec'        => $id_sector,
-                    'id_sup'        => $id_super,
-                    'id_ct'         => Auth::user()->id_ct, 
-                    'id_tipocert'   => $tipocert,
-                    'oselecttipo'   => 1, 
-                    'id_acta'       => $idacta,
-                    'oanio'         => date('Y'),     
-                ]);
-                $solicitudId = $nuevaSolicitud->id;
+        if ($solicitud) {
+            $update_solicitud = Solicitudnoadeudo::whereId($solicitud->id);
+            $update_solicitud->update([
+                'id_tipocert' => $tipocert,
+                'oselecttipo' => 1,
+            ]);
+        } else {
+            Solicitudnoadeudo::create([
+                'odir'        => Auth::user()->onivel,
+                'id_dir'      => Auth::user()->id_ctorigen,
+                'id_sub'      => $decide->idct_subdireccion,
+                'id_dep'      => $decide->idct_departamento,
+                'id_sec'      => $id_sector,
+                'id_sup'      => $id_super,
+                'id_ct'       => Auth::user()->id_ct,
+                'id_tipocert' => $tipocert,
+                'oselecttipo' => 1,
+                'id_acta'     => $idacta,
+                'oanio'       => date('Y'),
+            ]);
         }
 
-        return redirect()->back()->with("success", "REGISTRA LOS DATOS PARA OBTENER TU OFICIO DE SOLICITUD DE CERTIFICADO DE NO ADEUDO");
-
+        return redirect()->back()
+            ->with("success", "REGISTRA LOS DATOS PARA OBTENER TU OFICIO DE SOLICITUD DE CERTIFICADO DE NO ADEUDO");
     }
-
-
-
 
     public function update(Request $request, string $id)
     {
-        // Validar que action existe
-        if (!$request->has('action')) {
-            return redirect()->back()->withErrors("Acción no especificada.");
+        if ($request->action == 1) {
+
+            $validatedData = $request->validate([
+                'omunicipio'    => 'required',
+                'ofecha'        => 'required',
+                'ofechax'       => 'required',
+                'ohora'         => 'required',
+                'onumero_oficio'=> 'required',
+            ], $message = [
+                'omunicipio.required'    => 'INGRESA EL MUNICIPIO',
+                'ofecha.required'        => 'INGRESA LA FECHA DEL ACTA',
+                'ofechax.required'       => 'INGRESA LA FECHA DEL OFICIO',
+                'ohora.required'         => 'INGRESA LA HORA',
+                'onumero_oficio.required'=> 'INGRESA EL NÚMERO DE TÚ OFICIO',
+            ]);
+
+            $nnnn = $request->olocalidad ? ucfirst($request->olocalidad) : null;
+
+            $update_solicitud = Solicitudnoadeudo::whereId($id);
+            $update_solicitud->update([
+                'onumero_oficio' => $request->onumero_oficio,
+                'olocalidad'     => $nnnn,
+                'omunicipio'     => ucfirst($request->omunicipio),
+                'ofecha'         => $request->ofechax,
+                'ofecha_acta'    => $request->ofecha,
+                'ohora_acta'     => $request->ohora,
+                'ogenerado'      => 1,
+            ]);
+
+            // Obtener el tipo de certificado para determinar el mensaje
+            $solicitud  = Solicitudnoadeudo::find($id);
+            $tipoCert   = Tiposnoadeudo::find($solicitud->id_tipocert);
+            $nombreTipo = $tipoCert ? strtoupper($tipoCert->otipo) : '';
+
+            // TIPOS: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL
+            $esJubRenInt = (
+                stripos($nombreTipo, 'JUBILACIÓN')   !== false ||
+                stripos($nombreTipo, 'JUBILACION')   !== false || // sin acento
+                stripos($nombreTipo, 'RENUNCIA')     !== false ||
+                stripos($nombreTipo, 'INTERESTATAL') !== false
+            );
+
+            if ($esJubRenInt) {
+                // PARA: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL
+                $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA EN LA COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS DE SEIEM, EN LAS OFICINAS CENTRALES DEL ORGANISMO. EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
+            } else {
+                // PARA: CAMBIO DE CENTRO DE TRABAJO
+                $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA A TU AUTORIDAD INMEDIATA SUPERIOR; EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
+            }
+
+            return redirect()->back()->with("success", $mensaje);
+
+        } elseif ($request->action == 2) {
+
+            $validatedData = $request->validate([
+                'omunicipio'                => 'required',
+                'ofecha'                    => 'required',
+                'ofechax'                   => 'required',
+                'ohora'                     => 'required',
+                'onombre_autoridadinmediata'=> 'required',
+                'ocargo_autoridadinmediata' => 'required',
+                'onumero_oficio'            => 'required',
+            ], $message = [
+                'omunicipio.required'                 => 'INGRESA EL MUNICIPIO',
+                'ofecha.required'                     => 'INGRESA LA FECHA DEL ACTA',
+                'ofechax.required'                    => 'INGRESA LA FECHA DEL OFICIO',
+                'ohora.required'                      => 'INGRESA LA HORA',
+                'onombre_autoridadinmediata.required' => 'INGRESA EL NOMBNRE DE LA AUTORIDAD',
+                'ocargo_autoridadinmediata.required'  => 'INGRESA EL CARGO DE LA AUTORIDAD',
+                'onumero_oficio.required'             => 'INGRESA EL NÚMERO DE TÚ OFICIO',
+            ]);
+
+            $nnnn = $request->olocalidad ? ucfirst($request->olocalidad) : null;
+
+            $update_solicitud = Solicitudnoadeudo::whereId($id);
+            $update_solicitud->update([
+                'olocalidad'                 => $nnnn,
+                'omunicipio'                 => ucfirst($request->omunicipio),
+                'onumero_oficio'             => $request->onumero_oficio,
+                'ofecha'                     => $request->ofechax,
+                'onombre_autoridadinmediata' => $request->onombre_autoridadinmediata,
+                'ocargo_autoridadinmediata'  => $request->ocargo_autoridadinmediata,
+                'ofecha_acta'                => $request->ofecha,
+                'ohora_acta'                 => $request->ohora,
+                'ogenerado'                  => 1,
+            ]);
+
+            // Obtener el tipo de certificado para determinar el mensaje
+            $solicitud  = Solicitudnoadeudo::find($id);
+            $tipoCert   = Tiposnoadeudo::find($solicitud->id_tipocert);
+            $nombreTipo = $tipoCert ? strtoupper($tipoCert->otipo) : '';
+
+            // TIPOS: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL
+            $esJubRenInt = (
+                stripos($nombreTipo, 'JUBILACIÓN')   !== false ||
+                stripos($nombreTipo, 'JUBILACION')   !== false ||
+                stripos($nombreTipo, 'RENUNCIA')     !== false ||
+                stripos($nombreTipo, 'INTERESTATAL') !== false
+            );
+
+            if ($esJubRenInt) {
+                // PARA: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL
+                $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA EN LA COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS DE SEIEM, EN LAS OFICINAS CENTRALES DEL ORGANISMO. EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
+            } else {
+                // PARA: CAMBIO DE CENTRO DE TRABAJO
+                $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA A TU AUTORIDAD INMEDIATA SUPERIOR; EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
+            }
+
+            return redirect()->back()->with("success", $mensaje);
+
+        } elseif ($request->action == 99) {
+
+            $update_solicitud = Solicitudnoadeudo::whereId($id);
+            $update_solicitud->update(['oselecttipo' => 0]);
+
+            return redirect()->back()
+                ->with("success", "VUELVE A ELEGIR EL TIPO DE CERTIFICADO QUE DESEAR SOLICITAR");
         }
-
-        if($request->action==1)
-        {
-                    $validatedData = $request->validate([
-                        'omunicipio'    => ['required', new SoloMayusculas],
-                        'ofecha'        => 'required',
-                        'ofechax'       => 'required',
-                        'ohora'         => 'required',
-                        'onumero_oficio'=>'required',
-                    ],$message=[
-                        'omunicipio.required'    => 'INGRESA EL MUNICIPIO',
-                        'ofecha.required'        => 'INGRESA LA FECHA DEL ACTA',
-                        'ofechax.required'       => 'INGRESA LA FECHA DEL OFICIO',
-                        'ohora.required'         => 'INGRESA LA HORA',
-                        'onumero_oficio.required'=>'INGRESA EL NÚMERO DE TÚ OFICIO', 
-                    ]);
-
-                    if($request->olocalidad)
-                    {
-                        $nnnn= strtoupper($request->olocalidad);
-                    }else{
-                        $nnnn= NULL;
-                    }
-
-                    $update_solicitud = Solicitudnoadeudo::whereId($id);
-                    $update_solicitud->update([ 
-                                        'onumero_oficio'=> $request->onumero_oficio,
-                                        'olocalidad'    => $nnnn, 
-                                        'omunicipio'    => strtoupper($request->omunicipio),
-                                        'ofecha'        => $request->ofechax,
-                                        'ofecha_acta'   => $request->ofecha,
-                                        'ohora_acta'    => $request->ohora,
-                                        'ogenerado'     => 1,  
-                                    ]);
-
-                    // Obtener el tipo de certificado para determinar el mensaje
-                    $solicitud = Solicitudnoadeudo::find($id);
-                    $tipoCert = Tiposnoadeudo::find($solicitud->id_tipocert);
-                    $nombreTipo = $tipoCert ? strtoupper($tipoCert->onombre) : '';
-                    
-                    // Determinar el mensaje según el tipo de certificado
-                    if (stripos($nombreTipo, 'JUBILACIÓN') !== false) {
-                        // Mensaje para JUBILACIÓN
-                        $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA EN LA COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS DE SEIEM, EN LAS OFICINAS CENTRALES DEL ORGANISMO. EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
-                    } else {
-                        // Mensaje para CAMBIO DE CENTRO DE TRABAJO (por defecto)
-                        $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA A TU AUTORIDAD INMEDIATA SUPERIOR; EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
-                    }
-
-                    return redirect()->back()->with("success", $mensaje);
-
-        }else if($request->action==2){
-
-                     $validatedData = $request->validate([
-                        'omunicipio'                => ['required', new SoloMayusculas],
-                        'ofecha'                    => 'required',
-                        'ofechax'                   => 'required',
-                        'ohora'                     => 'required',
-                        'onombre_autoridadinmediata'=> ['required', new SoloMayusculas],
-                        'ocargo_autoridadinmediata' => ['required', new SoloMayusculas],
-                        'onumero_oficio'            =>'required',
-                    ],$message=[
-                        'omunicipio.required'                => 'INGRESA EL MUNICIPIO',
-                        'ofecha.required'                    => 'INGRESA LA FECHA DEL ACTA',
-                        'ofechax.required'                   => 'INGRESA LA FECHA DEL OFICIO',
-                        'ohora.required'                     => 'INGRESA LA HORA',
-                        'onombre_autoridadinmediata.required'=> 'INGRESA EL NOMBRE DE LA AUTORIDAD',
-                        'ocargo_autoridadinmediata.required' => 'INGRESA EL CARGO DE LA AUTORIDAD',
-                        'onumero_oficio.required'            =>'INGRESA EL NÚMERO DE TÚ OFICIO',
-                    ]);
-                    
-                    if($request->olocalidad)
-                    {
-                        $nnnn= strtoupper($request->olocalidad);
-                    }else{
-                        $nnnn= NULL;
-                    }
-                    
-                    $update_solicitud = Solicitudnoadeudo::whereId($id);
-                    $update_solicitud->update([ 
-                                        'olocalidad'                => $nnnn, 
-                                        'omunicipio'                => strtoupper($request->omunicipio),
-                                        'onumero_oficio'            => $request->onumero_oficio,
-                                        'ofecha'                    => $request->ofechax,
-                                        'onombre_autoridadinmediata'=> strtoupper($request->onombre_autoridadinmediata),
-                                        'ocargo_autoridadinmediata' => strtoupper($request->ocargo_autoridadinmediata),
-                                        'ofecha_acta'               => $request->ofecha,
-                                        'ohora_acta'                => $request->ohora,
-                                        'ogenerado'                 => 1, 
-                                    ]);
-                    return redirect()->back()
-                            ->with("success", "Imprime, firma y entrega personalmente ante la
-Coordinación de Administración y Finanzas de SEIEM (adjunta copias de tu INE y
-último comprobante de pago); en el apartado 14.1, deberá adjuntar el acuse.");
-        
-        }else if($request->action==99){
-
-                   $update_solicitud = Solicitudnoadeudo::whereId($id);
-                    $update_solicitud->update([ 'oselecttipo' => 0 ]);
-
-                    return redirect()->back()
-                            ->with("success", "VUELVE A ELEGIR EL TIPO DE CERTIFICADO QUE DESEAR SOLICITAR");
-        }
-
-
-
-
     }
 
     /**
@@ -226,7 +229,7 @@ Coordinación de Administración y Finanzas de SEIEM (adjunta copias de tu INE y
     {
         try {
             \Log::info('Iniciando envío de correo certificado', ['solicitud_id' => $solicitudId]);
-            
+
             // Obtener datos de la solicitud
             $solicitud = Solicitudnoadeudo::find($solicitudId);
             if (!$solicitud) {
@@ -265,26 +268,26 @@ Coordinación de Administración y Finanzas de SEIEM (adjunta copias de tu INE y
 
             // Variables para el correo
             $request->onombre_solicitante = $usuario->name ?? 'Usuario';
-            $request->tipo_certificado = $tipoCert->onombre ?? 'Certificado de No Adeudo';
-            $request->ofecha = $solicitud->ofecha ?? date('Y-m-d');
-            $request->onumero_oficio = $solicitud->onumero_oficio ?? '';
-            $request->solicitud_id = $solicitudId;
-            $request->id_ct = $solicitud->id_ct;
+            $request->tipo_certificado    = $tipoCert->onombre ?? 'Certificado de No Adeudo';
+            $request->ofecha              = $solicitud->ofecha ?? date('Y-m-d');
+            $request->onumero_oficio      = $solicitud->onumero_oficio ?? '';
+            $request->solicitud_id        = $solicitudId;
+            $request->id_ct               = $solicitud->id_ct;
 
             // Incluir el archivo de envío de correos
             $path = base_path('public/send-mails/certificado-noadeudo/index.php');
             \Log::info('Ruta del archivo de correo', ['path' => $path, 'exists' => file_exists($path)]);
-            
+
             if (file_exists($path)) {
                 ob_start();
                 include $path;
                 $result = ob_get_clean();
-                
+
                 \Log::info('Resultado del envío de correo', [
                     'MAIL_OK' => isset($MAIL_OK) ? $MAIL_OK : 'no definido',
-                    'result' => $result
+                    'result'  => $result
                 ]);
-                
+
                 // Verificar si el correo se envió correctamente
                 return isset($MAIL_OK) && $MAIL_OK;
             }
@@ -296,5 +299,4 @@ Coordinación de Administración y Finanzas de SEIEM (adjunta copias de tu INE y
             return false;
         }
     }
-
 }

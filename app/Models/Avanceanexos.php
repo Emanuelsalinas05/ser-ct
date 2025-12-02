@@ -5,6 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modelo para el seguimiento de avance de anexos del acta
+ * 
+ * Registra el estado de completitud de cada sección del proceso:
+ * - Marco jurídico
+ * - Recursos humanos (plantilla personal y comisionados)
+ * - Recursos materiales (inventarios y custodias)
+ * - TIC's (inventario de equipo)
+ * - Archivos (trámite, histórico, no convencionales)
+ * - Certificados de no adeudo
+ * - Informe de gestión
+ * - Otros hechos
+ * 
+ * Cada sección tiene flags de estado (d=datos, a=archivos) y fechas de registro
+ */
 class Avanceanexos extends Model
 {
     use HasFactory;

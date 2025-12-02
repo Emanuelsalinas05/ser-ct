@@ -32,12 +32,21 @@ class OrdenJuridico extends Controller
         $anexo      = Anexos::whereOnumAnexo(1)->first();
         $documento  = Documentos::whereId(1)->first();
         $datosacta  = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
+        
+        // Validar existencia de acta activa
+        if (!$datosacta) {
+            return redirect()->route('entrega-recepcion.index')
+                ->with('warning', 'No tienes un acta de entrega-recepción activa. Por favor, crea una nueva acta primero.');
+        }
+        
         $avances    = Avanceanexos::whereIdActa($datosacta->id)->first();
 
-        $juridicos  = Ordenamientojuridico::whereIdCt(Auth::user()->id_ct)
+        // IMPORTANTE: Filtrar por id_acta para que cada acta tenga sus propios datos
+        // No mezclar datos de diferentes actas del mismo centro de trabajo
+        $juridicos  = Ordenamientojuridico::whereIdActa($datosacta->id)
                         ->whereNotIn('status', ['B'])
                         ->OrderBy('id', 'ASC')->get();
-        $getjuridico= Ordenamientojuridico::whereIdCt(Auth::user()->id_ct)
+        $getjuridico= Ordenamientojuridico::whereIdActa($datosacta->id)
                         ->whereNotIn('status', ['B'])
                         ->OrderBy('id', 'ASC')->count();
         return view('documentos.marco-juridico.index', 
@@ -61,9 +70,18 @@ class OrdenJuridico extends Controller
                 'olocalizador.required'      => 'Ingresa la url del orden juridico',
             ]);
 
+            // Obtener la acta activa del usuario
+            $datosacta = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
+            
+            if (!$datosacta) {
+                return redirect()->route('entrega-recepcion.index')
+                    ->with('warning', 'No tienes un acta de entrega-recepción activa. Por favor, crea una nueva acta primero.');
+            }
 
+            // IMPORTANTE: Guardar el id_acta para asociar el registro a la acta específica
             Ordenamientojuridico::create([
                 'id_ct'                     => Auth::user()->id_ct,
+                'id_acta'                   => $datosacta->id, // Asociar a la acta activa
                 'odenominacion_juridica'    => mb_strtoupper($request->oordenamiento, 'UTF-8'),
                 'omedio_oficial_publicacion'=> mb_strtoupper($request->omediooficial, 'UTF-8'),
                 'ofecha_publicacion'        => $request->ofechapublicacion,
@@ -79,10 +97,25 @@ class OrdenJuridico extends Controller
 
     public function update(Request $request, string $id)
     {
+        // Obtener la acta activa del usuario
+        $datosacta = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
+        
+        if (!$datosacta) {
+            return redirect()->route('entrega-recepcion.index')
+                ->with('warning', 'No tienes un acta de entrega-recepción activa.');
+        }
         
         if($request->action==1){ 
+            // Validar que el registro pertenezca a la acta activa
+            $update_mj = Ordenamientojuridico::whereId($id)
+                            ->whereIdActa($datosacta->id)
+                            ->first();
+            
+            if (!$update_mj) {
+                return redirect(url('marco-juridico'))
+                    ->with('error', 'El registro no pertenece a tu acta activa.');
+            }
 
-            $update_mj = Ordenamientojuridico::whereId($id);
             $update_mj->update([ 
                                 'odenominacion_juridica'    => mb_strtoupper($request->oordenamiento, 'UTF-8'),
                                 'omedio_oficial_publicacion'=> mb_strtoupper($request->omediooficial, 'UTF-8'),
@@ -93,8 +126,16 @@ class OrdenJuridico extends Controller
             return redirect(url('marco-juridico'));
 
         }else if($request->action==2){
+            // Validar que el registro pertenezca a la acta activa
+            $update_mj = Ordenamientojuridico::whereId($id)
+                            ->whereIdActa($datosacta->id)
+                            ->first();
+            
+            if (!$update_mj) {
+                return redirect(url('marco-juridico'))
+                    ->with('error', 'El registro no pertenece a tu acta activa.');
+            }
 
-            $update_mj = Ordenamientojuridico::whereId($id);
             $update_mj->update([ 'status' => 'B', ]);
 
             return redirect(url('marco-juridico'));

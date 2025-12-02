@@ -202,6 +202,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reportes/print-reporte-noadeudos/pdf', [ReportesMensualesController::class, 'exportNoAdeudosPDF'])->name('reporte.noadeudos.export.pdf');
 
     Route::get('/reportes/print-reporte-intervencion/excel', [ReportesMensualesController::class, 'exportIntervencionExcel'])->name('reporte.intervencion.export.excel');
+    
+    /* Generación de PDFs con validación de permisos */
+    Route::get('/reportes/generar-pdf', [\App\Http\Controllers\ReportePdfController::class, 'generarPdf'])->name('reportes.generar-pdf');
     Route::get('/reportes/print-reporte-intervencion/pdf', [ReportesMensualesController::class, 'exportIntervencionPDF'])->name('reporte.intervencion.export.pdf');
 
     Route::resource('informacion-niveles', _adgInfonivelesController::class);

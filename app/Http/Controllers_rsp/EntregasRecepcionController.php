@@ -24,10 +24,22 @@ use App\Models\DatosActa;
 use App\Models\Avanceanexos;
 use App\Models\User;
 
+/**
+ * Controlador principal para la gestión de entregas y recepciones
+ * 
+ * Maneja el listado y visualización de actas según el rol y nivel del usuario.
+ * Incluye lógica compleja para determinar estados y permisos de visualización.
+ */
 class EntregasRecepcionController extends Controller
 {
-
-
+    /**
+     * Lista las entregas-recepciones según el rol del usuario
+     * 
+     * Para DIRECCIÓN: Muestra todas las actas con estados detallados
+     * Para otros roles: Filtra según permisos y nivel educativo
+     * 
+     * @return \Illuminate\View\View
+     */
     public function index()
     {   
         
@@ -2196,7 +2208,7 @@ class EntregasRecepcionController extends Controller
                 $avances_plantilla->update(['ocheckacta'=> 1,]);
             
                 return redirect()->back()
-                        ->with('success', 'Se aprobo al C.T para poder cargar el acta escaneada y firmadaa');
+                        ->with('success', 'Se aprobo al C.T para poder cargar el acta escaneada y firmada');
 
         }else if($request->action=='2'){
 
