@@ -367,7 +367,7 @@
 
 <tr>
     <td colspan="8" align="right">
-        <button class="btn btn-success btn-sm" onclick="this.disabled=true; this.form.submit();">
+        <button type="submit" class="btn btn-success btn-sm" id="btnGuardarActaCircunstanciada" onclick="return guardarActaCircunstanciada(this);">
             GUARDAR DATOS DE {{ optional($datosacta->tipoacta)->otipoacta }}
         </button>
     </td>
@@ -394,6 +394,150 @@ document.addEventListener('DOMContentLoaded', function () {
             if (el) el.style.display = show ? '' : 'none';
         });
     }
+
+    const form = document.getElementById('FrmCartel');
+    if (form) {
+        form.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                if (e.target.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        });
+
+        form.addEventListener('submit', function(e) {
+            const isFromButton = (e.submitter && e.submitter.id === 'btnGuardarActaCircunstanciada') || 
+                                 (form.dataset.allowSubmit === 'true');
+            
+            if (!isFromButton) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            form.dataset.allowSubmit = 'false';
+        });
+    }
 });
+
+function guardarActaCircunstanciada(btn) {
+    const form = document.getElementById('FrmCartel');
+    if (!form) {
+        alert('Error: No se encontró el formulario');
+        return false;
+    }
+    
+    const camposObligatorios = {
+        'ohechos_ac': 'DEBE REGISTRAR LOS HECHOS',
+        'ohora_inicio_ac': 'DEBE INGRESAR LA HORA DE INICIO',
+        'ofecha_inicio_ac': 'DEBE INGRESAR LA FECHA DE INICIO',
+        'odomicilio_ct_ac': 'DEBE INGRESAR EL DOMICILIO',
+        'otelefono_ct_ac': 'DEBE REGISTRAR EL TELÉFONO',
+        'odepartamento_ac': 'DEBE INGRESAR EL NOMBRE DEL DEPARTAMENTO',
+        'oidentificacion_recibe_ac': 'DEBE SELECCIONAR EL TIPO DE IDENTIFICACIÓN',
+        'onumero_identificacion_recibe_ac': 'DEBE INGRESAR EL NÚMERO DE IDENTIFICACIÓN',
+        'omanifestacion_recibe_ac': 'DEBE ESCRIBIR SU MANIFESTACIÓN',
+        'onombre_testigo1_ac': 'DEBE INGRESAR EL NOMBRE DEL PRIMER TESTIGO',
+        'orfc_testigo1_ac': 'DEBE INGRESAR EL RFC DEL PRIMER TESTIGO',
+        'oidentificacion_testigo1_ac': 'DEBE SELECCIONAR EL TIPO DE IDENTIFICACIÓN DEL TESTIGO 1',
+        'onumero_identificacion_testigo1_ac': 'DEBE INGRESAR EL NÚMERO DE IDENTIFICACIÓN DEL TESTIGO 1',
+        'omanifiestan_representante_organo_ac': 'DEBE ESCRIBIR SU MANIFESTACIÓN',
+        'onombre_testigo2_ac': 'DEBE INGRESAR EL NOMBRE DEL SEGUNDO TESTIGO',
+        'orfc_testigo2_ac': 'DEBE INGRESAR EL RFC DEL SEGUNDO TESTIGO',
+        'oidentificacion_testigo2_ac': 'DEBE SELECCIONAR EL TIPO DE IDENTIFICACIÓN DEL TESTIGO 2',
+        'onumero_identificacion_testigo2_ac': 'DEBE INGRESAR EL NÚMERO DE IDENTIFICACIÓN DEL TESTIGO 2',
+        'ohora_fin_ac': 'DEBE INGRESAR LA HORA DE TERMINO',
+        'ofecha_fin_ac': 'DEBE INGRESAR LA FECHA DE TERMINO',
+        'orepresentante_ac': 'DEBE SELECCIONAR SI HAY REPRESENTANTE DEL OIC'
+    };
+    
+    const camposFaltantes = [];
+    
+    for (const [campo, mensaje] of Object.entries(camposObligatorios)) {
+        const elemento = form.querySelector('[name="' + campo + '"]');
+        
+        if (!elemento) continue;
+        
+        let valor = '';
+        if (elemento.type === 'file') {
+            const tieneArchivo = elemento.files && elemento.files.length > 0;
+            const existeArchivoAnterior = elemento.nextElementSibling && 
+                                         elemento.nextElementSibling.querySelector('a');
+            if (!tieneArchivo && !existeArchivoAnterior) {
+                camposFaltantes.push(mensaje);
+            }
+        } else if (elemento.type === 'radio') {
+            const radios = form.querySelectorAll('[name="' + campo + '"]');
+            const algunoSeleccionado = Array.from(radios).some(r => r.checked);
+            if (!algunoSeleccionado) {
+                camposFaltantes.push(mensaje);
+            }
+        } else if (elemento.tagName === 'SELECT') {
+            valor = elemento.value;
+            if (!valor || valor === '' || elemento.options[elemento.selectedIndex].disabled) {
+                camposFaltantes.push(mensaje);
+            }
+        } else {
+            valor = elemento.value ? elemento.value.trim() : '';
+            if (!valor) {
+                camposFaltantes.push(mensaje);
+            }
+        }
+    }
+    
+    const representanteSi = form.querySelector('[name="orepresentante_ac"][value="1"]');
+    if (representanteSi && representanteSi.checked) {
+        const camposRepresentante = {
+            'orepresentante_contraloria_ac': 'DEBE INGRESAR EL NOMBRE DEL REPRESENTANTE',
+            'orfc_orepresentante_contraloria_ac': 'DEBE INGRESAR EL RFC DEL REPRESENTANTE',
+            'oidentificacion_representante_ac': 'DEBE SELECCIONAR EL TIPO DE IDENTIFICACIÓN DEL REPRESENTANTE',
+            'onumero_identificacion_representante_ac': 'DEBE INGRESAR EL NÚMERO DE IDENTIFICACIÓN DEL REPRESENTANTE',
+            'oidentificacion_representante_url_ac': 'DEBE SELECCIONAR EL ARCHIVO DE IDENTIFICACIÓN DEL REPRESENTANTE',
+            'ooficio_designacion_er_a': 'DEBE INGRESAR EL NÚMERO DE OFICIO',
+            'ofecha_ofocio_designacion_er_a': 'DEBE INGRESAR LA FECHA DEL OFICIO'
+        };
+        
+        for (const [campo, mensaje] of Object.entries(camposRepresentante)) {
+            const elemento = form.querySelector('[name="' + campo + '"]');
+            if (!elemento) continue;
+            
+            let valor = '';
+            if (elemento.type === 'file') {
+                const tieneArchivo = elemento.files && elemento.files.length > 0;
+                const existeArchivoAnterior = elemento.nextElementSibling && 
+                                             elemento.nextElementSibling.querySelector('a');
+                if (!tieneArchivo && !existeArchivoAnterior) {
+                    camposFaltantes.push(mensaje);
+                }
+            } else if (elemento.tagName === 'SELECT') {
+                valor = elemento.value;
+                if (!valor || valor === '' || elemento.options[elemento.selectedIndex].disabled) {
+                    camposFaltantes.push(mensaje);
+                }
+            } else {
+                valor = elemento.value ? elemento.value.trim() : '';
+                if (!valor) {
+                    camposFaltantes.push(mensaje);
+                }
+            }
+        }
+    }
+    
+    if (camposFaltantes.length > 0) {
+        let mensaje = 'POR FAVOR, COMPLETE LOS SIGUIENTES CAMPOS OBLIGATORIOS:\n\n';
+        camposFaltantes.forEach((campo, index) => {
+            mensaje += (index + 1) + '. ' + campo + '\n';
+        });
+        alert(mensaje);
+        return false;
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> GUARDANDO...';
+    form.dataset.allowSubmit = 'true';
+    
+    return true;
+}
 </script>
 @endpush

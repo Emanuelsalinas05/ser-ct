@@ -21,8 +21,7 @@ if ($tipoacta === 1) {
 
 $linkcarpeta = 'https://entregasrecepcion.seiem.gob.mx/storage/'.$datosacta->ourlcarpeta.$datosacta->onombrecarpeta;
 
-if ((int)$datosacta->oenviocorreooic === 0) 
-
+if ((int)$datosacta->oenviocorreooic === 0) {
     require_once __DIR__.'/../PHPMailer/PHPMailerAutoload.php';
     require_once __DIR__.'/../PHPMailer/class.smtp.php';
 
@@ -50,25 +49,58 @@ $sql = "SELECT ocorreosoc
 if ($rs = $mysqli->query($sql)) {
     if ($row = $rs->fetch_assoc()) {
         if (!empty($row['ocorreosoc'])) {
+            error_log("INFO: Correo OIC encontrado en BD: {$row['ocorreosoc']} para CCT: {$idctt}");
             foreach (preg_split('/[;,]+/', $row['ocorreosoc']) as $e) {
                 $e = trim($e);
                 if (filter_var($e, FILTER_VALIDATE_EMAIL)) {
                     $destinos[] = strtolower($e);
                 }
             }
+        } else {
+            error_log("WARNING: Campo ocorreosoc está vacío en g1organigrama para CCT: {$idctt}");
         }
+    } else {
+        error_log("WARNING: No se encontró registro en g1organigrama para CCT: {$idctt}");
     }
     $rs->free();
+} else {
+    error_log("ERROR en consulta SQL para obtener correo OIC: " . $mysqli->error);
 }
 
 $destinos = array_unique($destinos);
-if (empty($destinos)) { return; } // no hay correo OIC configurado
 
-foreach ($destinos as $email) { $mail->addAddress($email); }
+// Validar que se encontró correo del OIC
+if (empty($destinos)) {
+    error_log("ERROR: No se encontró correo OIC configurado en g1organigrama para CCT: {$idctt}");
+    $oky = 0;
+    return;
+}
 
-// CC al capturista (opcional)
+// Verificar que NO se esté usando el correo del capturista como destinatario principal
+// El correo del capturista (ocorreocc) solo debe ir en CC, no como destinatario principal
+if ($correocc && in_array(strtolower($correocc), $destinos)) {
+    $destinos = array_filter($destinos, function($email) use ($correocc) {
+        return strtolower($email) !== strtolower($correocc);
+    });
+    $destinos = array_values($destinos);
+}
+
+if (empty($destinos)) {
+    error_log("ERROR: Después de filtrar, no quedan correos OIC válidos para CCT: {$idctt}");
+    $oky = 0;
+    return;
+}
+
+// Agregar destinatarios OIC (PRINCIPAL)
+foreach ($destinos as $email) { 
+    $mail->addAddress($email);
+    error_log("INFO: Correo OIC agregado como destinatario principal: {$email} para CCT: {$idctt}");
+}
+
+// CC al capturista (opcional) - SOLO EN CC, NO COMO DESTINATARIO PRINCIPAL
 if ($correocc && filter_var($correocc, FILTER_VALIDATE_EMAIL)) {
     $mail->addCC($correocc);
+    error_log("INFO: Correo capturista agregado en CC: {$correocc} para CCT: {$idctt}");
 }
 
 // CC obligatorio a modernización administrativa
@@ -79,6 +111,16 @@ $mail->isHTML(true);
 include __DIR__ . '/conten-mail.php'; // usa $elct y $linkcarpeta para Subject/Body
 
 // ====== Enviar y marcar ======
+// IMPORTANTE: NO marcar oenviocorreooic=1 ni oconcluida=1 aquí
+// El controlador verificará que el ZIP esté cargado antes de marcar como finalizado
+// Solo establecer $oky para indicar si el correo se envió exitosamente
+$oky = 0;
 if ($mail->send()) {
-    $mysqli->query("UPDATE g1acta SET oenviocorreooic=1, oconcluida=1 WHERE id={$elid}");
+    $oky = 1; // Correo enviado exitosamente
+    // El controlador se encargará de marcar oenviocorreooic=1 y oconcluida=1
+    // después de verificar que ocargacomprimido=1
+} else {
+    error_log("ERROR al enviar correo OIC: " . $mail->ErrorInfo);
+    $oky = 0;
+}
 }
