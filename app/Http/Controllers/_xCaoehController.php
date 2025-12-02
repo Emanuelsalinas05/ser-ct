@@ -194,7 +194,8 @@ class _xCaoehController extends Controller
             }
 
             // Obtener tipo de certificado
-            $tipoCert = Tiposnoadeudo::find($solicitud->id_tipocert);
+            // NOTA: id_tipocert se relaciona con oorden, no con id
+            $tipoCert = Tiposnoadeudo::where('oorden', $solicitud->id_tipocert)->first();
 
             // Preparar datos para el correo
             $getct = $ct;

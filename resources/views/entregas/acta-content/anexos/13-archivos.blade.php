@@ -105,7 +105,7 @@ use Illuminate\Support\Facades\Storage;
 
 
 
-<x-adminlte-card    title="13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES BIBLO-HEMEROGRÁFICOS"             
+<x-adminlte-card    title="13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES BIBLIO-HEMEROGRÁFICOS"             
                     theme="lightblue" 
                     theme-mode="outline"
                     icon="fas fa-icon fa-file-alt" 

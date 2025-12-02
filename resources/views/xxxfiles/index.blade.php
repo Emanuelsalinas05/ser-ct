@@ -63,9 +63,9 @@
                             target="_blank"
                             download 
                             class="btn btn-outline-secondary btn-xs btn-block"
-                            title="13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES BIBLO-HEMEROGRÁFICOS" 
+                            title="13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES BIBLIO-HEMEROGRÁFICOS" 
                             style="text-decoration:none; font-size: 14px; text-align: left;">
-                            13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES BIBLO-HEMEROGRÁFICOS &nbsp;
+                            13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES BIBLIO-HEMEROGRÁFICOS &nbsp;
                             <i class="fa fa-file-alt"></i>&nbsp;&nbsp;
                         </a>
                     </td>

@@ -192,7 +192,8 @@ class _AdminSolicitudesController extends Controller
             }
 
             // Obtener tipo de certificado
-            $tipoCert = \App\Models\Tiposnoadeudo::find($solicitud->id_tipocert);
+            // NOTA: id_tipocert se relaciona con oorden, no con id
+            $tipoCert = \App\Models\Tiposnoadeudo::where('oorden', $solicitud->id_tipocert)->first();
 
             // Preparar datos para el correo
             $getct = $ct;

@@ -130,10 +130,10 @@ class RegistroActaController extends Controller
             $url = 'identifications/'.$ct->oclave.'/'.$request->idacta.'/';
 
             $update_acta = DatosActa::find($id);
-            $update_acta->olugar_a       = strtoupper($request->olugar_a);
+            $update_acta->olugar_a       = mb_strtoupper($request->olugar_a, 'UTF-8');
             $update_acta->ohora_inicio_a = $request->ohora_inicio_a;
             $update_acta->ofecha_inicio_a= $request->ofecha_inicio_a;
-            $update_acta->odomicilio_ct_a= strtoupper($request->odomicilio_ct_a);
+            $update_acta->odomicilio_ct_a= mb_strtoupper($request->odomicilio_ct_a, 'UTF-8');
             $update_acta->oidentificacion_entrega_a    = $request->oidentificacion_entrega_a;
             $update_acta->onumero_identificacion_entrega_a    = $request->onumero_identificacion_entrega_a;
             $update_acta->oidentificacion_url_entrega_a= $url.'id-entrega.pdf';
@@ -142,27 +142,27 @@ class RegistroActaController extends Controller
             $update_acta->onumero_identificacion_recibe_a     = $request->onumero_identificacion_recibe_a;
             $update_acta->oidentificacion_url_recibe_a = $url.'id-recibe.pdf';
 
-            $update_acta->onombre_testigo_a          = strtoupper($request->onombre_testigo_a);
+            $update_acta->onombre_testigo_a          = mb_strtoupper($request->onombre_testigo_a, 'UTF-8');
             $update_acta->oct_testigo_a              = $request->oct_testigo_a;
-            $update_acta->ocargo_testigo_a           = strtoupper($request->ocargo_testigo_a);
-            $update_acta->orfc_testigo               = strtoupper($request->orfc_testigo);
+            $update_acta->ocargo_testigo_a           = mb_strtoupper($request->ocargo_testigo_a, 'UTF-8');
+            $update_acta->orfc_testigo               = mb_strtoupper($request->orfc_testigo, 'UTF-8');
             $update_acta->oidentificacion_testigo    = $request->oidentificacion_testigo;
             $update_acta->onumero_identificacion_testigo_a    = $request->onumero_identificacion_testigo_a;
             $update_acta->oidentificacion_url_testigo= $url.'id-testigo1.pdf';
 
-            $update_acta->onombre_testigo2_a          = strtoupper($request->onombre_testigo2_a);
+            $update_acta->onombre_testigo2_a          = mb_strtoupper($request->onombre_testigo2_a, 'UTF-8');
             $update_acta->oct_testigo2_a              = $request->oct_testigo2_a;
-            $update_acta->ocargo_testigo2_a           = strtoupper($request->ocargo_testigo2_a);
-            $update_acta->orfc_testigo2               = strtoupper($request->orfc_testigo2);
+            $update_acta->ocargo_testigo2_a           = mb_strtoupper($request->ocargo_testigo2_a, 'UTF-8');
+            $update_acta->orfc_testigo2               = mb_strtoupper($request->orfc_testigo2, 'UTF-8');
             $update_acta->oidentificacion_testigo2    = $request->oidentificacion_testigo2;
             $update_acta->onumero_identificacion_testigo2_a    = $request->onumero_identificacion_testigo2_a;
             $update_acta->oidentificacion_url_testigo2= $url.'id-testigo2.pdf';
 
             $update_acta->orepresentante_a  = $request->orepresentante_a;
-            $update_acta->onombre_representante_contraloria_a = strtoupper($request->onombre_representante_contraloria_a);
+            $update_acta->onombre_representante_contraloria_a = mb_strtoupper($request->onombre_representante_contraloria_a, 'UTF-8');
             $update_acta->ooficio_designacion_er_a       = $request->ooficio_designacion_er_a;
             $update_acta->ofecha_ofocio_designacion_er_a = $request->ofecha_ofocio_designacion_er_a;
-            $update_acta->ohechos_a = strtoupper($request->ohechos_a);
+            $update_acta->ohechos_a = mb_strtoupper($request->ohechos_a, 'UTF-8');
             if($request->hasFile('ourl_hechos'))
             {
                 $file = $request->file('ourl_hechos');
@@ -266,10 +266,10 @@ class RegistroActaController extends Controller
             $url = 'identifications/'.$ct->oclave.'/'.$request->idacta.'/';
 
             $update_acta = DatosActa::find($id);
-            $update_acta->olugar_ac         = strtoupper($request->olugar_ac);
+            $update_acta->olugar_ac         = mb_strtoupper($request->olugar_ac, 'UTF-8');
             $update_acta->ohora_inicio_ac   = $request->ohora_inicio_ac;
             $update_acta->ofecha_inicio_ac  = $request->ofecha_inicio_ac;
-            $update_acta->odomicilio_ct_ac  = strtoupper($request->odomicilio_ct_ac);
+            $update_acta->odomicilio_ct_ac  = mb_strtoupper($request->odomicilio_ct_ac, 'UTF-8');
             $update_acta->otelefono_ct_ac   = $request->otelefono_ct_ac;
             $update_acta->odepartamento_ac  = $request->odepartamento_ac;
             $update_acta->oidentificacion_recibe_ac     = $request->oidentificacion_recibe_ac;
@@ -290,34 +290,34 @@ class RegistroActaController extends Controller
             $file = $request->file('oidentificacion_representante_url_ac');
             $file->storeAs('identifications/'.$ct->oclave.'/'.$request->idacta, 'id-representante.pdf', 'public');
 
-            $update_acta->orepresentante_contraloria_ac          = strtoupper($request->orepresentante_contraloria_ac);
+            $update_acta->orepresentante_contraloria_ac          = mb_strtoupper($request->orepresentante_contraloria_ac, 'UTF-8');
             $update_acta->orfc_orepresentante_contraloria_ac     = $request->orfc_orepresentante_contraloria_ac;
             $update_acta->oidentificacion_representante_ac       = $request->oidentificacion_representante_ac;
             $update_acta->onumero_identificacion_representante_ac= $request->onumero_identificacion_representante_ac;
             $update_acta->oidentificacion_representante_url_ac   = $url.'id-representante.pdf';
             
             }
-            $update_acta->omanifiestan_representante_organo_ac = strtoupper($request->omanifiestan_representante_organo_ac);
+            $update_acta->omanifiestan_representante_organo_ac = mb_strtoupper($request->omanifiestan_representante_organo_ac, 'UTF-8');
             
-            $update_acta->orepresentante_contraloria_ac = strtoupper($request->orepresentante_contraloria_ac);
+            $update_acta->orepresentante_contraloria_ac = mb_strtoupper($request->orepresentante_contraloria_ac, 'UTF-8');
             $update_acta->orfc_orepresentante_contraloria_ac  = $request->orfc_orepresentante_contraloria_ac;
             $update_acta->oidentificacion_representante_ac    = $request->oidentificacion_representante_ac;
             $update_acta->oidentificacion_representante_url_ac= $url.'id-representante.pdf';
 
-            $update_acta->onombre_testigo1_ac           = strtoupper($request->onombre_testigo1_ac);
+            $update_acta->onombre_testigo1_ac           = mb_strtoupper($request->onombre_testigo1_ac, 'UTF-8');
             $update_acta->orfc_testigo1_ac              = $request->orfc_testigo1_ac;
             $update_acta->oidentificacion_testigo1_ac   = $request->oidentificacion_testigo1_ac;
             $update_acta->onumero_identificacion_testigo1_ac   = $request->onumero_identificacion_testigo1_ac;
             $update_acta->oidentificacion_testigo1_url_ac=$url.'id-testigo1.pdf';
 
-            $update_acta->onombre_testigo2_ac           = strtoupper($request->onombre_testigo2_ac);
+            $update_acta->onombre_testigo2_ac           = mb_strtoupper($request->onombre_testigo2_ac, 'UTF-8');
             $update_acta->orfc_testigo2_ac              = $request->orfc_testigo2_ac;
             $update_acta->oidentificacion_testigo2_ac   = $request->oidentificacion_testigo2_ac;
             $update_acta->onumero_identificacion_testigo2_ac   = $request->onumero_identificacion_testigo2_ac;
             $update_acta->oidentificacion_testigo2_url_ac= $url.'id-testigo2.pdf';
 
-            $update_acta->ohechos_ac                    = strtoupper($request->ohechos_ac);
-            $update_acta->omanifestacion_recibe_ac      = strtoupper($request->omanifestacion_recibe_ac);
+            $update_acta->ohechos_ac                    = mb_strtoupper($request->ohechos_ac, 'UTF-8');
+            $update_acta->omanifestacion_recibe_ac      = mb_strtoupper($request->omanifestacion_recibe_ac, 'UTF-8');
             
             if($request->hasFile('ourl_hechosac'))
             {

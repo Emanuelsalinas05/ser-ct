@@ -5,9 +5,9 @@ use Illuminate\Support\Facades\Storage;
 @endphp
 
 {{-- Customize layout sections --}}
-@section('title', '13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLO-HEMEROGRÁFICOS')
+@section('title', '13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLIO-HEMEROGRÁFICOS')
 @section('content_header_title', 'Home')
-@section('content_header_subtitle', ' 13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLO-HEMEROGRÁFICOS')
+@section('content_header_subtitle', ' 13.4 RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLIO-HEMEROGRÁFICOS')
 
 {{-- Content body: main page content --}}
 
@@ -49,9 +49,9 @@ use Illuminate\Support\Facades\Storage;
                     class="btn btn-info btn-sm" 
                     download 
                     style="color:white; font-size: 14px;" 
-                    title="DESCARGAR ARCHIVO DE EXCEL PARA CAPTURAR LA RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLO-HEMEROGRÁFICOS">
+                    title="DESCARGAR ARCHIVO DE EXCEL PARA CAPTURAR LA RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLIO-HEMEROGRÁFICOS">
                     <i class="far fa-hand-point-right"></i>&nbsp;
-                    <b>DESCARGA AQUÍ EL ARCHIVO DE EXCEL PARA CAPTURAR LA RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLO-HEMEROGRÁFICOS</b>
+                    <b>DESCARGA AQUÍ EL ARCHIVO DE EXCEL PARA CAPTURAR LA RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLIO-HEMEROGRÁFICOS</b>
                     &nbsp;<i class="far fa-hand-point-left"></i>
                 </a>
 

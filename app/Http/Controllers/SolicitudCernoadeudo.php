@@ -118,13 +118,13 @@ class SolicitudCernoadeudo extends Controller
                 'onumero_oficio.required'=> 'INGRESA EL NÚMERO DE TÚ OFICIO',
             ]);
 
-            $nnnn = $request->olocalidad ? ucfirst($request->olocalidad) : null;
+            $nnnn = $request->olocalidad ? mb_strtoupper($request->olocalidad, 'UTF-8') : null;
 
             $update_solicitud = Solicitudnoadeudo::whereId($id);
             $update_solicitud->update([
                 'onumero_oficio' => $request->onumero_oficio,
                 'olocalidad'     => $nnnn,
-                'omunicipio'     => ucfirst($request->omunicipio),
+                'omunicipio'     => mb_strtoupper($request->omunicipio, 'UTF-8'),
                 'ofecha'         => $request->ofechax,
                 'ofecha_acta'    => $request->ofecha,
                 'ohora_acta'     => $request->ohora,
@@ -132,24 +132,18 @@ class SolicitudCernoadeudo extends Controller
             ]);
 
             // Obtener el tipo de certificado para determinar el mensaje
-            $solicitud  = Solicitudnoadeudo::find($id);
-            $tipoCert   = Tiposnoadeudo::find($solicitud->id_tipocert);
-            $nombreTipo = $tipoCert ? strtoupper($tipoCert->otipo) : '';
-
-            // TIPOS: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL
-            $esJubRenInt = (
-                stripos($nombreTipo, 'JUBILACIÓN')   !== false ||
-                stripos($nombreTipo, 'JUBILACION')   !== false || // sin acento
-                stripos($nombreTipo, 'RENUNCIA')     !== false ||
-                stripos($nombreTipo, 'INTERESTATAL') !== false
-            );
-
-            if ($esJubRenInt) {
-                // PARA: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL
-                $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA EN LA COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS DE SEIEM, EN LAS OFICINAS CENTRALES DEL ORGANISMO. EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
-            } else {
-                // PARA: CAMBIO DE CENTRO DE TRABAJO
+            // NOTA: id_tipocert se relaciona con oorden, no con id
+            $solicitud = Solicitudnoadeudo::find($id);
+            
+            // Determinar mensaje según id_tipocert:
+            // id_tipocert = 1 → AUTORIDAD INMEDIATA SUPERIOR
+            // id_tipocert = 2 → COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS
+            if ($solicitud->id_tipocert == 1) {
+                // PARA: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL (oorden=1)
                 $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA A TU AUTORIDAD INMEDIATA SUPERIOR; EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
+            } else {
+                // PARA: CAMBIO DE CENTRO DE TRABAJO (oorden=2)
+                $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA EN LA COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS DE SEIEM, EN LAS OFICINAS CENTRALES DEL ORGANISMO. EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
             }
 
             return redirect()->back()->with("success", $mensaje);
@@ -174,40 +168,34 @@ class SolicitudCernoadeudo extends Controller
                 'onumero_oficio.required'             => 'INGRESA EL NÚMERO DE TÚ OFICIO',
             ]);
 
-            $nnnn = $request->olocalidad ? ucfirst($request->olocalidad) : null;
+            $nnnn = $request->olocalidad ? mb_strtoupper($request->olocalidad, 'UTF-8') : null;
 
             $update_solicitud = Solicitudnoadeudo::whereId($id);
             $update_solicitud->update([
                 'olocalidad'                 => $nnnn,
-                'omunicipio'                 => ucfirst($request->omunicipio),
+                'omunicipio'                 => mb_strtoupper($request->omunicipio, 'UTF-8'),
                 'onumero_oficio'             => $request->onumero_oficio,
                 'ofecha'                     => $request->ofechax,
-                'onombre_autoridadinmediata' => $request->onombre_autoridadinmediata,
-                'ocargo_autoridadinmediata'  => $request->ocargo_autoridadinmediata,
+                'onombre_autoridadinmediata' => mb_strtoupper($request->onombre_autoridadinmediata, 'UTF-8'),
+                'ocargo_autoridadinmediata'  => mb_strtoupper($request->ocargo_autoridadinmediata, 'UTF-8'),
                 'ofecha_acta'                => $request->ofecha,
                 'ohora_acta'                 => $request->ohora,
                 'ogenerado'                  => 1,
             ]);
 
             // Obtener el tipo de certificado para determinar el mensaje
-            $solicitud  = Solicitudnoadeudo::find($id);
-            $tipoCert   = Tiposnoadeudo::find($solicitud->id_tipocert);
-            $nombreTipo = $tipoCert ? strtoupper($tipoCert->otipo) : '';
-
-            // TIPOS: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL
-            $esJubRenInt = (
-                stripos($nombreTipo, 'JUBILACIÓN')   !== false ||
-                stripos($nombreTipo, 'JUBILACION')   !== false ||
-                stripos($nombreTipo, 'RENUNCIA')     !== false ||
-                stripos($nombreTipo, 'INTERESTATAL') !== false
-            );
-
-            if ($esJubRenInt) {
-                // PARA: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL
-                $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA EN LA COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS DE SEIEM, EN LAS OFICINAS CENTRALES DEL ORGANISMO. EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
-            } else {
-                // PARA: CAMBIO DE CENTRO DE TRABAJO
+            // NOTA: id_tipocert se relaciona con oorden, no con id
+            $solicitud = Solicitudnoadeudo::find($id);
+            
+            // Determinar mensaje según id_tipocert:
+            // id_tipocert = 1 → AUTORIDAD INMEDIATA SUPERIOR
+            // id_tipocert = 2 → COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS
+            if ($solicitud->id_tipocert == 1) {
+                // PARA: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL (oorden=1)
                 $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA A TU AUTORIDAD INMEDIATA SUPERIOR; EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
+            } else {
+                // PARA: CAMBIO DE CENTRO DE TRABAJO (oorden=2)
+                $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA EN LA COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS DE SEIEM, EN LAS OFICINAS CENTRALES DEL ORGANISMO. EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
             }
 
             return redirect()->back()->with("success", $mensaje);
@@ -258,7 +246,8 @@ class SolicitudCernoadeudo extends Controller
             }
 
             // Obtener tipo de certificado
-            $tipoCert = Tiposnoadeudo::find($solicitud->id_tipocert);
+            // NOTA: id_tipocert se relaciona con oorden, no con id
+            $tipoCert = Tiposnoadeudo::where('oorden', $solicitud->id_tipocert)->first();
 
             // Preparar datos para el correo
             $getct = $ct;

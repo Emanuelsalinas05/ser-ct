@@ -197,7 +197,7 @@ class AdminController extends Controller
         }else{
 
             User::create([
-                'name'      => strtoupper($getct->onombre_ct),
+                'name'      => mb_strtoupper($getct->onombre_ct, 'UTF-8'),
                 'orfc'      => NULL,
                 'ocurp'     => NULL,
                 'id_ct'     => $request->oct,
@@ -207,7 +207,7 @@ class AdminController extends Controller
                 'opwd'      => $elfolio,
                 'orol'      => 3,
                 'ocorreo'   => NULL,
-                'onivel'    => strtoupper($getct->odireccion),
+                'onivel'    => mb_strtoupper($getct->odireccion, 'UTF-8'),
                 'id_ctorigen'=> Auth::user()->id_ct,
                 'octorigen' => Auth::user()->email,
             ]);

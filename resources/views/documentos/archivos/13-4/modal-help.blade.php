@@ -1,5 +1,5 @@
 <x-adminlte-modal   id="modalCustomHelp" 
-                    title="CÓMO ELABORAR LA RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLO-HEMEROGRÁFICOS" 
+                    title="CÓMO ELABORAR LA RELACIÓN DE DOCUMENTOS NO CONVENCIONALES O BIBLIO-HEMEROGRÁFICOS" 
                     size="lg" 
                     theme="teal"
                     icon="fa fa-copy" 

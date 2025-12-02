@@ -101,7 +101,7 @@ class SolicitudCernoadeudo extends Controller
 
                     if($request->olocalidad)
                     {
-                        $nnnn= ucfirst($request->olocalidad);
+                        $nnnn= mb_strtoupper($request->olocalidad, 'UTF-8');
                     }else{
                         $nnnn= NULL;
                     }
@@ -110,7 +110,7 @@ class SolicitudCernoadeudo extends Controller
                     $update_solicitud->update([ 
                                         'onumero_oficio'=> $request->onumero_oficio,
                                         'olocalidad'    => $nnnn, 
-                                        'omunicipio'    => ucfirst($request->omunicipio),
+                                        'omunicipio'    => mb_strtoupper($request->omunicipio, 'UTF-8'),
                                         'ofecha'        => $request->ofechax,
                                         'ofecha_acta'   => $request->ofecha,
                                         'ohora_acta'    => $request->ohora,
@@ -144,7 +144,7 @@ class SolicitudCernoadeudo extends Controller
                     
                     if($request->olocalidad)
                     {
-                        $nnnn= ucfirst($request->olocalidad);
+                        $nnnn= mb_strtoupper($request->olocalidad, 'UTF-8');
                     }else{
                         $nnnn= NULL;
                     }
@@ -152,11 +152,11 @@ class SolicitudCernoadeudo extends Controller
                     $update_solicitud = Solicitudnoadeudo::whereId($id);
                     $update_solicitud->update([ 
                                         'olocalidad'                => $nnnn, 
-                                        'omunicipio'                => ucfirst($request->omunicipio),
+                                        'omunicipio'                => mb_strtoupper($request->omunicipio, 'UTF-8'),
                                         'onumero_oficio'            => $request->onumero_oficio,
                                         'ofecha'                    => $request->ofechax,
-                                        'onombre_autoridadinmediata'=> ($request->onombre_autoridadinmediata),
-                                        'ocargo_autoridadinmediata' => ($request->ocargo_autoridadinmediata),
+                                        'onombre_autoridadinmediata'=> mb_strtoupper($request->onombre_autoridadinmediata, 'UTF-8'),
+                                        'ocargo_autoridadinmediata' => mb_strtoupper($request->ocargo_autoridadinmediata, 'UTF-8'),
                                         'ofecha_acta'               => $request->ofecha,
                                         'ohora_acta'                => $request->ohora,
                                         'ogenerado'                 => 1,

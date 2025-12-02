@@ -255,16 +255,16 @@ class ActaController extends Controller
                     $update_acta = DatosActa::find($request->idacta);   
                     if($id==1)
                     {
-                    $update_acta->onombre_entrega_a = strtoupper($request->onombre_entrega_a);
+                    $update_acta->onombre_entrega_a = mb_strtoupper($request->onombre_entrega_a, 'UTF-8');
                     $update_acta->orfc_entrega_a    = $request->orfc_entrega_a;
-                    $update_acta->ocargo_entrega_a  = strtoupper($request->ocargo_entrega_a);
-                    $update_acta->onombre_recibe_a  = strtoupper($request->onombre_recibe_a);
+                    $update_acta->ocargo_entrega_a  = mb_strtoupper($request->ocargo_entrega_a, 'UTF-8');
+                    $update_acta->onombre_recibe_a  = mb_strtoupper($request->onombre_recibe_a, 'UTF-8');
                     $update_acta->orfc_recibe_a     = $request->orfc_recibe_a;
-                    $update_acta->ocargo_recibe_a   = strtoupper($request->ocargo_recibe_a);
+                    $update_acta->ocargo_recibe_a   = mb_strtoupper($request->ocargo_recibe_a, 'UTF-8');
                     }
                     if($id==2)
                     {
-                    $update_acta->onombre_recibe_ac = strtoupper($request->onombre_recibe_ac);
+                    $update_acta->onombre_recibe_ac = mb_strtoupper($request->onombre_recibe_ac, 'UTF-8');
                     $update_acta->orfc_recibe_ac    = $request->orfc_recibe_ac;
                     }
                     $update_acta->oactual = 1 ;

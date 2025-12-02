@@ -10,15 +10,16 @@ $year_h           = htmlspecialchars(date('Y'), ENT_QUOTES, 'UTF-8');
 // Determinar el tipo de proceso para el mensaje
 $proceso_texto = '';
 $proceso_color = '#8a1538';
-$es_finalizacion_er = isset($request->tipo_proceso) && $request->tipo_proceso === 'FINALIZACIÓN ENTREGA-RECEPCIÓN';
+$tipo_proceso_val = isset($request->tipo_proceso) ? trim($request->tipo_proceso) : '';
+$es_finalizacion_er = ($tipo_proceso_val === 'FINALIZACIÓN ENTREGA-RECEPCIÓN');
 
 if ($es_finalizacion_er) {
     $proceso_texto = 'Finalización de Entrega-Recepción';
     $proceso_color = '#198754';
-} elseif ($request->tipo_proceso == 'ADG') {
+} elseif ($tipo_proceso_val == 'ADG') {
     $proceso_texto = 'Archivo de Gestión Cargado';
     $proceso_color = '#8a1538';
-} elseif ($request->tipo_proceso == 'DEE') {
+} elseif ($tipo_proceso_val == 'DEE') {
     $proceso_texto = 'Archivo DEE Cargado';
     $proceso_color = '#2c5aa0';
 }
@@ -71,13 +72,13 @@ $message = <<<HTML
               <div style="font-weight:600;margin-bottom:8px;">{$elct_h}</div>
               <div><strong style="color:#5c0f28;">Responsable:</strong> {$solicitante_h}</div>
               <div><strong style="color:#5c0f28;">Tipo de Proceso:</strong> {$proceso_texto}</div>
-              <?php if ($es_finalizacion_er): ?>
+              <?php if ($es_finalizacion_er && $tipo_proceso_val === 'FINALIZACIÓN ENTREGA-RECEPCIÓN'): ?>
               <div><strong style="color:#5c0f28;">Fecha de Finalización:</strong> <?php echo htmlspecialchars($request->fecha_finalizacion ?? date('Y-m-d'), ENT_QUOTES, 'UTF-8'); ?></div>
               <div style="margin-top:12px;padding:12px;background:#d1e7dd;border-left:4px solid #198754;color:#0f5132;font-weight:600;border-radius:4px;">
                 ✓ <strong>Entrega-Recepción Finalizada</strong><br>
                 El proceso de entrega-recepción ha sido completado exitosamente. El acta y todos sus anexos han sido revisados y aprobados.
               </div>
-              <?php else: ?>
+              <?php elseif ($tipo_proceso_val == 'ADG' || $tipo_proceso_val == 'DEE'): ?>
               <div><strong style="color:#5c0f28;">Fecha de Carga:</strong> {$fecha_carga_h}</div>
               <p style="margin:12px 0 0 0;line-height:1.4;">
                 Se ha cargado un archivo escaneado para la gestión de Certificados de No Adeudo. 
