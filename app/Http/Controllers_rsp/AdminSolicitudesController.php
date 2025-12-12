@@ -30,19 +30,19 @@ class AdminSolicitudesController extends Controller
     public function index()
     {
         
-        $solicitudes = Solicitudnoadeudo::select('g1solicitudes_noadeudos.*', 
-                        DB::raw('date_format(g1solicitudes_noadeudos.ofecha, "%d-%m-%Y") as fecha'),
-                        DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'),)
-                        ->OrderBY('ofecha', 'DESC')->get(); 
+        // Código comentado - se usa en los bloques condicionales siguientes
+        // $solicitudes = Solicitudnoadeudo::select('g1solicitudes_noadeudos.*', 
+        //                 DB::raw('date_format(g1solicitudes_noadeudos.ofecha, "%d-%m-%Y") as fecha'),
+        //                 DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'))
+        //                 ->OrderBY('ofecha', 'DESC')->get(); 
 
-*/
         if(Auth::user()->ocargo=='DIRECCIÓN')
         {
                 
                 $solicitudesc= Solicitudnoadeudo::whereOfinalizado(1)->count();
                 $solicitudes = Solicitudnoadeudo::select('g1solicitudes_noadeudos.*',  'g1acta.id_tipoacta',  
                                                     DB::raw('date_format(g1solicitudes_noadeudos.ofecha, "%d-%m-%Y") as fecha'), 
-                                                    DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'),)
+                                                    DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'))
                                 ->leftJoin('g1acta', 'g1acta.id', 'g1solicitudes_noadeudos.id_acta')
                                 ->leftJoin('g1organigrama', 'g1organigrama.idct_escuela', 'g1acta.id_ct')
                                 ->where('g1solicitudes_noadeudos.oenviado',0)
@@ -59,7 +59,7 @@ class AdminSolicitudesController extends Controller
                 $solicitudesc= Solicitudnoadeudo::whereOfinalizado(1)->count();
                 $solicitudes = Solicitudnoadeudo::select('g1solicitudes_noadeudos.*',  'g1acta.id_tipoacta',  
                                                     DB::raw('date_format(g1solicitudes_noadeudos.ofecha, "%d-%m-%Y") as fecha'), 
-                                                    DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'),)
+                                                    DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'))
                                 ->leftJoin('g1acta', 'g1acta.id', 'g1solicitudes_noadeudos.id_acta')
                                 ->leftJoin('g1organigrama', 'g1organigrama.idct_escuela', 'g1acta.id_ct')
                                 ->where('g1solicitudes_noadeudos.ogenerado',1)
@@ -75,7 +75,7 @@ class AdminSolicitudesController extends Controller
                 $solicitudesc = 1;
                 $solicitudes = Solicitudnoadeudo::select('g1solicitudes_noadeudos.*',  'g1acta.id_tipoacta',  
                                                     DB::raw('date_format(g1solicitudes_noadeudos.ofecha, "%d-%m-%Y") as fecha'), 
-                                                    DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'),)
+                                                    DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'))
                                 ->leftJoin('g1acta', 'g1acta.id', 'g1solicitudes_noadeudos.id_acta')
                                 ->leftJoin('g1organigrama', 'g1organigrama.idct_escuela', 'g1acta.id_ct')
                                 ->where('g1solicitudes_noadeudos.ogenerado',1)
@@ -91,7 +91,7 @@ class AdminSolicitudesController extends Controller
                 $solicitudesc = 1;
                 $solicitudes = Solicitudnoadeudo::select('g1solicitudes_noadeudos.*',  'g1acta.id_tipoacta',  
                                                     DB::raw('date_format(g1solicitudes_noadeudos.ofecha, "%d-%m-%Y") as fecha'), 
-                                                    DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'),)
+                                                    DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'))
                                 ->leftJoin('g1acta', 'g1acta.id', 'g1solicitudes_noadeudos.id_acta')
                                 ->leftJoin('g1organigrama', 'g1organigrama.idct_escuela', 'g1acta.id_ct')
                                 ->where('g1solicitudes_noadeudos.ogenerado',1)
@@ -106,7 +106,7 @@ class AdminSolicitudesController extends Controller
                 $solicitudesc = 1;
                 $solicitudes = Solicitudnoadeudo::select('g1solicitudes_noadeudos.*',  'g1acta.id_tipoacta',  
                                                     DB::raw('date_format(g1solicitudes_noadeudos.ofecha, "%d-%m-%Y") as fecha'), 
-                                                    DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'),)
+                                                    DB::raw('date_format(g1solicitudes_noadeudos.ofecha_acta, "%d-%m-%Y") as fechaacta'))
                                 ->leftJoin('g1acta', 'g1acta.id', 'g1solicitudes_noadeudos.id_acta')
                                 ->leftJoin('g1organigrama', 'g1organigrama.idct_escuela', 'g1acta.id_ct')
                                 ->where('g1solicitudes_noadeudos.ogenerado',1)
@@ -119,7 +119,7 @@ class AdminSolicitudesController extends Controller
 
 
             return view('admin.solicitudes.certificado-noadeudos.index',
-                    compact('solicitudesc','solicitudes',)
+                    compact('solicitudesc','solicitudes')
                     );
     }
 
@@ -137,7 +137,7 @@ class AdminSolicitudesController extends Controller
                 ->orWhere('idct_sector',$user->id_ct)->first();
 
         return view('admin.users.edit',
-                compact('user','org',)
+                compact('user','org')
                 );
     }
 

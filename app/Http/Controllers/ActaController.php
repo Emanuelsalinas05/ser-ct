@@ -33,10 +33,9 @@ class ActaController extends Controller
     /**
      * Muestra el formulario inicial para crear una nueva acta
      * 
-     * Valida que exista una intervención activa antes de permitir crear acta.
-     * Para usuarios rol 3, verifica:
-     * - Intervención no finalizada
-     * - Proceso de acta anterior completamente concluido
+     * Para usuarios rol 3:
+     * - Si hay acta en curso, siempre permite acceso (prioridad sobre intervención)
+     * - Si NO hay acta en curso, requiere intervención activa para iniciar nueva acta
      * 
      * @return \Illuminate\View\View
      */
@@ -53,14 +52,55 @@ class ActaController extends Controller
             ->first();
 
         $intervencionPermitida = true;
+        
         if (Auth::user()->orol == 3) {
-            $intervencionExistente = Intervencion::where('idct_escuela', Auth::user()->id_ct)
-                ->where('ogenerada', 1)
-                ->where('ofin', 0)
-                ->whereNotIn('istatus', ['B'])
-                ->orderBy('ofecha_realizacion', 'DESC')
+            // REGLA DE PRIORIDAD: Primero verificar si hay acta en curso
+            $elacta = DatosActa::whereIdUser(Auth::user()->id)
+                ->where('id_ct', Auth::user()->id_ct)
+                ->where('oconcluida', 0)
                 ->first();
             
+            // Si hay acta en curso, SIEMPRE permitir acceso (sin importar estado de intervención)
+            if ($elacta) {
+                $intervencionPermitida = true;
+            } else {
+                // Si NO hay acta en curso, verificar intervención activa para iniciar nueva acta
+                // Verificar si hay acta concluida completamente (ZIP + correo enviado)
+                $actaConcluida = DatosActa::whereIdUser(Auth::user()->id)
+                    ->where('id_ct', Auth::user()->id_ct)
+                    ->where('oconcluida', 1)
+                    ->where('oenviocorreooic', 1)
+                    ->where('ocargacomprimido', 1)
+                    ->exists();
+                
+                // Buscar intervención activa:
+                // 1. Intervención no finalizada (ofin=0) - siempre permite crear acta
+                // 2. Intervención finalizada (ofin=1) con oficio pero SIN acta concluida - permite crear acta
+                $intervencionExistente = Intervencion::where('idct_escuela', Auth::user()->id_ct)
+                    ->where('ogenerada', 1)
+                    ->whereNotIn('istatus', ['B'])
+                    ->where(function($query) use ($actaConcluida) {
+                        // Intervención no finalizada
+                        $query->where('ofin', 0)
+                              // O intervención finalizada con oficio pero sin acta concluida
+                              ->orWhere(function($q) use ($actaConcluida) {
+                                  if (!$actaConcluida) {
+                                      $q->where('ofin', 1)
+                                        ->whereNotNull('ooficio')
+                                        ->where('ooficio', '!=', '');
+                                  }
+                              });
+                    })
+                    ->orderBy('ofecha_realizacion', 'DESC')
+                    ->first();
+                
+                // Si no hay intervención activa, bloquear creación de nueva acta
+                if (!$intervencionExistente) {
+                    $intervencionPermitida = false;
+                }
+            }
+            
+            // Limpieza: Si hay acta concluida, asegurar que la intervención asociada esté finalizada
             $actaConcluida = DatosActa::whereIdUser(Auth::user()->id)
                 ->where('id_ct', Auth::user()->id_ct)
                 ->where('oconcluida', 1)
@@ -81,40 +121,13 @@ class ActaController extends Controller
                         ->update(['ofin' => 1]);
                 }
             }
-            
-            if (!$intervencionExistente) {
-                $intervencionPermitida = false;
-            } else {
-                $actaEnCurso = DatosActa::whereIdUser(Auth::user()->id)
-                    ->where('id_ct', Auth::user()->id_ct)
-                    ->where('oconcluida', 0)
-                    ->first();
-                
-                if ($actaEnCurso) {
-                    $procesoFinalizado = ($actaEnCurso->ocargacomprimido == 1 && 
-                                         $actaEnCurso->oenviocorreooic == 1);
-                    
-                    if ($procesoFinalizado) {
-                        Intervencion::where('idct_escuela', Auth::user()->id_ct)
-                            ->where('ogenerada', 1)
-                            ->where('ofin', 0)
-                            ->whereNotIn('istatus', ['B'])
-                            ->update(['ofin' => 1]);
-                        
-                        $intervencionPermitida = false;
-                    }
-                    // Si hay acta en curso y el proceso NO está finalizado, permitir acceso (continuar trabajo)
-                }
-                // Si NO hay acta en curso, permitir acceso (iniciar nueva entrega-recepción)
-            }
         }
 
         if (Auth::user()->orol == 3) {
             $elacta     = DatosActa::whereIdUser(Auth::user()->id)->whereOconcluida(0)->first();
             $documentos = Documentos::get();
 
-            // VALIDACIÓN CRÍTICA: Antes de mostrar cualquier contenido del acta
-            // Si no hay intervención permitida, mostrar restricción incluso si hay acta en curso
+            // VALIDACIÓN: Solo bloquear si NO hay acta en curso Y NO hay intervención activa
             if (!$intervencionPermitida) {
                 $ban = 0;
                 return view('acta.index', compact('tipoacta','documentos','ban','us','ctts','intervencionPermitida'));
@@ -194,14 +207,66 @@ class ActaController extends Controller
      * Valida permisos y crea el registro inicial del acta según el tipo seleccionado.
      * Inicializa también el registro de avance de anexos.
      * 
+     * Para usuarios rol 3:
+     * - Si hay acta en curso, no permite crear nueva (debe continuar la existente)
+     * - Si NO hay acta en curso, requiere intervención activa para crear nueva acta
+     * 
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
-        // Validar que el usuario tenga una intervención generada (solo para rol 3)
+        // Validación solo para usuarios rol 3
         if (Auth::user()->orol == 3) {
-            // Verificar si hay actas concluidas (finalizadas) para este CCT
+            // REGLA DE PRIORIDAD: Primero verificar si hay acta en curso
+            $actaEnCurso = DatosActa::whereIdUser(Auth::user()->id)
+                ->where('id_ct', Auth::user()->id_ct)
+                ->where('oconcluida', 0)
+                ->first();
+            
+            // Si hay acta en curso, no permitir crear una nueva
+            if ($actaEnCurso) {
+                return redirect()->route('entrega-recepcion.index')
+                    ->with('error', 'Ya tienes un acta de entrega-recepción en curso. Debes continuar trabajando en ella o finalizarla antes de crear una nueva.');
+            }
+            
+            // Si NO hay acta en curso, validar que exista intervención activa para crear nueva acta
+            // Verificar si hay acta concluida completamente (ZIP + correo enviado)
+            $actaConcluida = DatosActa::whereIdUser(Auth::user()->id)
+                ->where('id_ct', Auth::user()->id_ct)
+                ->where('oconcluida', 1)
+                ->where('oenviocorreooic', 1)
+                ->where('ocargacomprimido', 1)
+                ->exists();
+            
+            // Buscar intervención activa:
+            // 1. Intervención no finalizada (ofin=0) - siempre permite crear acta
+            // 2. Intervención finalizada (ofin=1) con oficio pero SIN acta concluida - permite crear acta
+            $intervencionExistente = Intervencion::where('idct_escuela', Auth::user()->id_ct)
+                ->where('ogenerada', 1)
+                ->whereNotIn('istatus', ['B'])
+                ->where(function($query) use ($actaConcluida) {
+                    // Intervención no finalizada
+                    $query->where('ofin', 0)
+                          // O intervención finalizada con oficio pero sin acta concluida
+                          ->orWhere(function($q) use ($actaConcluida) {
+                              if (!$actaConcluida) {
+                                  $q->where('ofin', 1)
+                                    ->whereNotNull('ooficio')
+                                    ->where('ooficio', '!=', '');
+                              }
+                          });
+                })
+                ->orderBy('ofecha_realizacion', 'DESC')
+                ->first();
+            
+            // Si no hay intervención activa, no permitir crear nueva acta
+            if (!$intervencionExistente) {
+                return redirect()->route('entrega-recepcion.index')
+                    ->with('error', 'No puedes iniciar el acto de entrega-recepción. Debes tener una solicitud de intervención generada por tu autoridad inmediata superior.');
+            }
+            
+            // Limpieza: Si hay acta concluida, asegurar que la intervención asociada esté finalizada
             $actaConcluida = DatosActa::whereIdUser(Auth::user()->id)
                 ->where('id_ct', Auth::user()->id_ct)
                 ->where('oconcluida', 1) // Actas finalizadas
@@ -210,7 +275,6 @@ class ActaController extends Controller
                 ->orderBy('ofechafin', 'DESC')
                 ->first();
             
-            // Si hay acta concluida, verificar que la intervención esté finalizada
             if ($actaConcluida) {
                 // Buscar la intervención asociada a esta acta concluida
                 $intervencionAsociada = Intervencion::where('idct_escuela', Auth::user()->id_ct)
@@ -223,45 +287,6 @@ class ActaController extends Controller
                 if ($intervencionAsociada && $intervencionAsociada->ofin == 0) {
                     Intervencion::where('id', $intervencionAsociada->id)
                         ->update(['ofin' => 1]);
-                }
-            }
-            
-            $intervencionExistente = Intervencion::where('idct_escuela', Auth::user()->id_ct)
-                ->where('ogenerada', 1)
-                ->where('ofin', 0) // Solo intervenciones NO finalizadas
-                ->whereNotIn('istatus', ['B'])
-                ->orderBy('ofecha_realizacion', 'DESC')
-                ->first();
-            
-            // Si no hay intervención activa (no finalizada), no permitir crear acta
-            if (!$intervencionExistente) {
-                return redirect()->route('entrega-recepcion.index')
-                    ->with('error', 'No puedes iniciar el acto de entrega-recepción. Debes tener una solicitud de intervención generada por tu autoridad inmediata superior.');
-            }
-            
-            // Verificar si tiene un acta NO concluida (en curso) asociada a esta intervención
-            $actaEnCurso = DatosActa::whereIdUser(Auth::user()->id)
-                ->where('id_ct', Auth::user()->id_ct)
-                ->where('oconcluida', 0)
-                ->first();
-            
-            // Si hay acta en curso, verificar si el proceso está completamente finalizado
-            if ($actaEnCurso) {
-                $procesoFinalizado = ($actaEnCurso->ocargacomprimido == 1 && 
-                                     $actaEnCurso->oenviocorreooic == 1);
-                
-                // Si el proceso está completamente finalizado, no permitir crear nueva acta
-                // Se necesita una nueva intervención
-                if ($procesoFinalizado) {
-                    // Marcar la intervención como finalizada si aún no lo está
-                    Intervencion::where('idct_escuela', Auth::user()->id_ct)
-                        ->where('ogenerada', 1)
-                        ->where('ofin', 0)
-                        ->whereNotIn('istatus', ['B'])
-                        ->update(['ofin' => 1]);
-                    
-                    return redirect()->route('entrega-recepcion.index')
-                        ->with('error', 'El proceso de entrega-recepción anterior ha sido finalizado. Se requiere una nueva solicitud de intervención para iniciar un nuevo proceso.');
                 }
             }
         }
@@ -506,6 +531,10 @@ class ActaController extends Controller
 
     public function solicitarIntervencion(Request $request)
     {
+        // Este método está disponible pero no se muestra en la UI para rol 3
+        // La solicitud de intervención debe ser realizada por rol 2 desde el módulo "Solicitudes de intervención"
+        // Se mantiene por compatibilidad pero no debería ser usado por rol 3
+        
         $request->validate(['acta_id' => ['nullable','integer']]);
 
         $user   = Auth::user();

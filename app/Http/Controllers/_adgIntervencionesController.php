@@ -475,12 +475,44 @@ class _adgIntervencionesController extends Controller
                             ->with('error', 'No se encontró el titular del nivel.');
                     }
 
+                    // Obtener intervenciones del departamento antes de actualizar para contar
+                    $intervencionesPendientes = Intervencion::whereIdctDepartamento($id)->whereOfin(0)->get();
+                    $totalIntervenciones = $intervencionesPendientes->count();
+                    
+                    // Generar número de oficio completo
+                    $numeroOficioCompleto = $getoficio->ooficio.'/'.$validated['ooficio'].'/'.date('Y');
+                    
+                    // Actualizar todas las intervenciones del departamento con el mismo oficio
+                    // Esto agrupa todas las entregas de esa dirección en un solo reporte
                     $ocomisionados = Intervencion::whereIdctDepartamento($id)->whereOfin(0);
                     $ocomisionados->update([ 
-                                                'ooficio'   => $getoficio->ooficio.'/'.$validated['ooficio'].'/'.date('Y'),  
+                                                'ooficio'   => $numeroOficioCompleto,  
                                                 'ofin'      => 1 ,
                                                 'ofechafin' => date('Y-m-d') , 
                                             ]);
+
+                    // Enviar correo de notificación a Coordinación (rol 99)
+                    // Solo si se actualizaron intervenciones
+                    if ($totalIntervenciones > 0) {
+                        try {
+                            // Preparar variables para el correo
+                            $getoficio_temp = $getoficio; // Para compatibilidad con el script de correo
+                            $numero_oficio = $numeroOficioCompleto;
+                            $fecha_oficio = date('Y-m-d');
+                            $total_intervenciones = $totalIntervenciones;
+                            
+                            // Incluir y ejecutar el script de correo
+                            require_once public_path('send-mails/intervencion-coordinacion/index.php');
+                        } catch (\Throwable $e) {
+                            // Error silencioso en el envío de correo, no bloquea el proceso
+                            // El oficio ya se generó correctamente
+                            \Log::error('Error al enviar correo a coordinación', [
+                                'error' => $e->getMessage(),
+                                'departamento_id' => $id,
+                                'oficio' => $numeroOficioCompleto
+                            ]);
+                        }
+                    }
 
                     return redirect(url('solicitud-intervencion'))
                                 ->with("success", "Se ha generado el reporte, ve al reportes de intervención para su descarga");

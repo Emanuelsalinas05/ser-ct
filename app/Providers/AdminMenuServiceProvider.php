@@ -153,6 +153,20 @@ class AdminMenuServiceProvider extends ServiceProvider
 
 private function buildEntregadorMenu(BuildingMenu $event, $user): void
 {
+    // REGLA DE PRIORIDAD: Primero verificar si hay acta en curso
+    $actaEnCurso = \App\Models\DatosActa::where('id_user', $user->id)
+        ->where('id_ct', $user->id_ct)
+        ->where('oconcluida', 0)
+        ->first();
+    
+    // Si hay acta en curso, SIEMPRE mostrar el menú (sin importar estado de intervención)
+    if ($actaEnCurso) {
+        // Mostrar menú completo para continuar trabajando en el acta
+        $this->mostrarMenuCompleto($event, $user, $actaEnCurso);
+        return;
+    }
+    
+    // Si NO hay acta en curso, verificar intervención activa
     // Verificar si hay actas concluidas (finalizadas) para este CCT
     $actaConcluida = \App\Models\DatosActa::where('id_user', $user->id)
         ->where('id_ct', $user->id_ct)
@@ -162,11 +176,24 @@ private function buildEntregadorMenu(BuildingMenu $event, $user): void
         ->orderBy('ofechafin', 'DESC')
         ->first();
     
-    // Verificar si hay intervención activa (NO finalizada)
+    // Verificar si hay intervención activa:
+    // 1. Intervención no finalizada (ofin=0) - siempre permite crear acta
+    // 2. Intervención finalizada (ofin=1) con oficio pero SIN acta concluida - permite crear acta
     $intervencionActiva = \App\Models\Intervencion::where('idct_escuela', $user->id_ct)
         ->where('ogenerada', 1)
-        ->where('ofin', 0) // Solo intervenciones NO finalizadas
         ->where('istatus', '!=', 'B')
+        ->where(function($query) use ($actaConcluida) {
+            // Intervención no finalizada
+            $query->where('ofin', 0)
+                  // O intervención finalizada con oficio pero sin acta concluida
+                  ->orWhere(function($q) use ($actaConcluida) {
+                      if (!$actaConcluida) {
+                          $q->where('ofin', 1)
+                            ->whereNotNull('ooficio')
+                            ->where('ooficio', '!=', '');
+                      }
+                  });
+        })
         ->orderBy('ofecha_realizacion', 'DESC')
         ->first();
     
@@ -186,7 +213,7 @@ private function buildEntregadorMenu(BuildingMenu $event, $user): void
         }
     }
     
-    // Si no hay intervención activa (no finalizada), ocultar menú
+    // Si no hay intervención activa, ocultar menú
     // El CCT queda bloqueado hasta que se genere una nueva solicitud de intervención
     if (!$intervencionActiva) {
         // Solo mostrar "Entregas Realizadas" para ver el historial
@@ -200,7 +227,13 @@ private function buildEntregadorMenu(BuildingMenu $event, $user): void
         return;
     }
     
-    // Acceso principal - Solo se muestra si hay intervención activa
+    // Acceso principal - Mostrar menú completo
+    $this->mostrarMenuCompleto($event, $user, null);
+}
+
+private function mostrarMenuCompleto(BuildingMenu $event, $user, $actaEnCurso = null): void
+{
+    // Acceso principal
     $event->menu->add([
         'text'    => 'Entrega Recepción',
         'url'     => 'entrega-recepcion',
@@ -209,37 +242,12 @@ private function buildEntregadorMenu(BuildingMenu $event, $user): void
         'active'  => ['entrega-recepcion*'],
     ]);
     
-    // Verificar si tiene un acta NO concluida (en curso) asociada a esta intervención
-    $actaEnCurso = \App\Models\DatosActa::where('id_user', $user->id)
-        ->where('id_ct', $user->id_ct)
-        ->where('oconcluida', 0) // Solo actas en curso
-        ->first();
-    
-    // Si hay acta en curso, verificar si el proceso está completamente finalizado
-    if ($actaEnCurso) {
-        $procesoFinalizado = ($actaEnCurso->ocargacomprimido == 1 && 
-                             $actaEnCurso->oenviocorreooic == 1);
-        
-        // Si el proceso está completamente finalizado, ocultar menú
-        // Se necesita una nueva intervención
-        if ($procesoFinalizado) {
-            // Marcar la intervención como finalizada si aún no lo está
-            \App\Models\Intervencion::where('idct_escuela', $user->id_ct)
-                ->where('ogenerada', 1)
-                ->where('ofin', 0)
-                ->where('istatus', '!=', 'B')
-                ->update(['ofin' => 1]);
-            
-            // Solo mostrar "Entregas Realizadas"
-            $event->menu->add([
-                'text' => 'Entregas Realizadas',
-                'url' => 'entregas-finalizadas',
-                'icon' => 'fas fa-check-circle',
-                'classes' => self::MENU_SUCCESS,
-                'active' => ['entregas-finalizadas*'],
-            ]);
-            return;
-        }
+    // Si no se pasó acta en curso, buscarla
+    if (!$actaEnCurso) {
+        $actaEnCurso = \App\Models\DatosActa::where('id_user', $user->id)
+            ->where('id_ct', $user->id_ct)
+            ->where('oconcluida', 0)
+            ->first();
     }
 
     $actaCircunstanciadaEnCurso = \App\Models\DatosActa::where('id_user', $user->id)

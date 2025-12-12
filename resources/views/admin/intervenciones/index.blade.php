@@ -18,7 +18,19 @@
     </div>
     <div class="card-body table-responsive" >
 
+        <li class=" d-flex justify-content-between align-items-center"
+            style="border:none;">
 
+            @if(Auth::user()->orol==1 || Auth::user()->orol==99)
+                <x-adminlte-button  data-toggle="modal" 
+                                    icon="fa fa-edit"
+                                    label="GENERAR REPORTE DEE → COORDINACIÓN"
+                                    data-target="#modalgeneradee" 
+                                    class="bg-info btn-sm"/>
+            @endif
+
+        </li>
+        <br>
 
         
         @if($intervencionesc>0)
@@ -119,4 +131,83 @@
 
     </div>
 </div>
+
+@if(Auth::user()->orol==1 || Auth::user()->orol==99)
+        <x-adminlte-modal   id="modalgeneradee" 
+                    title="GENERAR REPORTE DEE → COORDINACIÓN ACADÉMICA" 
+                    size="lg" 
+                    theme="info"
+                    icon="fa fa-file-alt" 
+                    v-centered static-backdrop >
+            <div>
+
+                <form   name="FrmCartelDee" id="FrmCartelDee" method="post" 
+                            action="{{ route('intervenciones-niveles.update', Auth::user()->id_ct ) }}" >
+                            @method('PATCH')
+                            @csrf
+
+                        
+                        <input  type="hidden" 
+                                name="action" 
+                                id="action" 
+                                value="7">
+
+                    <table class="table table-sm table-striped">
+                        <tr>
+                            <td class="bg-lightblue disabled" 
+                                colspan="4"
+                                align="center">
+                                <b>{{ $getoficix->oclave ?? '15ADG0076G' }} - {{ $getoficix->onombre_ct ?? 'DIRECCIÓN DE EDUCACIÓN ELEMENTAL' }}</b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-lightblue"
+                                align="right"
+                                width="30%">
+                                <b>Ingresa el consecutivo del oficio</b>:
+                            </td>
+                            <td width="20%" 
+                                align="right"> 
+                                @if(isset($getoficix->ooficio) && $getoficix->ooficio)
+                                    {{ $getoficix->ooficio }} /
+                                @else
+                                    /
+                                @endif
+                            </td>
+                            <td width="10%" >
+                                <input  type="text" 
+                                        name="ooficio" required 
+                                        class="form-control form-control-sm">
+                            </td>
+                            <td width="20%" >
+                               / {{date('Y')}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td  colspan="4">
+                                <b class="text-lightblue">Nombre del titular</b>: {{ $getoficix->otitular ?? 'No disponible' }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="right" colspan="4">
+                                <button class="btn btn-outline-info btn-sm">
+                            GENERAR REPORTE
+                        </button>
+                            </td>
+                        </tr>
+                    </table>
+
+ 
+
+                </form>
+            </div>    
+            <x-slot name="footerSlot">
+                <x-adminlte-button  theme="secondary" 
+                                    label="CANCELAR ACCIÓN" 
+                                    data-dismiss="modal" 
+                                    class="btn-sm"/>
+            </x-slot>
+        </x-adminlte-modal>
+@endif
+
 @stop

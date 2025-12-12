@@ -1,7 +1,7 @@
 <?php
 
 $iduser = $_GET['i1d3']; 
-$us     = $_GET['us']
+$us     = $_GET['us'];
 
 try {
 

@@ -18,8 +18,6 @@
     </div>
     <div class="card-body table-responsive" >
 
-
-
         <li class=" d-flex justify-content-between align-items-center"
             style="border:none;">
 
@@ -30,17 +28,7 @@
                                         data-target="#modaldeletefile" 
                                         class="bg-success btn-sm"/>
                     
-                    <!--
-                     <a  href="reportes/intervencion.php"
-                        class="btn btn-outline-info "
-                        target="_blank"
-                        style="font-size:12px;">
-                        VER REPORTE    &nbsp;
-                        <i class="fa fa-file-alt"></i>
-                    </a>
-                    -->
                     @if($intervencionesc>0)
-
                         @if(Auth::user()->ocargo=='SUBDIRECCIÓN' || Auth::user()->ocargo=='DEPARTAMENTO')
                             <x-adminlte-button  data-toggle="modal" 
                                             icon="fa fa-edit"
@@ -49,7 +37,6 @@
                                             class="bg-info btn-sm"/>
                             @include('adg.intervenciones.modal-genera')
                         @endif
-
                     @else
                     &nbsp;
                     @endif
@@ -59,7 +46,7 @@
         @include('adg.intervenciones.modal')
         <br>
 
-
+        @if(Auth::user()->orol == 1 || (Auth::user()->orol == 2 && (Auth::user()->ocargo=='SUBDIRECCIÓN' || Auth::user()->ocargo=='DEPARTAMENTO')))
         <li class=" d-flex justify-content-between align-items-center"
             style="border:none; font-size: 12px;">
             &nbsp;
@@ -74,6 +61,7 @@
                 </a>
             </i>
         </li>
+        @endif
         <br>
         <br>
 
@@ -92,7 +80,7 @@
                     <th>OFICIO</th>
                     <th>ENTREGA / RECIBE</th>
                     <th>MOTIVO</th>
-                    @if(Auth::user()->orol==2 )<th colspan="2">EDITAR</th>@endif
+                    @if(Auth::user()->orol==2 && strpos(strtoupper(Auth::user()->oct ?? ''), 'ADG') !== false)<th colspan="2">EDITAR</th>@endif
                 </tr>
             </thead>
             <tbody>
@@ -107,7 +95,8 @@
                     </td>
 
                     <td align="center"
-                        width="10%">
+                        width="10%"
+                        data-order="{{ $i->ofecha_realizacion ?? '' }}">
                         {{ $i->fechacreacion }}
                     </td>
 
@@ -118,7 +107,8 @@
                     </td>
 
                     <td align="center"
-                        width="10%">
+                        width="10%"
+                        data-order="{{ $i->ofecha_entrega ? $i->ofecha_entrega.' '.($i->ohora_entrega ?? '00:00:00') : '' }}">
                         {{ $i->fechaentrega }}<br>{{  $i->ohora_entrega.' HRS.' }}
                     </td>
 
@@ -126,7 +116,6 @@
                         align="center">
                         {{ $i->ooficio }}
                     </td>
-
 
                     <td width="15%" 
                         style="font-size:10px;">
@@ -140,7 +129,7 @@
                         {{ $i->omotivo }}
                     </td>
 
-                    @if(Auth::user()->orol==2)
+                    @if(Auth::user()->orol==2 && strpos(strtoupper(Auth::user()->oct ?? ''), 'ADG') !== false)
                     <td width="5%">
                         <x-adminlte-button  data-toggle="modal" 
                                     icon="fa fa-edit"
@@ -168,4 +157,75 @@
 
     </div>
 </div>
+
+@push('js')
+<script>
+$(function () {
+    // Inicializar #example13 solo si existe y no ha sido inicializado previamente
+    if ($("#example13").length && !$.fn.DataTable.isDataTable("#example13")) {
+        // Plugin para ordenar fechas en formato DD/MM/YYYY
+        $.fn.dataTable.ext.type.order['date-pre'] = function (data) {
+            if (!data) return 0;
+            var parts = data.split('/');
+            if (parts.length === 3) {
+                return new Date(parts[2], parts[1] - 1, parts[0]).getTime();
+            }
+            return 0;
+        };
+        
+        // Plugin para ordenar fecha y hora en formato DD/MM/YYYY HH:MM
+        $.fn.dataTable.ext.type.order['datetime-pre'] = function (data) {
+            if (!data) return 0;
+            // Si viene en formato "YYYY-MM-DD HH:MM:SS"
+            if (data.match(/^\d{4}-\d{2}-\d{2}/)) {
+                return new Date(data).getTime();
+            }
+            // Si viene en formato "DD/MM/YYYY HH:MM"
+            var parts = data.split(' ');
+            if (parts.length >= 1) {
+                var dateParts = parts[0].split('/');
+                if (dateParts.length === 3) {
+                    var timeParts = parts[1] ? parts[1].split(':') : ['00', '00'];
+                    return new Date(dateParts[2], dateParts[1] - 1, dateParts[0], 
+                                   timeParts[0] || 0, timeParts[1] || 0).getTime();
+                }
+            }
+            return 0;
+        };
+        
+        var table = $("#example13").DataTable({
+            "select": true,
+            "paging": true,
+            "lengthMenu": true,
+            "lengthChange": true,
+            "searching": true,
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
+            },
+            "ordering": true,
+            "order": [[2, "desc"]], // Ordenar por FECHA INTERV. (columna 2) descendente
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+            "buttons": ["copy", "excel", "pdf", "print", "pageLength"],
+            "lengthMenu": [
+                [25, 50, 100, 150, -1],
+                ['25', '50', '100', '150', 'Ver todos']
+            ],
+            "columnDefs": [
+                {
+                    "type": "date-pre",
+                    "targets": 2 // Columna FECHA INTERV.
+                },
+                {
+                    "type": "datetime-pre",
+                    "targets": 4 // Columna FECHA ENTREGA DEL CT
+                }
+            ]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    }
+});
+</script>
+@endpush
+
 @stop

@@ -28,7 +28,7 @@ class Oficioscna extends Model
 
                             'odee',
                             'olugar_dee',
-                            'ooficio_dee'
+                            'ooficio_dee',
                             
                             'oanio',
                             'status',

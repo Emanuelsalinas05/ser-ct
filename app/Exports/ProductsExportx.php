@@ -43,7 +43,7 @@ class ProductsExportx implements FromCollection, WithHeadings
                                         ON g1centros_trabajo.oclave = org.cct_subdireccion
                                         LEFT JOIN g1centros_trabajo  ctt2
                                         ON ctt2.oclave=org.cct_departamento
-                                        WHERE   sl.id_tipocert = tp.id
+                                        WHERE   sl.id_tipocert = tp.oorden
                                         AND sl.ofinalizado=1
                                         AND sl.id_acta = ac.id
                                         AND ct.kcvect = ac.id_ct  
@@ -57,7 +57,6 @@ class ProductsExportx implements FromCollection, WithHeadings
     public function headings() : array
     {   
         return [
-y
                 'DIRECCIÓN DE ÁREA', 
                 'SUBDIRECCIÓN Y/O DEPARTAMENTO',    
                 'NOMBRE DEL CENTRO DE TRABAJO',     

@@ -32,9 +32,8 @@
         @if(isset($intervencionPermitida) && !$intervencionPermitida)
         <x-adminlte-callout theme="danger" title="ACCESO RESTRINGIDO" icon="fas fa-ban">
             <p class="mb-3">
-                Aún no puedes iniciar el acto de entrega-recepción. <br>
-                Solicita a tu autoridad inmediata superior que genere la solicitud de intervención
-                correspondiente.
+                No puedes iniciar el proceso de entrega-recepción. <br>
+                Pide a tu autoridad inmediata superior que solicite una intervención.
             </p>
 
             <p class="mb-0">
