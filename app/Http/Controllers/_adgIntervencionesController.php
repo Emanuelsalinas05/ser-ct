@@ -364,16 +364,30 @@ class _adgIntervencionesController extends Controller
                     ->with('error', 'Acción no válida.');
             }
 
-            // Validar permisos del usuario
-            if (Auth::user()->orol != 2 && $request->action != '7') {
+            // Validar permisos del usuario según la acción
+            // Rol 1 (Dirección) y Rol 99 (Coordinación): Pueden crear, editar, eliminar y generar reportes
+            // Rol 2 (Subdirección/Departamento): Solo puede generar reportes (acción '7'), NO puede crear/editar/eliminar intervenciones
+            $userRol = Auth::user()->orol;
+            
+            // Validar acceso general (solo roles administrativos)
+            if (!in_array($userRol, [1, 2, 99])) {
                 return redirect(url('solicitud-intervencion'))
-                    ->with('error', 'No tiene permisos para realizar esta acción.');
+                    ->with('error', 'No tiene permisos para acceder a esta sección.');
+            }
+            
+            // Validar permisos específicos por acción
+            // El rol 2 solo puede realizar la acción '7' (generar reporte)
+            if ($userRol == 2 && $request->action != '7') {
+                return redirect(url('solicitud-intervencion'))
+                    ->with('error', 'No tiene permisos para realizar esta acción. Solo puede generar reportes.');
             }
 
-            $orga = Organitation::where('idct_subdireccion', $id)
-                                ->Orwhere('idct_departamento', $id)
-                                ->Orwhere('idct_sector', $id)
-                                ->Orwhere('idct_supervicion', $id)->first();
+            // Búsqueda de organización que funcione para todos los roles (1, 2, 99)
+            $orga = Organitation::where('idct_direccion', $id)
+                                ->orWhere('idct_subdireccion', $id)
+                                ->orWhere('idct_departamento', $id)
+                                ->orWhere('idct_sector', $id)
+                                ->orWhere('idct_supervicion', $id)->first();
 
             // Validar que $orga existe
             if (!$orga) {
@@ -381,12 +395,17 @@ class _adgIntervencionesController extends Controller
                     ->with('error', 'No se encontró la organización del usuario.');
             }
 
-            if($orga->idct_subdireccion==0 && $orga->idct_departamento>0){
+            // Determinar el centro de trabajo según la jerarquía organizacional
+            // Prioridad: departamento > subdirección > dirección
+            if($orga->idct_departamento > 0){
                 $elctx = $orga->idct_departamento;
-            }else if($orga->idct_subdireccion>1 && $orga->idct_departamento==0){
-                 $elctx = $orga->idct_subdireccion;
-            }else if($orga->idct_subdireccion>0 && $orga->idct_departamento>0){
-                $elctx = $orga->idct_departamento;
+            }else if($orga->idct_subdireccion > 0){
+                $elctx = $orga->idct_subdireccion;
+            }else if($orga->idct_direccion > 0){
+                $elctx = $orga->idct_direccion;
+            }else{
+                // Si no se encuentra ningún nivel, usar el id_ct del usuario como fallback
+                $elctx = Auth::user()->id_ct;
             }
 
             $getoficio = Ctitulares::where('id_ct', $elctx)->first();
@@ -491,7 +510,7 @@ class _adgIntervencionesController extends Controller
                                                 'ofechafin' => date('Y-m-d') , 
                                             ]);
 
-                    // Enviar correo de notificación a Coordinación (rol 99)
+                    // Enviar correo de notificación a DEE (Subdirección → DEE)
                     // Solo si se actualizaron intervenciones
                     if ($totalIntervenciones > 0) {
                         try {
@@ -500,13 +519,14 @@ class _adgIntervencionesController extends Controller
                             $numero_oficio = $numeroOficioCompleto;
                             $fecha_oficio = date('Y-m-d');
                             $total_intervenciones = $totalIntervenciones;
+                            $destino_dee = true; // Indicar que el correo va a DEE
                             
                             // Incluir y ejecutar el script de correo
                             require_once public_path('send-mails/intervencion-coordinacion/index.php');
                         } catch (\Throwable $e) {
                             // Error silencioso en el envío de correo, no bloquea el proceso
                             // El oficio ya se generó correctamente
-                            \Log::error('Error al enviar correo a coordinación', [
+                            \Log::error('Error al enviar correo a DEE', [
                                 'error' => $e->getMessage(),
                                 'departamento_id' => $id,
                                 'oficio' => $numeroOficioCompleto
