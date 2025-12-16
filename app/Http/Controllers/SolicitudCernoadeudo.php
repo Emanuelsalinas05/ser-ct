@@ -136,14 +136,14 @@ class SolicitudCernoadeudo extends Controller
             $solicitud = Solicitudnoadeudo::find($id);
             
             // Determinar mensaje según id_tipocert:
-            // id_tipocert = 1 → AUTORIDAD INMEDIATA SUPERIOR
-            // id_tipocert = 2 → COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS
+            // id_tipocert = 1 → COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS (para jubilación, renuncia, cambio interestatal)
+            // id_tipocert = 2 → AUTORIDAD INMEDIATA SUPERIOR (para cambio de centro de trabajo)
             if ($solicitud->id_tipocert == 1) {
-                // PARA: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL (oorden=1)
-                $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA A TU AUTORIDAD INMEDIATA SUPERIOR; EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
-            } else {
-                // PARA: CAMBIO DE CENTRO DE TRABAJO (oorden=2)
+                // PARA: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL (oorden=1) → COORDINACIÓN
                 $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA EN LA COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS DE SEIEM, EN LAS OFICINAS CENTRALES DEL ORGANISMO. EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
+            } else {
+                // PARA: CAMBIO DE CENTRO DE TRABAJO (oorden=2) → AUTORIDAD INMEDIATA SUPERIOR
+                $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA A TU AUTORIDAD INMEDIATA SUPERIOR; EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
             }
 
             return redirect()->back()->with("success", $mensaje);
@@ -188,14 +188,14 @@ class SolicitudCernoadeudo extends Controller
             $solicitud = Solicitudnoadeudo::find($id);
             
             // Determinar mensaje según id_tipocert:
-            // id_tipocert = 1 → AUTORIDAD INMEDIATA SUPERIOR
-            // id_tipocert = 2 → COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS
+            // id_tipocert = 1 → COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS (para jubilación, renuncia, cambio interestatal)
+            // id_tipocert = 2 → AUTORIDAD INMEDIATA SUPERIOR (para cambio de centro de trabajo)
             if ($solicitud->id_tipocert == 1) {
-                // PARA: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL (oorden=1)
-                $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA A TU AUTORIDAD INMEDIATA SUPERIOR; EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
-            } else {
-                // PARA: CAMBIO DE CENTRO DE TRABAJO (oorden=2)
+                // PARA: POR JUBILACIÓN, RENUNCIA, CAMBIO INTERESTATAL (oorden=1) → COORDINACIÓN
                 $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA EN LA COORDINACIÓN DE ADMINISTRACIÓN Y FINANZAS DE SEIEM, EN LAS OFICINAS CENTRALES DEL ORGANISMO. EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
+            } else {
+                // PARA: CAMBIO DE CENTRO DE TRABAJO (oorden=2) → AUTORIDAD INMEDIATA SUPERIOR
+                $mensaje = "DESCARGA TU OFICIO DE SOLICITUD, FIRMA Y ENTREGA A TU AUTORIDAD INMEDIATA SUPERIOR; EN EL APARTADO 14.1. DEBERÁS ADJUNTAR EL ACUSE.";
             }
 
             return redirect()->back()->with("success", $mensaje);

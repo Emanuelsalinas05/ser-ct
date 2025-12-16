@@ -366,7 +366,10 @@ class _adgIntervencionesController extends Controller
 
             // Validar permisos del usuario según la acción
             // Rol 1 (Dirección) y Rol 99 (Coordinación): Pueden crear, editar, eliminar y generar reportes
-            // Rol 2 (Subdirección/Departamento): Solo puede generar reportes (acción '7'), NO puede crear/editar/eliminar intervenciones
+            // Rol 2: 
+            //   - Todos los cargos pueden crear intervenciones (acción '9')
+            //   - Solo Subdirección y Departamento pueden generar reportes (acción '7')
+            //   - NO puede editar (acción '19') ni eliminar (acción '99') intervenciones
             $userRol = Auth::user()->orol;
             
             // Validar acceso general (solo roles administrativos)
@@ -376,10 +379,12 @@ class _adgIntervencionesController extends Controller
             }
             
             // Validar permisos específicos por acción
-            // El rol 2 solo puede realizar la acción '7' (generar reporte)
-            if ($userRol == 2 && $request->action != '7') {
+            // El rol 2 solo puede crear intervenciones (acción '9') y generar reportes (acción '7')
+            // Pero generar reportes solo está permitido para Subdirección y Departamento
+            // NO puede editar (acción '19') ni eliminar (acción '99')
+            if ($userRol == 2 && !in_array($request->action, ['9', '7'])) {
                 return redirect(url('solicitud-intervencion'))
-                    ->with('error', 'No tiene permisos para realizar esta acción. Solo puede generar reportes.');
+                    ->with('error', 'No tiene permisos para realizar esta acción. Solo puede crear intervenciones y generar reportes.');
             }
 
             // Búsqueda de organización que funcione para todos los roles (1, 2, 99)
@@ -483,6 +488,12 @@ class _adgIntervencionesController extends Controller
 
             }else if($request->action=='7'){
 
+                    // Validar que solo Subdirección y Departamento (rol 2) pueden generar reportes
+                    if (Auth::user()->orol != 2 || !in_array(Auth::user()->ocargo, ['SUBDIRECCIÓN', 'DEPARTAMENTO'])) {
+                        return redirect(url('solicitud-intervencion'))
+                            ->with('error', 'Solo Subdirección y Departamento pueden generar reportes.');
+                    }
+
                     // Validación de datos para generar reporte
                     $validated = $request->validate([
                         'ooficio' => 'required|string|max:255',
@@ -495,7 +506,8 @@ class _adgIntervencionesController extends Controller
                     }
 
                     // Obtener intervenciones del departamento antes de actualizar para contar
-                    $intervencionesPendientes = Intervencion::whereIdctDepartamento($id)->whereOfin(0)->get();
+                    // Usar $elctx (departamento/subdirección) en lugar de $id para obtener las intervenciones correctas
+                    $intervencionesPendientes = Intervencion::whereIdctDepartamento($elctx)->whereOfin(0)->get();
                     $totalIntervenciones = $intervencionesPendientes->count();
                     
                     // Generar número de oficio completo
@@ -503,7 +515,8 @@ class _adgIntervencionesController extends Controller
                     
                     // Actualizar todas las intervenciones del departamento con el mismo oficio
                     // Esto agrupa todas las entregas de esa dirección en un solo reporte
-                    $ocomisionados = Intervencion::whereIdctDepartamento($id)->whereOfin(0);
+                    // Usar $elctx (departamento/subdirección) en lugar de $id para actualizar las intervenciones correctas
+                    $ocomisionados = Intervencion::whereIdctDepartamento($elctx)->whereOfin(0);
                     $ocomisionados->update([ 
                                                 'ooficio'   => $numeroOficioCompleto,  
                                                 'ofin'      => 1 ,

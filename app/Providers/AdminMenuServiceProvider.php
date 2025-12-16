@@ -97,6 +97,14 @@ class AdminMenuServiceProvider extends ServiceProvider
             'submenu' => $submenuIntervencion,
         ]);
 
+        $event->menu->add([
+            'text' => 'Organigrama Elemental',
+            'icon' => 'fas fa-sitemap',
+            'url' => 'organigrama-elemental',
+            'classes' => self::MENU_SUCCESS,
+            'active' => ['organigrama-elemental*'],
+        ]);
+
         $this->addCertificadosMenu($event, $user);
         $this->addUsuariosMenu($event);
 

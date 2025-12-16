@@ -35,6 +35,7 @@ use App\Http\Controllers\CentrosTrabajo05Controller;
 use App\Http\Controllers\_xEstructuractController;
 use App\Http\Controllers\_xEstructuractdesController;
 use App\Http\Controllers\OrganigramaController;
+use App\Http\Controllers\OrganigramaElementalController;
 use App\Http\Controllers\RegistroActaController;
 use App\Http\Controllers\DatosCentroController;
 use App\Http\Controllers\AnexosActoController;
@@ -111,6 +112,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('centros-de-trabajo', CentrosTrabajoController::class);
     Route::resource('cts-estructura', CentrosTrabajo01Controller::class);
     Route::resource('organitation-ct', OrganigramaController::class);
+    Route::get('organigrama-elemental', [OrganigramaElementalController::class, 'index'])->name('organigrama-elemental.index');
+    Route::get('organigrama-elemental/buscar', [OrganigramaElementalController::class, 'buscar'])->name('organigrama-elemental.buscar');
     Route::resource('review-acta', ReviewAvanceacta::class);
 
     Route::get('file-export', [DatasExportController::class, 'fileExport'])->name('file-export');

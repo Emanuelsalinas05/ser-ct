@@ -32,6 +32,24 @@
         </li>
         <br>
 
+        @if(Auth::user()->orol == 1)
+        <li class=" d-flex justify-content-between align-items-center"
+            style="border:none; font-size: 12px;">
+            &nbsp;
+            <i>
+                ***AL GENERAR EL REPORTE, LOS REGISTROS LISTADOS A CONTINUACIÓN SE GUARDARAN EN UN ARCHIVO EN FORMATO PDF, 
+                DISPONIBLE PARA SU DESCARGA AQUI&nbsp;
+                <a href="{{ route('reportes-intervencion.edit', Auth::user()->id_ct ) }}"
+                    class="btn btn-outline-info btn-sm"
+                    style="font-size:12px;">
+                    VER REPORTES&nbsp;
+                    <i class="fa fa-file-export"></i>
+                </a>
+            </i>
+        </li>
+        <br>
+        @endif
+
         
         @if($intervencionesc>0)
 

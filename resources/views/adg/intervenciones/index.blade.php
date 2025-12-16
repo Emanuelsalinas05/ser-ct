@@ -80,7 +80,7 @@
                     <th>OFICIO</th>
                     <th>ENTREGA / RECIBE</th>
                     <th>MOTIVO</th>
-                    @if(Auth::user()->orol==2 && strpos(strtoupper(Auth::user()->oct ?? ''), 'ADG') !== false)<th colspan="2">EDITAR</th>@endif
+                    @if(Auth::user()->orol==1 || Auth::user()->orol==99)<th colspan="2">EDITAR</th>@endif
                 </tr>
             </thead>
             <tbody>
@@ -129,7 +129,7 @@
                         {{ $i->omotivo }}
                     </td>
 
-                    @if(Auth::user()->orol==2 && strpos(strtoupper(Auth::user()->oct ?? ''), 'ADG') !== false)
+                    @if(Auth::user()->orol==1 || Auth::user()->orol==99)
                     <td width="5%">
                         <x-adminlte-button  data-toggle="modal" 
                                     icon="fa fa-edit"

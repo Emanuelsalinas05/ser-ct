@@ -61,33 +61,51 @@ class _adgIntervencionesreportesController extends Controller
 
         }else if(Auth::user()->orol==1){
 
-            // Optimización: Consulta más eficiente con orden optimizado de condiciones WHERE
-            // Usar índices: onivel, ofin, istatus
-            $intervenciones = Intervencion::select([
-                                'idct_departamento',
-                                'oct_nivel',
-                                'onivel_educativo',
-                                'ofechafin',
-                                'ourl',
-                                'oarchivo',
-                                'ofile',
-                                'onotificado',
-                                DB::raw('date_format(ofechafin, "%d/%m/%Y") as fechaentrega')
-                            ])
-                            ->whereOnivel('ELEMENTAL')  // Primero por índice
-                            ->whereOfin(1)
-                            ->whereNotIn('istatus', ['B'])
-                            ->groupBy('idct_departamento', 'oct_nivel', 'onivel_educativo', 'ofechafin', 'ourl', 'oarchivo', 'ofile', 'onotificado')
-                            ->orderBy('ofechafin', 'DESC')
-                            ->get();
-
-            // Optimización: Usar la misma consulta base para contar
-            $intervencionesc = Intervencion::whereOnivel('ELEMENTAL')
+            // Obtener información del titular de la Dirección para identificar el prefijo del oficio
+            $getoficio = \App\Models\Ctitulares::whereIdCt(Auth::user()->id_ct)->first();
+            
+            if (!$getoficio) {
+                $intervenciones = collect();
+                $intervencionesc = 0;
+            } else {
+                $prefijoOficioDireccion = $getoficio->ooficio;
+                
+                // HISTORIAL DE REPORTES GENERADOS POR ROL 1 HACIA ROL 99 (COORDINACIÓN)
+                // Solo mostrar reportes que tienen el oficio de Dirección asignado
+                // Estos son los reportes que Rol 1 generó y envió a Coordinación
+                $intervenciones = Intervencion::select([
+                                    'idct_departamento',
+                                    'oct_nivel',
+                                    'onivel_educativo',
+                                    'ofechafin',
+                                    'ourl',
+                                    'oarchivo',
+                                    'ofile',
+                                    'onotificado',
+                                    'ooficio',
+                                    DB::raw('date_format(ofechafin, "%d/%m/%Y") as fechaentrega')
+                                ])
+                                ->whereOnivel('ELEMENTAL')
                                 ->whereOfin(1)
+                                ->whereNotNull('ooficio')
+                                ->where('ooficio', '!=', '')
+                                ->where('ooficio', 'LIKE', $prefijoOficioDireccion.'/%') // Solo oficios de Dirección
                                 ->whereNotIn('istatus', ['B'])
-                                ->select('idct_departamento', 'oct_nivel', 'onivel_educativo', 'onotificado')
-                                ->groupBy('idct_departamento', 'oct_nivel', 'onivel_educativo', 'onotificado')
-                                ->count();
+                                ->groupBy('idct_departamento', 'oct_nivel', 'onivel_educativo', 'ofechafin', 'ourl', 'oarchivo', 'ofile', 'onotificado', 'ooficio')
+                                ->orderBy('ofechafin', 'DESC')
+                                ->get();
+
+                // Contar reportes generados por Dirección
+                $intervencionesc = Intervencion::whereOnivel('ELEMENTAL')
+                                    ->whereOfin(1)
+                                    ->whereNotNull('ooficio')
+                                    ->where('ooficio', '!=', '')
+                                    ->where('ooficio', 'LIKE', $prefijoOficioDireccion.'/%') // Solo oficios de Dirección
+                                    ->whereNotIn('istatus', ['B'])
+                                    ->select('idct_departamento', 'oct_nivel', 'onivel_educativo', 'onotificado', 'ooficio')
+                                    ->groupBy('idct_departamento', 'oct_nivel', 'onivel_educativo', 'onotificado', 'ooficio')
+                                    ->count();
+            }
 
         }else if(Auth::user()->orol==99){
 

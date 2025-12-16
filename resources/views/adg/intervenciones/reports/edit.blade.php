@@ -2,13 +2,18 @@
 
 @section('title', 'REPORTES DE INTERVENCIÓN ')
 @section('content_header_title', 'Home')
-@section('content_header_subtitle', ' REPORTES DE INTERVENCIÓN ')
+@section('content_header_subtitle', ' REPORTES DE INTERVENCIÓN ' . (Auth::user()->orol == 1 ? ' - HISTORIAL DE REPORTES GENERADOS A COORDINACIÓN' : ''))
 
 @section('content')
 <div class="col-12 card card-secondary card-outline shadow">
     <div class="card-header bg-light shadow-sm d-flex mb-2">
         <div class="d-flex justify-content-between">
-            <b><i class="nav-icon fa fa-file-alt"></i>&nbsp; REPORTES DE INTERVENCIÓN</b>
+            <b><i class="nav-icon fa fa-file-alt"></i>&nbsp; 
+                REPORTES DE INTERVENCIÓN
+                @if(Auth::user()->orol == 1)
+                    <span class="text-info"> - HISTORIAL DE REPORTES GENERADOS A COORDINACIÓN</span>
+                @endif
+            </b>
         </div>
     </div>
 
@@ -18,10 +23,15 @@
                 <thead class="bg-lightblue disabled" align="center">
                     <tr>
                         <th>UNIDAD ADMINISTRATIVA</th>
+                        @if(Auth::user()->orol == 1)
+                            <th>OFICIO</th>
+                        @endif
                         <th>FECHA DEL REPORTE</th>
                         <th>FORMATO GENERADO (SIN FIRMA)</th>
                         <th>FORMATO ESCANEADO</th>
-                        <th>CANCELAR</th>
+                        @if(Auth::user()->orol == 2)
+                            <th>CANCELAR</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -29,6 +39,11 @@
                     @php($finId = \Illuminate\Support\Str::slug($i->ofechafin, '_'))
                     <tr>
                         <td width="40%">{{ $i->oct_nivel.' - '.$i->onivel_educativo }}</td>
+                        @if(Auth::user()->orol == 1)
+                            <td width="20%" align="center" style="font-size:11px;">
+                                <strong class="text-info">{{ $i->ooficio ?? 'N/A' }}</strong>
+                            </td>
+                        @endif
                         <td width="15%" align="center">{{ $i->fechaentrega }}</td>
 
                         <td width="20%" align="center">
@@ -57,21 +72,23 @@
                             @endif
                         </td>
 
-                        <td width="10%" align="center">
-                            @if($i->ofile == 0)
-                                @if(Auth::user()->ocargo=='SUBDIRECCIÓN' || Auth::user()->ocargo=='DEPARTAMENTO')
-                                    <x-adminlte-button
-                                        data-bs-toggle="modal" data-toggle="modal"
-                                        data-bs-target="#modaldedit{{ $finId }}" data-target="#modaldedit{{ $finId }}"
-                                        icon="fa fa-minus" class="bg-danger btn-xs"/>
-                                    @include('adg.intervenciones.reports.modal-edit', ['finId'=>$finId, 'i'=>$i])
+                        @if(Auth::user()->orol == 2)
+                            <td width="10%" align="center">
+                                @if($i->ofile == 0)
+                                    @if(Auth::user()->ocargo=='SUBDIRECCIÓN' || Auth::user()->ocargo=='DEPARTAMENTO')
+                                        <x-adminlte-button
+                                            data-bs-toggle="modal" data-toggle="modal"
+                                            data-bs-target="#modaldedit{{ $finId }}" data-target="#modaldedit{{ $finId }}"
+                                            icon="fa fa-minus" class="bg-danger btn-xs"/>
+                                        @include('adg.intervenciones.reports.modal-edit', ['finId'=>$finId, 'i'=>$i])
+                                    @else
+                                        <b class="text-warning" style="font-size:12px;">-----</b>
+                                    @endif
                                 @else
-                                    <b class="text-warning" style="font-size:12px;">-----</b>
+                                    <i class="text-success">ARCHIVO CARGADO</i>
                                 @endif
-                            @else
-                                <i class="text-success">ARCHIVO CARGADO</i>
-                            @endif
-                        </td>
+                            </td>
+                        @endif
                     </tr>
                 @endforeach
                 </tbody>
