@@ -29,12 +29,14 @@ class FinalizadasController extends Controller
 
     public function index()
     {
-
-            if(Auth::user()->onivel=='ELEMENTAL'){
-                $us=76;
-            }else if(Auth::user()->onivel=='SECUNDARIA'){
-                $us=89;
-            }
+        // Inicializar $us con un valor por defecto
+        $us = 76; // Valor por defecto para ELEMENTAL
+        
+        if(Auth::user()->onivel=='ELEMENTAL'){
+            $us=76;
+        }else if(Auth::user()->onivel=='SECUNDARIA'){
+            $us=89;
+        }
 
         if (Auth::user()->role_id == 3) {
             require_once 'public/controllers/entregas/finalizadas/06escuela.php';
