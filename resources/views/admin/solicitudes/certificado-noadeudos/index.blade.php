@@ -51,25 +51,38 @@
                     </td>
 
                     <td width="15%">
-                            {{ $solicitud->acta->onombre_entrega_a }}
-                            <br>
-                            <b>RFC:</b> {{ $solicitud->acta->orfc_entrega_a }}
+                            @if($solicitud->acta)
+                                {{ $solicitud->acta->onombre_entrega_a ?? 'N/A' }}
+                                <br>
+                                <b>RFC:</b> {{ $solicitud->acta->orfc_entrega_a ?? 'N/A' }}
+                            @else
+                                <span class="text-danger">Sin información de acta</span>
+                            @endif
                     </td>
 
                     <td width="20%">
-                            <b>{{ $solicitud->acta->oct_a.' - '.$solicitud->acta->elct->onombre_ct }}</b>
+                            @if($solicitud->acta && $solicitud->acta->elct)
+                                <b>{{ ($solicitud->acta->oct_a ?? '') .' - '.($solicitud->acta->elct->onombre_ct ?? 'N/A') }}</b>
+                            @else
+                                <span class="text-danger">Sin información de centro de trabajo</span>
+                            @endif
                     </td>
 
                     <td width="10%">
-                            <b>FECHA:</b> {{ $solicitud->fechaacta }}
-                            <b>HORA:</b> {{ $solicitud->ohora_acta }} HRS.
+                            <b>FECHA:</b> {{ $solicitud->fechaacta ?? 'N/A' }}
+                            <br>
+                            <b>HORA:</b> {{ $solicitud->ohora_acta ?? 'N/A' }} HRS.
                     </td>
 
 
                     <td width="25%">
-                            <b>FECHA DE SOLICITUD:</b> {{ $solicitud->fecha }}
+                            <b>FECHA DE SOLICITUD:</b> {{ $solicitud->fecha ?? 'N/A' }}
                             <br>
-                            <i>{{ '('.$solicitud->tipoceradeudo->otipo.')' }}</i>
+                            @if($solicitud->tipoceradeudo)
+                                <i>{{ '('.$solicitud->tipoceradeudo->otipo.')' }}</i>
+                            @else
+                                <i class="text-warning">(Tipo no especificado)</i>
+                            @endif
                     </td>
 
                     

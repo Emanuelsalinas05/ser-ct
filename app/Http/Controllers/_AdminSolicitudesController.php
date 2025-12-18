@@ -44,6 +44,7 @@ class _AdminSolicitudesController extends Controller
 
                 $solicitudes = Solicitudnoadeudo::select('*',  DB::raw('date_format(ofecha, "%d-%m-%Y") as fecha'), 
                                                     DB::raw('date_format(ofecha_acta, "%d-%m-%Y") as fechaacta'))
+                                ->with(['acta', 'acta.elct', 'tipoceradeudo'])
                                 ->whereIdTipocert(2)
                                 ->where('ogenerado',1) 
                                 ->where('oentregado',0)
@@ -100,6 +101,7 @@ class _AdminSolicitudesController extends Controller
 
             $solicitudes = Solicitudnoadeudo::select('*',  DB::raw('date_format(ofecha, "%d-%m-%Y") as fecha'), 
                                                 DB::raw('date_format(ofecha_acta, "%d-%m-%Y") as fechaacta'))
+                            ->with(['acta', 'acta.elct', 'tipoceradeudo'])
                             ->whereIdTipocert(2)
                             ->where('ogenerado',1) 
                             ->where('oentregado',0)
