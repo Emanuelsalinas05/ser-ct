@@ -94,14 +94,16 @@
                         {{ $solicitud->id_tipocert==2 ? $solicitud->onombre_autoridadinmediata : $solicitud->otitular_caf }}
                         <br>
                         CARGO: {{ $solicitud->id_tipocert==2 ? $solicitud->ocargo_autoridadinmediata  : 'COORDINACION DE ADMINISTRACION Y FINANZAS' }}
-                        <!--
-                            {{ $solicitud->acta->elct->omodalidad=='DPB' ? $solicitud->acta->elct->omodalidad : $solicitud->acta->elct->cct_depto}} 
+                        {{-- Código comentado usando comentarios de Blade para evitar ejecución
+                            @if($solicitud->acta && $solicitud->acta->elct)
+                                {{ $solicitud->acta->elct->omodalidad=='DPB' ? $solicitud->acta->elct->omodalidad : $solicitud->acta->elct->cct_depto}} 
                                 <a  class="btn btn-outline-success btn-xl"
                                     style="text-decoration: none; font-size:10px;" 
                                     target="_blank"> 
                                         <i class="fa fa-file-alt"></i>
                                 </a>
-                            -->
+                            @endif
+                        --}}
                     @else
                         <b class="text-warning"> EN PROCESO/CAPTURA DE INFORMACIÓN </b>
                     @endif
