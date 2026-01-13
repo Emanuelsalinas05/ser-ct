@@ -10,6 +10,7 @@ $datosacta  =   DatosActa::select(DB::raw('distinct(g1acta.id) as idd'),'g1acta.
                 ->leftJoin('g1organigrama', 'g1organigrama.idct_sector',  'id_ct')  
                 ->where('g1organigrama.idct_direccion', Auth::user()->id_ct)
                 ->where('g1acta.oconcluida',1)
+                ->with(['tipoacta', 'elct']) // Cargar relaciones necesarias para evitar N/A
                 ->OrderBy('unidad', 'ASC')
                 ->OrderBy('ofecha_fin_a', 'DESC')
                 ->OrderBy('ofecha_fin_ac', 'DESC')
@@ -24,6 +25,7 @@ $datosacta2 =   DatosActa::select(DB::raw('distinct(g1acta.id) as idd'),'g1acta.
                 ->leftJoin('g1organigrama', 'g1organigrama.idct_supervicion',  'id_ct')  
                 ->where('g1organigrama.idct_direccion', Auth::user()->id_ct)
                 ->where('g1acta.oconcluida',1)
+                ->with(['tipoacta', 'elct']) // Cargar relaciones necesarias para evitar N/A
                 ->OrderBy('unidad', 'ASC')
                 ->OrderBy('ofecha_fin_a', 'DESC')
                 ->OrderBy('ofecha_fin_ac', 'DESC')
@@ -39,6 +41,7 @@ $datosacta3 =   DatosActa::select(DB::raw('distinct(g1acta.id) as idd'),'g1acta.
                 ->leftJoin('g1organigrama', 'idct_escuela',  'id_ct')  
                 ->where('idct_direccion', Auth::user()->id_ct)
                 ->where('g1acta.oconcluida',1)
+                ->with(['tipoacta', 'elct']) // Cargar relaciones necesarias para evitar N/A
                 ->OrderBy('unidad', 'ASC')
                 ->OrderBy('ofecha_fin_a', 'DESC')
                 ->OrderBy('ofecha_fin_ac', 'DESC')

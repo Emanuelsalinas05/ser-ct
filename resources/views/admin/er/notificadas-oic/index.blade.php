@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 {{-- Customize layout sections --}}
-@section('title', 'ENTREGAS FINALIZADAS')
+@section('title', 'ENTREGAS NOTIFICADAS A OIC')
 @section('content_header_title', 'Home')
-@section('content_header_subtitle', ' ENTREGAS FINALIZADAS')
+@section('content_header_subtitle', ' ENTREGAS NOTIFICADAS A OIC')
 
 @push('js')
 <script src="{{ asset('js/table-filters.js') }}"></script>
@@ -16,9 +16,9 @@
         <div class="d-flex justify-content-between w-100 align-items-center">
             <div>
                 <h5 class="mb-0">
-                    <i class="nav-icon fa fa-check-circle text-success"></i>&nbsp;
-                    <strong>ENTREGAS FINALIZADAS</strong>
-                    <span class="badge badge-success ml-2">{{ $datosacta->total() ?? 0 }}</span>
+                    <i class="nav-icon fa fa-envelope-circle-check text-info"></i>&nbsp;
+                    <strong>ENTREGAS NOTIFICADAS A OIC</strong>
+                    <span class="badge badge-info ml-2">{{ $datosacta->total() ?? 0 }}</span>
                 </h5>
             </div>
             <div>
@@ -65,9 +65,9 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <x-adminlte-callout theme="info" icon="fas fa-info-circle">
-                    <strong><i class="fas fa-check-circle text-success"></i> Entregas Finalizadas</strong><br>
-                    <small>Esta sección muestra todas las entregas que han sido finalizadas y concluidas. Utiliza los filtros para buscar entregas específicas por tipo de acta o rango de fechas.</small>
+                <x-adminlte-callout theme="info" icon="fas fa-envelope-circle-check">
+                    <strong><i class="fas fa-info-circle text-info"></i> Entregas Notificadas a OIC</strong><br>
+                    <small>Este módulo muestra las entregas finalizadas que han sido notificadas al Órgano Interno de Control (OIC) mediante correo electrónico. Aquí puedes consultar los correos enviados por centro de trabajo y la información completa de cada entrega realizada.</small>
                 </x-adminlte-callout>
             </div>
         </div>
@@ -78,39 +78,17 @@
             <table class="table table-bordered table-striped table-sm" id="example13" style="font-size:12px;">
                 <thead class="bg-lightblue" align="center">
                     <tr>
-                        @if(Auth::user()->ocargo=='DIRECCIÓN')
-                            <th width="20%">
-                                <i class="fas fa-building"></i> UNIDAD ADMINISTRATIVA
-                            </th>
-                        @endif
                         <th>TIPO DE ACTA</th>
                         <th>CENTRO DE TRABAJO</th>
                         <th>SERVIDOR PÚBLICO RESPONSABLE</th>
                         <th>FECHA FINALIZACIÓN</th>
+                        <th>NOTIFICACIÓN OIC</th>
                         <th width="10%">ACCIÓN</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($datosacta as $acta)
                     <tr>
-                        @if(Auth::user()->ocargo=='DIRECCIÓN')
-                            <td>
-                                @if($acta->unidad && $acta->unidad != 'N/A')
-                                    <div class="d-flex align-items-start">
-                                        <i class="fas fa-building text-primary mr-2 mt-1" style="font-size: 14px;"></i>
-                                        <div class="flex-grow-1">
-                                            <div class="text-dark font-weight-bold" style="font-size: 11px; line-height: 1.4; word-wrap: break-word;">
-                                                {{ $acta->unidad }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                @else
-                                    <span class="text-muted small">
-                                        <i class="fas fa-minus-circle"></i> N/A
-                                    </span>
-                                @endif
-                            </td>
-                        @endif
                         <td>
                             <strong>{{ $acta->tipoacta->otipoacta ?? 'N/A' }}</strong>
                         </td>
@@ -141,6 +119,26 @@
                                 @endif
                             </div>
                         </td>
+                        <td>
+                            <div>
+                                @if($acta->oenviocorreooic == 1)
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-check-circle"></i> Notificado
+                                    </span><br>
+                                    <small class="text-muted">
+                                        @if($acta->updated_at)
+                                            {{ \Carbon\Carbon::parse($acta->updated_at)->format('d/m/Y H:i') }}
+                                        @else
+                                            Fecha no disponible
+                                        @endif
+                                    </small>
+                                @else
+                                    <span class="badge badge-warning">
+                                        <i class="fas fa-exclamation-triangle"></i> Pendiente
+                                    </span>
+                                @endif
+                            </div>
+                        </td>
                         <td align="center">
                             <a href="{{route('entregas-recepcion.edit', $acta->id ?? $acta->idd)}}" 
                                class="btn btn-outline-success btn-sm"
@@ -151,11 +149,11 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="{{ Auth::user()->ocargo=='DIRECCIÓN' ? '6' : '5' }}" class="text-center py-4">
+                        <td colspan="6" class="text-center py-4">
                             <div class="text-muted">
                                 <i class="fas fa-inbox fa-2x mb-2"></i><br>
-                                <strong>No hay entregas realizadas</strong><br>
-                                <small>Este centro de trabajo no tiene entregas previas registradas.</small>
+                                <strong>No hay entregas notificadas al OIC</strong><br>
+                                <small>No se encontraron entregas finalizadas que hayan sido notificadas al Órgano Interno de Control.</small>
                             </div>
                         </td>
                     </tr>
@@ -210,14 +208,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             let show = true;
             
-            // Determinar índice de columna según si hay columna de unidad administrativa
-            const hasUnidadAdmin = @json(Auth::user()->ocargo == 'DIRECCIÓN');
-            const tipoColIndex = hasUnidadAdmin ? 2 : 1;
-            const fechaColIndex = hasUnidadAdmin ? 5 : 4;
-            
             // Filtrar por tipo de acta
             if (filters.tipo_acta) {
-                const tipoCell = row.querySelector(`td:nth-child(${tipoColIndex})`);
+                const tipoCell = row.querySelector('td:nth-child(1)');
                 if (tipoCell && !tipoCell.textContent.includes(filters.tipo_acta)) {
                     show = false;
                 }
@@ -225,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Filtrar por fecha
             if (filters.fecha_desde || filters.fecha_hasta) {
-                const fechaCell = row.querySelector(`td:nth-child(${fechaColIndex})`);
+                const fechaCell = row.querySelector('td:nth-child(4)');
                 if (fechaCell) {
                     const fechaText = fechaCell.textContent;
                     const fechaMatch = fechaText.match(/(\d{4}-\d{2}-\d{2})/);
@@ -268,13 +261,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Buscar o crear mensaje de "no hay resultados"
         let noResultsMsg = table.querySelector('.no-results-message');
-        const colCount = @json(Auth::user()->ocargo == 'DIRECCIÓN' ? 6 : 5);
-        
         if (visibleRows.length === 0 && rows.length > 0) {
             if (!noResultsMsg) {
                 noResultsMsg = document.createElement('tr');
                 noResultsMsg.className = 'no-results-message';
-                noResultsMsg.innerHTML = `<td colspan="${colCount}" class="text-center py-4"><div class="text-muted"><i class="fas fa-filter fa-2x mb-2 text-warning"></i><br><strong>No hay registros que coincidan con los filtros seleccionados</strong><br><small>Intenta ajustar los filtros de fecha o tipo de acta, o limpiarlos para ver todos los registros.</small></div></td>`;
+                noResultsMsg.innerHTML = '<td colspan="6" class="text-center py-4"><div class="text-muted"><i class="fas fa-filter fa-2x mb-2 text-warning"></i><br><strong>No hay registros que coincidan con los filtros seleccionados</strong><br><small>Intenta ajustar los filtros de fecha o tipo de acta, o limpiarlos para ver todos los registros.</small></div></td>';
                 table.appendChild(noResultsMsg);
             }
         } else if (noResultsMsg) {
@@ -301,6 +292,8 @@ document.addEventListener('DOMContentLoaded', function() {
         rows.forEach(row => {
             row.style.display = '';
         });
+        
+        updateNoResultsMessage();
     };
 });
 </script>

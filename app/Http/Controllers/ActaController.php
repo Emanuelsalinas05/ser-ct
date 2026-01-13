@@ -498,27 +498,78 @@ class ActaController extends Controller
                 $actaActualizada = \App\Models\DatosActa::find($acta->id);
                 
                 if ($actaActualizada && $actaActualizada->ocargacomprimido == 1) {
-                    // Marcar acta como concluida y correo enviado (proceso completamente finalizado)
-                    \App\Models\DatosActa::whereId($acta->id)->update([
+                    // Preparar datos de actualización
+                    // IMPORTANTE: Siempre marcar como finalizada (oconcluida = 1) y notificada (oenviocorreooic = 1)
+                    // La fecha y hora se guardan usando la fecha/hora actual si no existen
+                    $fechaFinalizacion = now()->format('Y-m-d');
+                    $horaFinalizacion = now()->format('H:i');
+                    
+                    $updateData = [
                         'oenviocorreooic' => 1,
                         'oconcluida'      => 1,
-                    ]);
+                    ];
                     
-                    // Marcar avances como finalizados
-                    \App\Models\Avanceanexos::whereIdActa($acta->id)->update(['ofinalizacion' => 1]);
+                    // Guardar fecha y hora de finalización si no existen
+                    // Para actas tipo 1 (ACTA DE ENTREGA Y RECEPCIÓN)
+                    if ($actaActualizada->id_tipoacta == 1) {
+                        if (empty($actaActualizada->ofecha_fin_a)) {
+                            $updateData['ofecha_fin_a'] = $fechaFinalizacion;
+                        }
+                        if (empty($actaActualizada->ohora_fin_a)) {
+                            $updateData['ohora_fin_a'] = $horaFinalizacion;
+                        }
+                    }
+                    // Para actas tipo 2 (ACTA CIRCUNSTANCIADA)
+                    elseif ($actaActualizada->id_tipoacta == 2) {
+                        if (empty($actaActualizada->ofecha_fin_ac)) {
+                            $updateData['ofecha_fin_ac'] = $fechaFinalizacion;
+                        }
+                        if (empty($actaActualizada->ohora_fin_ac)) {
+                            $updateData['ohora_fin_ac'] = $horaFinalizacion;
+                        }
+                    }
                     
-                    // Cerrar TODAS las intervenciones activas para este centro de trabajo
-                    // Solo cuando el proceso está completamente finalizado (ZIP + correo enviado)
-                    // IMPORTANTE: Solo marcar como finalizadas las intervenciones que aún NO están finalizadas (ofin=0)
-                    // El registro vuelve al estado "Solicitud de intervención" (ofin=1)
-                    // El CCT queda bloqueado hasta que se genere una nueva solicitud de intervención
-                    \App\Models\Intervencion::where('idct_escuela', $acta->id_ct)
-                        ->where('ogenerada', 1)
-                        ->where('ofin', 0) // Solo intervenciones NO finalizadas
-                        ->whereNotIn('istatus', ['B'])
-                        ->update(['ofin' => 1]);
+                    // Marcar acta como concluida y correo enviado (proceso completamente finalizado)
+                    // Actualizar en una sola operación para asegurar integridad de datos
+                    try {
+                        \App\Models\DatosActa::whereId($acta->id)->update($updateData);
+                        
+                        // Verificar que se guardó correctamente
+                        $actaVerificada = \App\Models\DatosActa::find($acta->id);
+                        if (!$actaVerificada || $actaVerificada->oconcluida != 1 || $actaVerificada->oenviocorreooic != 1) {
+                            throw new \Exception('Error al guardar el estado de finalización del acta');
+                        }
+                        
+                        \Log::info('Acta finalizada y notificada correctamente desde ActaController', [
+                            'acta_id' => $acta->id,
+                            'id_ct' => $acta->id_ct,
+                            'fecha_fin' => $fechaFinalizacion
+                        ]);
+                        
+                        // Marcar avances como finalizados
+                        \App\Models\Avanceanexos::whereIdActa($acta->id)->update(['ofinalizacion' => 1]);
                     
-                    return redirect('entrega-recepcion')->with('success', 'SE HA ENVIADO EL ACTA DE ENTREGA Y RECEPCIÓN Y SUS ANEXOS AL ÓRGANO INTERNO DE CONTROL. SE HA CONCLUIDO EXITOSAMENTE EL ACTA DE ENTREGA Y RECEPCIÓN.');
+                        // Cerrar TODAS las intervenciones activas para este centro de trabajo
+                        // Solo cuando el proceso está completamente finalizado (ZIP + correo enviado)
+                        // IMPORTANTE: Solo marcar como finalizadas las intervenciones que aún NO están finalizadas (ofin=0)
+                        // El registro vuelve al estado "Solicitud de intervención" (ofin=1)
+                        // El CCT queda bloqueado hasta que se genere una nueva solicitud de intervención
+                        \App\Models\Intervencion::where('idct_escuela', $acta->id_ct)
+                            ->where('ogenerada', 1)
+                            ->where('ofin', 0) // Solo intervenciones NO finalizadas
+                            ->whereNotIn('istatus', ['B'])
+                            ->update(['ofin' => 1]);
+                        
+                        return redirect('entrega-recepcion')->with('success', 'SE HA ENVIADO EL ACTA DE ENTREGA Y RECEPCIÓN Y SUS ANEXOS AL ÓRGANO INTERNO DE CONTROL. SE HA CONCLUIDO EXITOSAMENTE EL ACTA DE ENTREGA Y RECEPCIÓN.');
+                    } catch (\Exception $e) {
+                        \Log::error('Error al finalizar acta desde ActaController', [
+                            'acta_id' => $acta->id,
+                            'id_ct' => $acta->id_ct,
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString()
+                        ]);
+                        return redirect('entrega-recepcion')->withErrors('Error al finalizar el acta. Por favor, contacte al administrador.');
+                    }
                 } else {
                     // El ZIP no está cargado, no se puede finalizar el proceso
                     return redirect('entrega-recepcion')->with('error', 'Debes cargar primero el archivo ZIP antes de enviar el correo.');

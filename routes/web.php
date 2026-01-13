@@ -23,6 +23,7 @@ use App\Http\Controllers\Users05supervicionController;
 use App\Http\Controllers\ActaController;
 use App\Http\Controllers\EntregasRecepcionController;
 use App\Http\Controllers\FinalizadasController;
+use App\Http\Controllers\NotificadasOICController;
 use App\Http\Controllers\EntregasRecepcionHistoricoController;
 use App\Http\Controllers\ReviewAvanceacta;
 use App\Http\Controllers\ReviewOk;
@@ -83,6 +84,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('historico-entregas-recepcion', [EntregasRecepcionHistoricoController::class, 'index'])->name('historico-entregas-recepcion');
     Route::resource('entregas-finalizadas', FinalizadasController::class);
+    Route::get('entregas-notificadas-oic', [NotificadasOICController::class, 'index'])->name('entregas-notificadas-oic');
 
     /* Consulta E-R */
     Route::resource('entregas-recepcion', EntregasRecepcionController::class);

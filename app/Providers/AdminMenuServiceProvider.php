@@ -52,22 +52,40 @@ class AdminMenuServiceProvider extends ServiceProvider
 
     private function buildAdminMenu(BuildingMenu $event, $user)
     {
+        // Obtener contadores para mejorar el diseño del menú
+        // Solo mostrar contadores donde sea útil, evitando redundancia
+        $contadorEnCurso = \App\Models\DatosActa::where('oconcluida', 0)->count();
+        $contadorNotificadas = \App\Models\DatosActa::where('oconcluida', 1)
+            ->where('oenviocorreooic', 1)
+            ->count();
+
         $event->menu->add([
             'text' => 'Entregas - Recepción',
-            'icon' => 'fas fa-file-alt',
+            'icon' => 'fas fa-clipboard-list',
             'classes' => self::MENU_PRIMARY,
             'submenu' => [
                 [
                     'text' => 'En curso',
                     'url' => 'entregas-recepcion',
-                    'icon' => 'fas fa-hourglass-half',
+                    'icon' => 'fas fa-hourglass-half text-warning',
+                    'label' => $contadorEnCurso > 0 ? $contadorEnCurso : null,
+                    'label_color' => 'warning',
                     'active' => ['entregas-recepcion*'],
                 ],
                 [
                     'text' => 'Finalizadas',
                     'url' => 'entregas-finalizadas',
-                    'icon' => 'fas fa-check-circle',
+                    'icon' => 'fas fa-check-circle text-success',
                     'active' => ['entregas-finalizadas*'],
+                ],
+                [
+                    'text' => 'Notificadas a OIC',
+                    'url' => 'entregas-notificadas-oic',
+                    'icon' => 'fas fa-envelope-circle-check',
+                    'icon_color' => 'info',
+                    'label' => $contadorNotificadas > 0 ? $contadorNotificadas : null,
+                    'label_color' => 'info',
+                    'active' => ['entregas-notificadas-oic*'],
                 ],
             ],
         ]);
@@ -80,26 +98,56 @@ class AdminMenuServiceProvider extends ServiceProvider
             ->where('id_tipoacta', 2) // Acta circunstanciada
             ->exists();
 
+        // Obtener contadores de Intervención
+        $contadorIntervencionesActivas = \App\Models\Intervencion::where('ogenerada', 1)
+            ->where('ofin', 0)
+            ->whereNotIn('istatus', ['B'])
+            ->count();
+        $contadorIntervencionesTotal = \App\Models\Intervencion::where('ogenerada', 1)
+            ->whereNotIn('istatus', ['B'])
+            ->count();
+
         // Construir submenu de Intervención
         $submenuIntervencion = [];
         
         // Solo mostrar "Solicitud de intervención" si NO hay acta circunstanciada en curso
         // Las actas circunstanciadas no requieren solicitud de intervención
         if (!$actaCircunstanciadaEnCurso) {
-            $submenuIntervencion[] = ['text' => 'Solicitud de intervención', 'url' => 'solicitud-intervencion', 'icon' => 'fas fa-file-signature', 'active' => ['solicitud-intervencion*']];
+            $submenuIntervencion[] = [
+                'text' => 'Solicitud de intervención', 
+                'url' => 'solicitud-intervencion', 
+                'icon' => 'fas fa-file-signature text-primary',
+                'label' => $contadorIntervencionesActivas > 0 ? $contadorIntervencionesActivas : null,
+                'label_color' => 'warning',
+                'active' => ['solicitud-intervencion*']
+            ];
         }
         
-        $submenuIntervencion[] = ['text' => 'Intervención DEE', 'url' => 'intervenciones-niveles', 'icon' => 'fas fa-university', 'active' => ['intervenciones-niveles*']];
-        $submenuIntervencion[] = ['text' => 'Información por niveles', 'url' => 'informacion-niveles', 'icon' => 'fas fa-info-circle', 'active' => ['informacion-niveles*']];
+        $submenuIntervencion[] = [
+            'text' => 'Intervención DEE', 
+            'url' => 'intervenciones-niveles', 
+            'icon' => 'fas fa-university text-info',
+            'active' => ['intervenciones-niveles*']
+        ];
+        $submenuIntervencion[] = [
+            'text' => 'Información por niveles', 
+            'url' => 'informacion-niveles', 
+            'icon' => 'fas fa-info-circle text-secondary',
+            'active' => ['informacion-niveles*']
+        ];
 
         $event->menu->add([
-            'text' => 'Intervención', 'icon' => 'fas fa-toolbox', 'classes' => self::MENU_WARNING,
+            'text' => 'Intervención', 
+            'icon' => 'fas fa-toolbox', 
+            'classes' => self::MENU_WARNING,
+            'label' => $contadorIntervencionesTotal > 0 ? $contadorIntervencionesTotal : null,
+            'label_color' => 'warning',
             'submenu' => $submenuIntervencion,
         ]);
 
         $event->menu->add([
             'text' => 'Organigrama Elemental',
-            'icon' => 'fas fa-sitemap',
+            'icon' => 'fas fa-sitemap text-success',
             'url' => 'organigrama-elemental',
             'classes' => self::MENU_SUCCESS,
             'active' => ['organigrama-elemental*'],
@@ -120,11 +168,29 @@ class AdminMenuServiceProvider extends ServiceProvider
     {
         $idOrigen = $user->id_ctorigen;
 
+        // Obtener contadores para el menú de revisor
+        // Solo mostrar contador en "En curso" para evitar redundancia
+        $contadorEnCurso = \App\Models\DatosActa::where('oconcluida', 0)->count();
+
         $event->menu->add([
-            'text' => 'Entregas Recepción', 'icon' => 'fas fa-clipboard-check', 'classes' => self::MENU_PRIMARY,
+            'text' => 'Entregas Recepción', 
+            'icon' => 'fas fa-clipboard-check', 
+            'classes' => self::MENU_PRIMARY,
             'submenu' => [
-                ['text' => 'En Curso', 'url' => 'entregas-recepcion', 'icon' => 'fas fa-folder-open', 'active' => ['entregas-recepcion*']],
-                ['text' => 'Finalizadas', 'url' => 'entregas-finalizadas', 'icon' => 'fas fa-check-circle', 'active' => ['entregas-finalizadas*']],
+                [
+                    'text' => 'En Curso', 
+                    'url' => 'entregas-recepcion', 
+                    'icon' => 'fas fa-hourglass-half text-warning',
+                    'label' => $contadorEnCurso > 0 ? $contadorEnCurso : null,
+                    'label_color' => 'warning',
+                    'active' => ['entregas-recepcion*']
+                ],
+                [
+                    'text' => 'Finalizadas', 
+                    'url' => 'entregas-finalizadas', 
+                    'icon' => 'fas fa-check-circle text-success',
+                    'active' => ['entregas-finalizadas*']
+                ],
             ],
         ]);
 
@@ -313,11 +379,29 @@ private function buildCoordinadorMenu(BuildingMenu $event)
 
     if ($user->orol == 99) {
         // Menú para super administradores (rol 99) - Coordinación Académica y de Operación Educativa
+        // Obtener contadores para el menú de coordinador
+        // Solo mostrar contador en "En curso" para evitar redundancia
+        $contadorEnCurso = \App\Models\DatosActa::where('oconcluida', 0)->count();
+
         $event->menu->add([
-            'text' => 'Entregas Recepción', 'icon' => 'fas fa-clipboard-check', 'classes' => self::MENU_PRIMARY,
+            'text' => 'Entregas Recepción', 
+            'icon' => 'fas fa-clipboard-check', 
+            'classes' => self::MENU_PRIMARY,
             'submenu' => [
-                ['text' => 'En Curso', 'url' => 'entregas-recepcion', 'icon' => 'fas fa-folder-open', 'active' => ['entregas-recepcion*']],
-                ['text' => 'Finalizadas', 'url' => 'entregas-finalizadas', 'icon' => 'fas fa-check-circle', 'active' => ['entregas-finalizadas*']],
+                [
+                    'text' => 'En Curso', 
+                    'url' => 'entregas-recepcion', 
+                    'icon' => 'fas fa-hourglass-half text-warning',
+                    'label' => $contadorEnCurso > 0 ? $contadorEnCurso : null,
+                    'label_color' => 'warning',
+                    'active' => ['entregas-recepcion*']
+                ],
+                [
+                    'text' => 'Finalizadas', 
+                    'url' => 'entregas-finalizadas', 
+                    'icon' => 'fas fa-check-circle text-success',
+                    'active' => ['entregas-finalizadas*']
+                ],
             ],
         ]);
 
@@ -361,32 +445,114 @@ private function buildCoordinadorMenu(BuildingMenu $event)
     {
         $submenu = [];
 
+        // Obtener contadores de Certificados No Adeudo
+        $contadorSolicitudesPendientes = \App\Models\Solicitudnoadeudo::where('ogenerado', 1)
+            ->where('oentregado', 1)
+            ->where('oadg', 0)
+            ->where('odee', 0)
+            ->where('ocaoe', 0)
+            ->where('status', '!=', 'B')
+            ->count();
+        $contadorSolicitudesAprobadas = \App\Models\Solicitudnoadeudo::where('ogenerado', 1)
+            ->where('oentregado', 1)
+            ->where('oadg', 1)
+            ->where('odee', 0)
+            ->where('ocaoe', 0)
+            ->where('status', '!=', 'B')
+            ->count();
+        $contadorCNAEmitidos = \App\Models\Certificadosnoadeudo::where('status', '!=', 'B')->count();
+
         // Configuración específica por rol
         if ($user->orol == 1) {
             // ADG (rol 1) - Ve todo el proceso
             $submenu = [
-                ['text' => 'Ver Solicitudes CNA', 'url' => 'ver-solicitudes-noadeudos', 'icon' => 'fas fa-envelope-open-text', 'active' => ['ver-solicitudes-noadeudos*']],
-                ['text' => 'Solicitudes Aprobadas', 'url' => 'solicitudes-noadeudos', 'icon' => 'fas fa-thumbs-up', 'active' => ['solicitudes-noadeudos*']],
-                ['text' => 'Gestión CNA', 'url' => 'gestion-noadeudos', 'icon' => 'fas fa-tasks', 'active' => ['gestion-noadeudos*']],
-                ['text' => 'CNA Emitidos', 'url' => 'certificados-emitidos', 'icon' => 'fas fa-paper-plane', 'active' => ['certificados-emitidos*']],
-                ['text' => 'CNA Liberados', 'url' => 'certificados-liberados', 'icon' => 'fas fa-unlock-alt', 'active' => ['certificados-liberados*']],
+                [
+                    'text' => 'Ver Solicitudes CNA', 
+                    'url' => 'ver-solicitudes-noadeudos', 
+                    'icon' => 'fas fa-envelope-open-text text-warning',
+                    'label' => $contadorSolicitudesPendientes > 0 ? $contadorSolicitudesPendientes : null,
+                    'label_color' => 'warning',
+                    'active' => ['ver-solicitudes-noadeudos*']
+                ],
+                [
+                    'text' => 'Solicitudes Aprobadas', 
+                    'url' => 'solicitudes-noadeudos', 
+                    'icon' => 'fas fa-thumbs-up text-success',
+                    'label' => $contadorSolicitudesAprobadas > 0 ? $contadorSolicitudesAprobadas : null,
+                    'label_color' => 'success',
+                    'active' => ['solicitudes-noadeudos*']
+                ],
+                [
+                    'text' => 'Gestión CNA', 
+                    'url' => 'gestion-noadeudos', 
+                    'icon' => 'fas fa-tasks text-info',
+                    'active' => ['gestion-noadeudos*']
+                ],
+                [
+                    'text' => 'CNA Emitidos', 
+                    'url' => 'certificados-emitidos', 
+                    'icon' => 'fas fa-paper-plane text-primary',
+                    'label' => $contadorCNAEmitidos > 0 ? $contadorCNAEmitidos : null,
+                    'label_color' => 'info',
+                    'active' => ['certificados-emitidos*']
+                ],
+                [
+                    'text' => 'CNA Liberados', 
+                    'url' => 'certificados-liberados', 
+                    'icon' => 'fas fa-unlock-alt text-success',
+                    'active' => ['certificados-liberados*']
+                ],
             ];
         } elseif ($user->orol == 99) {
             // Super Admin (rol 99) - Ve todo + puede aprobar
             $submenu = [
-                ['text' => 'Ver Solicitudes CNA', 'url' => 'ver-solicitudes-noadeudos', 'icon' => 'fas fa-envelope-open-text', 'active' => ['ver-solicitudes-noadeudos*']],
-                ['text' => 'Solicitudes Aprobadas', 'url' => 'solicitudes-noadeudos', 'icon' => 'fas fa-thumbs-up', 'active' => ['solicitudes-noadeudos*']],
-                ['text' => 'Gestión CNA', 'url' => 'gestion-noadeudos', 'icon' => 'fas fa-tasks', 'active' => ['gestion-noadeudos*']],
-                ['text' => 'CNA Emitidos', 'url' => 'certificados-emitidos', 'icon' => 'fas fa-paper-plane', 'active' => ['certificados-emitidos*']],
-                ['text' => 'CNA Liberados', 'url' => 'certificados-liberados', 'icon' => 'fas fa-unlock-alt', 'active' => ['certificados-liberados*']],
+                [
+                    'text' => 'Ver Solicitudes CNA', 
+                    'url' => 'ver-solicitudes-noadeudos', 
+                    'icon' => 'fas fa-envelope-open-text text-warning',
+                    'label' => $contadorSolicitudesPendientes > 0 ? $contadorSolicitudesPendientes : null,
+                    'label_color' => 'warning',
+                    'active' => ['ver-solicitudes-noadeudos*']
+                ],
+                [
+                    'text' => 'Solicitudes Aprobadas', 
+                    'url' => 'solicitudes-noadeudos', 
+                    'icon' => 'fas fa-thumbs-up text-success',
+                    'label' => $contadorSolicitudesAprobadas > 0 ? $contadorSolicitudesAprobadas : null,
+                    'label_color' => 'success',
+                    'active' => ['solicitudes-noadeudos*']
+                ],
+                [
+                    'text' => 'Gestión CNA', 
+                    'url' => 'gestion-noadeudos', 
+                    'icon' => 'fas fa-tasks text-info',
+                    'active' => ['gestion-noadeudos*']
+                ],
+                [
+                    'text' => 'CNA Emitidos', 
+                    'url' => 'certificados-emitidos', 
+                    'icon' => 'fas fa-paper-plane text-primary',
+                    'label' => $contadorCNAEmitidos > 0 ? $contadorCNAEmitidos : null,
+                    'label_color' => 'info',
+                    'active' => ['certificados-emitidos*']
+                ],
+                [
+                    'text' => 'CNA Liberados', 
+                    'url' => 'certificados-liberados', 
+                    'icon' => 'fas fa-unlock-alt text-success',
+                    'active' => ['certificados-liberados*']
+                ],
             ];
         }
 
         if (!empty($submenu)) {
+            $totalCertificados = $contadorSolicitudesPendientes + $contadorSolicitudesAprobadas + $contadorCNAEmitidos;
             $event->menu->add([
                 'text' => 'Certificados No Adeudo',
                 'icon' => 'fas fa-certificate',
                 'classes' => self::MENU_INFO,
+                'label' => $totalCertificados > 0 ? $totalCertificados : null,
+                'label_color' => 'info',
                 'submenu' => $submenu,
             ]);
         }
@@ -397,14 +563,45 @@ private function buildCoordinadorMenu(BuildingMenu $event)
         $user = Auth::user();
         $submenu = [];
 
+        // Obtener contadores de usuarios
+        $contadorUsuariosTotal = \App\Models\User::count();
+        $contadorUsuariosEscuelas = \App\Models\User::where('orol', 3)->count();
+
         // Si es Administrador (rol 1), ve todo
         if ($user->orol == 1 && $user->ocargo === 'DIRECCIÓN') {
             $submenu = [
-                ['text' => 'Subdirección', 'url' => 'usuarios-subdireccion', 'icon' => 'fas fa-user-tie', 'active' => ['usuarios-subdireccion*']],
-                ['text' => 'Departamento', 'url' => 'usuarios-departamento', 'icon' => 'fas fa-users', 'active' => ['usuarios-departamento*']],
-                ['text' => 'Sector', 'url' => 'usuarios-sector', 'icon' => 'fas fa-network-wired', 'active' => ['usuarios-sector*']],
-                ['text' => 'Supervisión', 'url' => 'usuarios-supervision', 'icon' => 'fas fa-user-check', 'active' => ['usuarios-supervision*']],
-                ['text' => 'Escuelas', 'url' => 'usuarios', 'icon' => 'fas fa-school', 'active' => ['usuarios*']],
+                [
+                    'text' => 'Subdirección', 
+                    'url' => 'usuarios-subdireccion', 
+                    'icon' => 'fas fa-user-tie text-primary',
+                    'active' => ['usuarios-subdireccion*']
+                ],
+                [
+                    'text' => 'Departamento', 
+                    'url' => 'usuarios-departamento', 
+                    'icon' => 'fas fa-users text-info',
+                    'active' => ['usuarios-departamento*']
+                ],
+                [
+                    'text' => 'Sector', 
+                    'url' => 'usuarios-sector', 
+                    'icon' => 'fas fa-network-wired text-warning',
+                    'active' => ['usuarios-sector*']
+                ],
+                [
+                    'text' => 'Supervisión', 
+                    'url' => 'usuarios-supervision', 
+                    'icon' => 'fas fa-user-check text-success',
+                    'active' => ['usuarios-supervision*']
+                ],
+                [
+                    'text' => 'Escuelas', 
+                    'url' => 'usuarios', 
+                    'icon' => 'fas fa-school text-danger',
+                    'label' => $contadorUsuariosEscuelas > 0 ? $contadorUsuariosEscuelas : null,
+                    'label_color' => 'success',
+                    'active' => ['usuarios*']
+                ],
             ];
         }
 
@@ -413,28 +610,86 @@ private function buildCoordinadorMenu(BuildingMenu $event)
             switch ($user->ocargo) {
                 case 'SUBDIRECCIÓN':
                     $submenu = [
-                        ['text' => 'Departamento', 'url' => 'usuarios-departamento', 'icon' => 'fas fa-users', 'active' => ['usuarios-departamento*']],
-                        ['text' => 'Sector', 'url' => 'usuarios-sector', 'icon' => 'fas fa-network-wired', 'active' => ['usuarios-sector*']],
-                        ['text' => 'Supervisión', 'url' => 'usuarios-supervision', 'icon' => 'fas fa-user-check', 'active' => ['usuarios-supervision*']],
-                        ['text' => 'Escuelas', 'url' => 'usuarios', 'icon' => 'fas fa-school', 'active' => ['usuarios*']],
+                        [
+                            'text' => 'Departamento', 
+                            'url' => 'usuarios-departamento', 
+                            'icon' => 'fas fa-users text-info',
+                            'active' => ['usuarios-departamento*']
+                        ],
+                        [
+                            'text' => 'Sector', 
+                            'url' => 'usuarios-sector', 
+                            'icon' => 'fas fa-network-wired text-warning',
+                            'active' => ['usuarios-sector*']
+                        ],
+                        [
+                            'text' => 'Supervisión', 
+                            'url' => 'usuarios-supervision', 
+                            'icon' => 'fas fa-user-check text-success',
+                            'active' => ['usuarios-supervision*']
+                        ],
+                        [
+                            'text' => 'Escuelas', 
+                            'url' => 'usuarios', 
+                            'icon' => 'fas fa-school text-danger',
+                            'label' => $contadorUsuariosEscuelas > 0 ? $contadorUsuariosEscuelas : null,
+                            'label_color' => 'success',
+                            'active' => ['usuarios*']
+                        ],
                     ];
                     break;
                 case 'DEPARTAMENTO':
                     $submenu = [
-                        ['text' => 'Sector', 'url' => 'usuarios-sector', 'icon' => 'fas fa-network-wired', 'active' => ['usuarios-sector*']],
-                        ['text' => 'Supervisión', 'url' => 'usuarios-supervision', 'icon' => 'fas fa-user-check', 'active' => ['usuarios-supervision*']],
-                        ['text' => 'Escuelas', 'url' => 'usuarios', 'icon' => 'fas fa-school', 'active' => ['usuarios*']],
+                        [
+                            'text' => 'Sector', 
+                            'url' => 'usuarios-sector', 
+                            'icon' => 'fas fa-network-wired text-warning',
+                            'active' => ['usuarios-sector*']
+                        ],
+                        [
+                            'text' => 'Supervisión', 
+                            'url' => 'usuarios-supervision', 
+                            'icon' => 'fas fa-user-check text-success',
+                            'active' => ['usuarios-supervision*']
+                        ],
+                        [
+                            'text' => 'Escuelas', 
+                            'url' => 'usuarios', 
+                            'icon' => 'fas fa-school text-danger',
+                            'label' => $contadorUsuariosEscuelas > 0 ? $contadorUsuariosEscuelas : null,
+                            'label_color' => 'success',
+                            'active' => ['usuarios*']
+                        ],
                     ];
                     break;
                 case 'SECTOR':
                     $submenu = [
-                        ['text' => 'Supervisión', 'url' => 'usuarios-supervision', 'icon' => 'fas fa-user-check', 'active' => ['usuarios-supervision*']],
-                        ['text' => 'Escuelas', 'url' => 'usuarios', 'icon' => 'fas fa-school', 'active' => ['usuarios*']],
+                        [
+                            'text' => 'Supervisión', 
+                            'url' => 'usuarios-supervision', 
+                            'icon' => 'fas fa-user-check text-success',
+                            'active' => ['usuarios-supervision*']
+                        ],
+                        [
+                            'text' => 'Escuelas', 
+                            'url' => 'usuarios', 
+                            'icon' => 'fas fa-school text-danger',
+                            'label' => $contadorUsuariosEscuelas > 0 ? $contadorUsuariosEscuelas : null,
+                            'label_color' => 'success',
+                            'active' => ['usuarios*']
+                        ],
                     ];
                     break;
                 case 'SUPERVISIÓN':
                     $submenu = [
-                        ['text' => 'Escuelas', 'url' => 'usuarios', 'icon' => 'fas fa-school', 'active' => ['usuarios*']],
+                        [
+                            'text' => 'Escuelas', 
+                            'url' => 'usuarios', 
+                            'icon' => 'fas fa-school text-danger',
+                            'label' => $contadorUsuariosEscuelas > 0 ? $contadorUsuariosEscuelas : null,
+                            'label_color' => 'success',
+                            'active' => ['usuarios*']
+                        ],
                     ];
                     break;
             }
@@ -446,6 +701,8 @@ private function buildCoordinadorMenu(BuildingMenu $event)
                 'text' => 'Usuarios / Perfiles',
                 'icon' => 'fas fa-users-cog',
                 'classes' => self::MENU_SUCCESS,
+                'label' => $contadorUsuariosTotal > 0 ? $contadorUsuariosTotal : null,
+                'label_color' => 'success',
                 'submenu' => $submenu,
             ]);
         }

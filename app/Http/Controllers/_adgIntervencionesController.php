@@ -32,8 +32,6 @@ class _adgIntervencionesController extends Controller
 
     public function index()
     {   
-            // Validar que solo roles administrativos (1, 2, 99) pueden acceder
-            // Rol 3 (Entregador/Escuela) NO debe acceder a este proceso
             if (Auth::user()->orol == 3) {
                 return redirect()->route('home')
                     ->with('error', 'No tiene permisos para acceder a esta sección.');
@@ -45,7 +43,6 @@ class _adgIntervencionesController extends Controller
                     ->Orwhere('idct_sector', Auth::user()->id_ct)
                     ->Orwhere('idct_supervicion', Auth::user()->id_ct)->first();
             
-            // Validar que $orga existe
             if (!$orga) {
                 return redirect()->route('home')
                     ->with('error', 'No se encontró la organización del usuario.');
@@ -67,10 +64,9 @@ class _adgIntervencionesController extends Controller
 
             
 
-            // Optimización: Consulta más eficiente de sectores
             $sectores = Organitation::select('idct_sector', 'g1organigrama.cct_sector', 'g1centros_trabajo.onombre_ct')
                             ->leftJoin('g1centros_trabajo', 'g1centros_trabajo.oclave', 'g1organigrama.cct_sector')
-                            ->whereOdireccionnivel('DIRECCION DE EDUCACION ELEMENTAL')  // Primero el filtro más restrictivo
+                            ->whereOdireccionnivel('DIRECCION DE EDUCACION ELEMENTAL')
                             ->where(function($query) {
                                 $query->where('idct_subdireccion', Auth::user()->id_ct)
                                       ->orWhere('idct_departamento', Auth::user()->id_ct);
@@ -80,10 +76,9 @@ class _adgIntervencionesController extends Controller
                             ->orderBy('g1organigrama.cct_sector', 'ASC')
                             ->get();
 
-            // Optimización: Consulta más eficiente de supervisiones
             $supervisiones = Organitation::select('idct_supervicion','g1organigrama.cct_supervision', 'g1centros_trabajo.onombre_ct')
                             ->leftJoin('g1centros_trabajo', 'g1centros_trabajo.oclave', 'g1organigrama.cct_supervision')
-                            ->whereOdireccionnivel('DIRECCION DE EDUCACION ELEMENTAL')  // Primero el filtro más restrictivo
+                            ->whereOdireccionnivel('DIRECCION DE EDUCACION ELEMENTAL')
                             ->where(function($query) {
                                 $query->where('idct_subdireccion', Auth::user()->id_ct)
                                       ->orWhere('idct_departamento', Auth::user()->id_ct)
@@ -94,10 +89,9 @@ class _adgIntervencionesController extends Controller
                             ->orderBy('g1organigrama.cct_supervision', 'ASC')
                             ->get();
             
-            // Optimización: Consulta más eficiente de escuelas
             $escuelas = Organitation::select('idct_escuela','cct_escuela', 'g1centros_trabajo.onombre_ct')
                             ->leftJoin('g1centros_trabajo', 'g1centros_trabajo.oclave', 'g1organigrama.cct_escuela')
-                            ->whereOdireccionnivel('DIRECCION DE EDUCACION ELEMENTAL')  // Primero el filtro más restrictivo
+                            ->whereOdireccionnivel('DIRECCION DE EDUCACION ELEMENTAL')
                             ->where(function($query) {
                                 $query->where('idct_subdireccion', Auth::user()->id_ct)
                                       ->orWhere('idct_departamento', Auth::user()->id_ct)
@@ -111,7 +105,6 @@ class _adgIntervencionesController extends Controller
 
             if(Auth::user()->orol==2)
             {
-                    // Optimización: Obtener las escuelas que están bajo la supervisión del usuario actual
                     $escuelasPermitidas = Organitation::where(function($query) {
                                 $query->where('idct_direccion', Auth::user()->id_ct)
                                       ->orWhere('idct_subdireccion', Auth::user()->id_ct)
@@ -125,10 +118,8 @@ class _adgIntervencionesController extends Controller
                             ->unique()
                             ->toArray();
 
-                    // Optimización: Consulta más eficiente con campos específicos y orden optimizado
-                    // Usar índices: idct_escuela, ogenerada, ofin, istatus
-                    // Incluir intervenciones no finalizadas (ofin=0) O intervenciones finalizadas (ofin=1) 
-                    // pero con proceso de entrega-recepción no completamente finalizado (ZIP no cargado O correo no enviado)
+                    // Mostrar TODAS las intervenciones como histórico (no solo las activas)
+                    // Filtrar solo las eliminadas (istatus = 'B')
                     $intervenciones = Intervencion::select([
                                         'b3adg_intervenciones.id',
                                         'b3adg_intervenciones.idct_departamento',
@@ -149,30 +140,26 @@ class _adgIntervencionesController extends Controller
                                         'b3adg_intervenciones.ogenerada',
                                         'b3adg_intervenciones.oanio',
                                         'b3adg_intervenciones.onivel',
+                                        'b3adg_intervenciones.ofin',
+                                        'b3adg_intervenciones.istatus',
                                         DB::raw('date_format(b3adg_intervenciones.ofecha_realizacion, "%d/%m/%Y") as fechacreacion'),
-                                        DB::raw('date_format(b3adg_intervenciones.ofecha_entrega, "%d/%m/%Y") as fechaentrega')
+                                        DB::raw('date_format(b3adg_intervenciones.ofecha_entrega, "%d/%m/%Y") as fechaentrega'),
+                                        // Agregar campo para identificar si está activa
+                                        DB::raw('CASE 
+                                            WHEN b3adg_intervenciones.ofin = 0 AND b3adg_intervenciones.ogenerada = 1 AND b3adg_intervenciones.istatus != "B" THEN 1 
+                                            ELSE 0 
+                                        END as activa')
                                     ])
                                     ->leftJoin('g1acta', 'g1acta.id_ct', '=', 'b3adg_intervenciones.idct_escuela')
                                     ->whereIn('b3adg_intervenciones.idct_escuela', $escuelasPermitidas)
                                     ->where('b3adg_intervenciones.ogenerada', 1)
                                     ->whereNotIn('b3adg_intervenciones.istatus', ['B'])
-                                    ->where(function($query) {
-                                        $query->where('b3adg_intervenciones.ofin', 0)
-                                              ->orWhere(function($q) {
-                                                  // Intervención concluida pero proceso no finalizado
-                                                  $q->where('b3adg_intervenciones.ofin', 1)
-                                                    ->where(function($subq) {
-                                                        $subq->whereNull('g1acta.id')
-                                                             ->orWhere('g1acta.ocargacomprimido', '!=', 1)
-                                                             ->orWhere('g1acta.oenviocorreooic', '!=', 1);
-                                                    });
-                                              });
-                                    })
+                                    // Mostrar TODAS las intervenciones (activas y finalizadas) como histórico
                                     ->orderBy('b3adg_intervenciones.ofecha_realizacion', 'DESC')
+                                    ->orderBy('b3adg_intervenciones.id', 'DESC')
                                     ->groupBy('b3adg_intervenciones.id')
                                     ->get();
 
-                    // Optimización: Usar la misma consulta base para contar
                     $intervencionesc = Intervencion::leftJoin('g1acta', function($join) {
                                         $join->on('g1acta.id_ct', '=', 'b3adg_intervenciones.idct_escuela')
                                              ->where('g1acta.oconcluida', '=', 0);
@@ -197,17 +184,14 @@ class _adgIntervencionesController extends Controller
             }else if(Auth::user()->orol==1){
 
                     $getct = Organitation::where('idct_direccion', Auth::user()->id_ct)->first();
-                    // Validar que $getct existe
                     if (!$getct) {
                         return redirect()->route('home')
                             ->with('error', 'No se encontró la organización del usuario.');
                     }
                     $elctt = $getct->idct_direccion;
 
-                    // Optimización: Consulta más eficiente con campos específicos y orden optimizado
-                    // Usar índices: onivel, ogenerada, ofin, istatus
-                    // Incluir intervenciones no finalizadas (ofin=0) O intervenciones finalizadas (ofin=1) 
-                    // pero con proceso de entrega-recepción no completamente finalizado
+                    // Mostrar TODAS las intervenciones como histórico (no solo las activas)
+                    // Filtrar solo las eliminadas (istatus = 'B')
                     $intervenciones = Intervencion::select([
                                         'b3adg_intervenciones.id',
                                         'b3adg_intervenciones.idct_departamento',
@@ -228,30 +212,26 @@ class _adgIntervencionesController extends Controller
                                         'b3adg_intervenciones.ogenerada',
                                         'b3adg_intervenciones.oanio',
                                         'b3adg_intervenciones.onivel',
+                                        'b3adg_intervenciones.ofin',
+                                        'b3adg_intervenciones.istatus',
                                         DB::raw('date_format(b3adg_intervenciones.ofecha_realizacion, "%d/%m/%Y") as fechacreacion'),
-                                        DB::raw('date_format(b3adg_intervenciones.ofecha_entrega, "%d/%m/%Y") as fechaentrega')
+                                        DB::raw('date_format(b3adg_intervenciones.ofecha_entrega, "%d/%m/%Y") as fechaentrega'),
+                                        // Agregar campo para identificar si está activa
+                                        DB::raw('CASE 
+                                            WHEN b3adg_intervenciones.ofin = 0 AND b3adg_intervenciones.ogenerada = 1 AND b3adg_intervenciones.istatus != "B" THEN 1 
+                                            ELSE 0 
+                                        END as activa')
                                     ])
                                     ->leftJoin('g1acta', 'g1acta.id_ct', '=', 'b3adg_intervenciones.idct_escuela')
                                     ->where('b3adg_intervenciones.onivel', Auth::user()->onivel)
                                     ->where('b3adg_intervenciones.ogenerada', 1)
                                     ->whereNotIn('b3adg_intervenciones.istatus', ['B'])
-                                    ->where(function($query) {
-                                        $query->where('b3adg_intervenciones.ofin', 0)
-                                              ->orWhere(function($q) {
-                                                  // Intervención concluida pero proceso no finalizado
-                                                  $q->where('b3adg_intervenciones.ofin', 1)
-                                                    ->where(function($subq) {
-                                                        $subq->whereNull('g1acta.id')
-                                                             ->orWhere('g1acta.ocargacomprimido', '!=', 1)
-                                                             ->orWhere('g1acta.oenviocorreooic', '!=', 1);
-                                                    });
-                                              });
-                                    })
+                                    // Mostrar TODAS las intervenciones (activas y finalizadas) como histórico
                                     ->orderBy('b3adg_intervenciones.ofecha_realizacion', 'DESC')
+                                    ->orderBy('b3adg_intervenciones.id', 'DESC')
                                     ->groupBy('b3adg_intervenciones.id')
                                     ->get();
 
-                    // Optimización: Usar la misma consulta base para contar
                     $intervencionesc = Intervencion::leftJoin('g1acta', function($join) {
                                         $join->on('g1acta.id_ct', '=', 'b3adg_intervenciones.idct_escuela')
                                              ->where('g1acta.oconcluida', '=', 0);
@@ -277,9 +257,6 @@ class _adgIntervencionesController extends Controller
 
                     // Coordinación Académica y de Operación Educativa (rol 99)
                     // Ve TODAS las intervenciones del nivel ELEMENTAL de TODOS los departamentos
-                    // Optimización: Consulta más eficiente con campos específicos
-                    // Incluir intervenciones no finalizadas (ofin=0) O intervenciones finalizadas (ofin=1) 
-                    // pero con proceso de entrega-recepción no completamente finalizado
                     $intervenciones = Intervencion::select([
                                         'b3adg_intervenciones.id',
                                         'b3adg_intervenciones.idct_departamento',
@@ -323,7 +300,6 @@ class _adgIntervencionesController extends Controller
                                     ->groupBy('b3adg_intervenciones.id')
                                     ->get();
 
-                    // Optimización: Usar la misma consulta base para contar
                     $intervencionesc = Intervencion::leftJoin('g1acta', function($join) {
                                         $join->on('g1acta.id_ct', '=', 'b3adg_intervenciones.idct_escuela')
                                              ->where('g1acta.oconcluida', '=', 0);
@@ -357,31 +333,19 @@ class _adgIntervencionesController extends Controller
 
     public function update(Request $request, string $id)
     {   
-            // Validar que el action existe y es válido
             $validActions = ['9', '7', '19', '99'];
             if (!$request->has('action') || !in_array($request->action, $validActions)) {
                 return redirect(url('solicitud-intervencion'))
                     ->with('error', 'Acción no válida.');
             }
 
-            // Validar permisos del usuario según la acción
-            // Rol 1 (Dirección) y Rol 99 (Coordinación): Pueden crear, editar, eliminar y generar reportes
-            // Rol 2: 
-            //   - Todos los cargos pueden crear intervenciones (acción '9')
-            //   - Solo Subdirección y Departamento pueden generar reportes (acción '7')
-            //   - NO puede editar (acción '19') ni eliminar (acción '99') intervenciones
             $userRol = Auth::user()->orol;
             
-            // Validar acceso general (solo roles administrativos)
             if (!in_array($userRol, [1, 2, 99])) {
                 return redirect(url('solicitud-intervencion'))
                     ->with('error', 'No tiene permisos para acceder a esta sección.');
             }
             
-            // Validar permisos específicos por acción
-            // El rol 2 solo puede crear intervenciones (acción '9') y generar reportes (acción '7')
-            // Pero generar reportes solo está permitido para Subdirección y Departamento
-            // NO puede editar (acción '19') ni eliminar (acción '99')
             if ($userRol == 2 && !in_array($request->action, ['9', '7'])) {
                 return redirect(url('solicitud-intervencion'))
                     ->with('error', 'No tiene permisos para realizar esta acción. Solo puede crear intervenciones y generar reportes.');
@@ -394,7 +358,6 @@ class _adgIntervencionesController extends Controller
                                 ->orWhere('idct_sector', $id)
                                 ->orWhere('idct_supervicion', $id)->first();
 
-            // Validar que $orga existe
             if (!$orga) {
                 return redirect(url('solicitud-intervencion'))
                     ->with('error', 'No se encontró la organización del usuario.');
@@ -415,7 +378,6 @@ class _adgIntervencionesController extends Controller
 
             $getoficio = Ctitulares::where('id_ct', $elctx)->first();
 
-            // Validar que $getoficio existe
             if (!$getoficio) {
                 return redirect(url('solicitud-intervencion'))
                     ->with('error', 'No se encontró el titular del nivel.');
@@ -437,20 +399,34 @@ class _adgIntervencionesController extends Controller
 
                     $getct = CentrosTrabajo::whereKcvect($request->idct_escuela)->first();
 
-                    // Validar que $getct existe
                     if (!$getct) {
                         return redirect(url('solicitud-intervencion'))
                             ->with('error', 'No se encontró el centro de trabajo seleccionado.');
                     }
 
-                    $check = Intervencion::whereIdctEscuela($request->idct_escuela)->whereOfin(0)
-                            ->whereOgenerada(1)->whereNotIn('istatus', ['B'])->first();
+                    // Verificar si existe una intervención activa para el mismo CCT
+                    // Si existe, marcar las anteriores como finalizadas antes de crear la nueva
+                    $check = Intervencion::whereIdctEscuela($request->idct_escuela)
+                            ->where('ofin', 0)
+                            ->where('ogenerada', 1)
+                            ->whereNotIn('istatus', ['B'])
+                            ->get();
 
-                    if($check)
+                    if($check->count() > 0)
                     {
-                        return redirect(url('solicitud-intervencion'))
-                                ->with("warning", "Ya existe un registro  de esta intervención");
-                    }else{
+                        // Marcar las intervenciones anteriores como finalizadas para mantener el histórico
+                        Intervencion::whereIdctEscuela($request->idct_escuela)
+                            ->where('ofin', 0)
+                            ->where('ogenerada', 1)
+                            ->whereNotIn('istatus', ['B'])
+                            ->update([
+                                'ofin' => 1,
+                                'ofechafin' => date('Y-m-d')
+                            ]);
+                    }
+                    
+                    // Crear la nueva intervención (ya no hay validación que impida crearla)
+                    {
                             // Mejorar concatenación de domicilio
                             $domicilioParts = array_filter([
                                 $getct->odomicilio,
@@ -469,9 +445,9 @@ class _adgIntervencionesController extends Controller
                                     'oclave'            => $getct->oclave,
                                     'onombrect'         => $getct->onombre_ct,
                                     'odomicilio'        => $domicilio,
-                                    'oentrega'          => $validated['oentrega'],  
-                                    'orecibe'           => $validated['orecibe'],  
-                                    'omotivo'           => $validated['omotivo'],
+                                    'oentrega'          => mb_strtoupper($validated['oentrega'], 'UTF-8'),  
+                                    'orecibe'           => mb_strtoupper($validated['orecibe'], 'UTF-8'),  
+                                    'omotivo'           => mb_strtoupper($validated['omotivo'], 'UTF-8'),
                                     'ofecha_entrega'    => $validated['ofecha_entrega'],
                                     'ohora_entrega'     => $validated['ohora_entrega'],
                                     'ogenerada'         => 1,
@@ -488,7 +464,6 @@ class _adgIntervencionesController extends Controller
 
             }else if($request->action=='7'){
 
-                    // Validar que solo Subdirección y Departamento (rol 2) pueden generar reportes
                     if (Auth::user()->orol != 2 || !in_array(Auth::user()->ocargo, ['SUBDIRECCIÓN', 'DEPARTAMENTO'])) {
                         return redirect(url('solicitud-intervencion'))
                             ->with('error', 'Solo Subdirección y Departamento pueden generar reportes.');
@@ -499,7 +474,6 @@ class _adgIntervencionesController extends Controller
                         'ooficio' => 'required|string|max:255',
                     ]);
 
-                    // Validar que $getoficio existe
                     if (!$getoficio) {
                         return redirect(url('solicitud-intervencion'))
                             ->with('error', 'No se encontró el titular del nivel.');
@@ -576,9 +550,9 @@ class _adgIntervencionesController extends Controller
                                             'otitular_nivel'    => $validated['otitular_nivel'],
                                             'ofecha_realizacion'=> date('Y-m-d'),
                                             'ooficio'           => $validated['ooficio'] ?? null,  
-                                            'oentrega'          => $validated['oentrega'],  
-                                            'orecibe'           => $validated['orecibe'],  
-                                            'omotivo'           => $validated['omotivo'],
+                                            'oentrega'          => mb_strtoupper($validated['oentrega'], 'UTF-8'),  
+                                            'orecibe'           => mb_strtoupper($validated['orecibe'], 'UTF-8'),  
+                                            'omotivo'           => mb_strtoupper($validated['omotivo'], 'UTF-8'),
                                             'ofecha_entrega'    => $validated['ofecha_entrega'],
                                             'ohora_entrega'     => $validated['ohora_entrega'], 
                                             ]);

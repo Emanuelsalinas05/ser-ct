@@ -43,16 +43,33 @@ class EntregasRecepcionController extends Controller
         if ($user->orol == 1 || $user->orol == 99) {
             \Log::info('Usuario con orol=' . $user->orol . ' accediendo a entregas-recepcion: ' . $user->name . ' - ocargo: ' . $user->ocargo);
             
-            // Para usuarios con orol 1 o 99, consulta optimizada para evitar timeouts
-            $datosacta = DatosActa::select('g1acta.*')
-                    ->orderBy('g1acta.created_at', 'DESC')
-                    ->get();
+            // Para usuarios con orol 1 o 99, consulta optimizada con paginación para evitar timeouts
+            // Filtrar solo actas en proceso (oconcluida = 0) y cargar relaciones necesarias
+            // Calcular unidad administrativa usando organigrama
+            // Ordenar: primero las que tienen fecha de inicio (más recientes primero), luego las que no tienen fecha
+            $datosacta = DatosActa::select(
+                        DB::raw('distinct(g1acta.id) as idd'), 
+                        'g1acta.*',
+                        'g1organigrama.idct_subdireccion',
+                        'g1organigrama.idct_departamento',
+                        DB::raw('CASE 
+                                    WHEN g1organigrama.idct_departamento=0 OR g1organigrama.idct_departamento IS NULL
+                                    THEN (SELECT CONCAT(oclave," - ",onombre_ct) FROM g1centros_trabajo WHERE kcvect=g1organigrama.idct_subdireccion LIMIT 1)
+                                    ELSE (SELECT CONCAT(oclave," - ",onombre_ct) FROM g1centros_trabajo WHERE kcvect=g1organigrama.idct_departamento LIMIT 1)
+                                END AS unidad')
+                    )
+                    ->leftJoin('g1organigrama', 'g1organigrama.idct_escuela', 'g1acta.id_ct')
+                    ->where('g1acta.oconcluida', 0) // Solo actas en proceso
+                    ->with(['tipoacta', 'elct']) // Cargar relaciones necesarias
+                    ->orderByRaw('CASE WHEN g1acta.ofecha_inicio_a IS NOT NULL THEN 0 WHEN g1acta.ofecha_inicio_ac IS NOT NULL THEN 0 ELSE 1 END')
+                    ->orderByRaw('COALESCE(g1acta.ofecha_inicio_a, g1acta.ofecha_inicio_ac, g1acta.created_at) DESC')
+                    ->paginate(20);
 
             // Variables vacías para compatibilidad con la vista
             $datosacta2 = collect();
             $datosacta3 = collect();
 
-            \Log::info('Usuario con orol=' . $user->orol . ' - Total de entregas encontradas: ' . $datosacta->count());
+            \Log::info('Usuario con orol=' . $user->orol . ' - Total de entregas en proceso encontradas: ' . $datosacta->count());
             
             return view('admin.er.index-improved', compact('datosacta', 'datosacta2', 'datosacta3', 'us'));
         }
@@ -96,7 +113,6 @@ class EntregasRecepcionController extends Controller
 
     require_once $path;
 
-    // TODO: ajusta al nombre real de la función dentro de correos.php
     if (!function_exists('enviar_intervencion_elemental')) {
         return back()->with('error', 'La función enviar_intervencion_elemental no existe en correos.php.');
     }
@@ -354,17 +370,90 @@ class EntregasRecepcionController extends Controller
                 return redirect()->back()->withErrors("Centro de trabajo no encontrado.");
             }
 
-            $update_acta = DatosActa::whereId($request->idacta);
-            $update_acta->update(['oconcluida' => 1,]);
+            // Preparar datos de actualización
+            // IMPORTANTE: Siempre marcar como finalizada (oconcluida = 1) cuando se ejecuta esta acción
+            // La fecha y hora se guardan usando la fecha/hora actual si no existen
+            $fechaFinalizacion = now()->format('Y-m-d');
+            $horaFinalizacion = now()->format('H:i');
+            
+            // SIEMPRE marcar como finalizada - esto previene inconsistencias
+            $updateData = ['oconcluida' => 1];
+            
+            // Guardar fecha y hora de finalización si no existen
+            // Para actas tipo 1 (ACTA DE ENTREGA Y RECEPCIÓN)
+            if ($acta->id_tipoacta == 1) {
+                if (empty($acta->ofecha_fin_a)) {
+                    $updateData['ofecha_fin_a'] = $fechaFinalizacion;
+                }
+                if (empty($acta->ohora_fin_a)) {
+                    $updateData['ohora_fin_a'] = $horaFinalizacion;
+                }
+            }
+            // Para actas tipo 2 (ACTA CIRCUNSTANCIADA)
+            elseif ($acta->id_tipoacta == 2) {
+                if (empty($acta->ofecha_fin_ac)) {
+                    $updateData['ofecha_fin_ac'] = $fechaFinalizacion;
+                }
+                if (empty($acta->ohora_fin_ac)) {
+                    $updateData['ohora_fin_ac'] = $horaFinalizacion;
+                }
+            }
 
-            $update_avances = Avanceanexos::whereIdActa($request->idacta);
-            $update_avances->update(['ofinalizacion' => 1,]);
+            // Actualizar el acta con todos los datos de finalización en una sola operación
+            // Esto asegura la integridad de los datos
+            try {
+                $update_acta = DatosActa::whereId($request->idacta);
+                $update_acta->update($updateData);
+                
+                // Verificar que se guardó correctamente
+                $actaVerificada = DatosActa::find($request->idacta);
+                if (!$actaVerificada || $actaVerificada->oconcluida != 1) {
+                    throw new \Exception('Error al guardar el estado de finalización del acta');
+                }
+                
+                \Log::info('Acta finalizada correctamente', [
+                    'acta_id' => $request->idacta,
+                    'id_ct' => $ct->kcvect,
+                    'fecha_fin' => $fechaFinalizacion
+                ]);
 
-            // Enviar correo cuando se finaliza la entrega-recepción
-            $this->enviarCorreoFinalizacion($request->idacta, $request);
+                // Actualizar avances
+                $update_avances = Avanceanexos::whereIdActa($request->idacta);
+                $update_avances->update(['ofinalizacion' => 1]);
 
-            return redirect()->back()
-                ->with('success', 'Se finalizó esta entrega-recepción de: '.$ct->oclave.' - '.$ct->onombre_ct);
+                // Enviar correo cuando se finaliza la entrega-recepción
+                // Verificar que el correo se envió correctamente
+                $correoEnviado = $this->enviarCorreoFinalizacion($request->idacta, $request);
+                
+                if ($correoEnviado) {
+                    // Marcar que se envió el correo a OIC
+                    $update_acta->update(['oenviocorreooic' => 1]);
+                    
+                    \Log::info('Correo de finalización enviado correctamente', [
+                        'acta_id' => $request->idacta,
+                        'id_ct' => $ct->kcvect
+                    ]);
+                    
+                    return redirect()->back()
+                        ->with('success', 'Se finalizó esta entrega-recepción de: '.$ct->oclave.' - '.$ct->onombre_ct.'. Se envió la notificación por correo correctamente.');
+                } else {
+                    \Log::warning('Entrega-recepción finalizada pero correo no enviado', [
+                        'acta_id' => $request->idacta,
+                        'id_ct' => $ct->kcvect
+                    ]);
+                    return redirect()->back()
+                        ->with('warning', 'Se finalizó esta entrega-recepción de: '.$ct->oclave.' - '.$ct->onombre_ct.', pero hubo un problema al enviar la notificación por correo. Por favor, contacte al administrador.');
+                }
+            } catch (\Exception $e) {
+                \Log::error('Error al finalizar acta', [
+                    'acta_id' => $request->idacta,
+                    'id_ct' => $ct->kcvect,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return redirect()->back()
+                    ->withErrors('Error al finalizar la entrega-recepción. Por favor, contacte al administrador.');
+            }
 
         }else if($request->action=='9'){
 
@@ -412,6 +501,18 @@ class EntregasRecepcionController extends Controller
                 \Log::error('Acta no encontrada', ['acta_id' => $actaId]);
                 return false;
             }
+            
+            // Verificar si ya se envió correo de finalización (evitar duplicados)
+            // Buscar en logs o en base de datos si hay un registro de envío previo
+            // Por ahora, verificamos si el acta ya tiene oconcluida=1 y oenviocorreooic=1
+            if ($acta->oconcluida == 1 && $acta->oenviocorreooic == 1) {
+                \Log::warning('Correo de finalización ya enviado previamente', [
+                    'acta_id' => $actaId,
+                    'id_ct' => $acta->id_ct
+                ]);
+                // Retornar true porque el correo ya fue enviado (no es un error)
+                return true;
+            }
 
             // Obtener datos del centro de trabajo
             $ct = CentrosTrabajo::whereKcvect($acta->id_ct)->first();
@@ -447,7 +548,14 @@ class EntregasRecepcionController extends Controller
             // Variables para el correo
             $request->onombre_solicitante = $usuario->name ?? 'Usuario';
             $request->tipo_proceso = 'FINALIZACIÓN ENTREGA-RECEPCIÓN';
-            $request->fecha_finalizacion = date('Y-m-d');
+            
+            // Usar la fecha de finalización guardada en la base de datos
+            if ($acta->id_tipoacta == 1) {
+                $request->fecha_finalizacion = $acta->ofecha_fin_a ?? now()->format('Y-m-d');
+            } else {
+                $request->fecha_finalizacion = $acta->ofecha_fin_ac ?? now()->format('Y-m-d');
+            }
+            
             $request->id_ct = $acta->id_ct;
             $request->acta_id = $actaId;
 
